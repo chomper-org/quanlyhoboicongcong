@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ Thống Quản Lý Hồ Bơi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .pool-card img { height: 200px; object-fit: cover; }
+        .price { color: #d63384; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">🏊‍♂️ Pool Manager</a>
+        <div class="d-flex">
+            <a href="/admin" class="btn btn-light text-primary fw-bold">Đăng nhập Admin</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 class="text-center mb-4 text-uppercase fw-bold text-secondary">Danh Sách Hồ Bơi</h2>
+    
+    <div class="row">
+        {% for ho in danh_sach_ho %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm pool-card">
+                {% if ho.hinh_anh %}
+                    <img src="{{ ho.hinh_anh.url }}" class="card-img-top" alt="{{ ho.ten_ho }}">
+                {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                        Chưa có ảnh
+                    </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ ho.ten_ho }}</h5>
+                    <p class="card-text text-muted"><small>📍 {{ ho.dia_chi }}</small></p>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Độ sâu: <strong>{{ ho.do_sau }}m</strong></span>
+                        <span>Sức chứa: <strong>{{ ho.suc_chua }}</strong></span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="price">{{ ho.gia_ve_nguoi_lon }}đ <small class="text-muted">/người lớn</small></div>
+                            <small>{{ ho.gia_ve_tre_em }}đ /trẻ em</small>
+                        </div>
+                        <span class="badge {% if ho.trang_thai == 'MO' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ ho.get_trang_thai_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h4 class="text-muted">Chưa có hồ bơi nào trong hệ thống.</h4>
+            <p>Hãy vào trang Admin để thêm dữ liệu nhé!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>
