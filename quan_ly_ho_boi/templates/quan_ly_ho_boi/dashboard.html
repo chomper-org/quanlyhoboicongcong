@@ -1,0 +1,31 @@
+{% extends 'quan_ly_ho_boi/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Tổng quan hệ thống</h2>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Tổng số Hồ bơi</h5>
+                <h1 class="display-4 fw-bold">{{ tong_ho_boi }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Đang mở cửa</h5>
+                <h1 class="display-4 fw-bold">{{ ho_dang_mo }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Lượt đặt vé</h5>
+                <h1 class="display-4 fw-bold">{{ tong_ve_dat }}</h1>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

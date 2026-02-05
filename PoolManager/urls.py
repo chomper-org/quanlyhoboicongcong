@@ -18,13 +18,17 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from quan_ly_ho_boi.views import trang_chu  # Import view vừa tạo
+# Import các view mới
+from quan_ly_ho_boi.views import trang_chu, dashboard, ban_do, quan_ly_danh_sach, xoa_ho_boi
 
-urlpatterns = [
+urlpatterns = [ # type: ignore
     path('admin/', admin.site.urls),
-    path('', trang_chu, name='home'),  # Đường dẫn gốc (Trang chủ)
+    path('', trang_chu, name='home'),
+    path('dashboard/', dashboard, name='dashboard'),
+    path('map/', ban_do, name='map'),
+    path('quan-ly/', quan_ly_danh_sach, name='quan_ly'),
+    path('quan-ly/xoa/<int:ho_boi_id>/', xoa_ho_boi, name='xoa_ho_boi'),
 ]
 
-# Cấu hình để hiển thị ảnh upload
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # type: ignore

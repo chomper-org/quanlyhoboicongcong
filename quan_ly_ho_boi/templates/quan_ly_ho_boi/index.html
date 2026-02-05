@@ -1,68 +1,232 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Hệ Thống Quản Lý Hồ Bơi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .pool-card img { height: 200px; object-fit: cover; }
-        .price { color: #d63384; font-weight: bold; }
-    </style>
-</head>
-<body class="bg-light">
+{% extends 'quan_ly_ho_boi/base.html' %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">🏊‍♂️ Pool Manager</a>
-        <div class="d-flex">
-            <a href="/admin" class="btn btn-light text-primary fw-bold">Đăng nhập Admin</a>
-        </div>
-    </div>
-</nav>
-
-<div class="container">
-    <h2 class="text-center mb-4 text-uppercase fw-bold text-secondary">Danh Sách Hồ Bơi</h2>
+{% block extra_css %}
+<style>
+    /* CSS MỚI: Phong cách kỹ thuật/Quản lý */
+    .hero-section {
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        margin-bottom: 0; /* Bỏ margin để nối liền phần dưới */
+    }
     
-    <div class="row">
-        {% for ho in danh_sach_ho %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm pool-card">
-                {% if ho.hinh_anh %}
-                    <img src="{{ ho.hinh_anh.url }}" class="card-img-top" alt="{{ ho.ten_ho }}">
-                {% else %}
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
-                        Chưa có ảnh
-                    </div>
-                {% endif %}
-                
-                <div class="card-body">
-                    <h5 class="card-title text-primary">{{ ho.ten_ho }}</h5>
-                    <p class="card-text text-muted"><small>📍 {{ ho.dia_chi }}</small></p>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Độ sâu: <strong>{{ ho.do_sau }}m</strong></span>
-                        <span>Sức chứa: <strong>{{ ho.suc_chua }}</strong></span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="price">{{ ho.gia_ve_nguoi_lon }}đ <small class="text-muted">/người lớn</small></div>
-                            <small>{{ ho.gia_ve_tre_em }}đ /trẻ em</small>
-                        </div>
-                        <span class="badge {% if ho.trang_thai == 'MO' %}bg-success{% else %}bg-danger{% endif %}">
-                            {{ ho.get_trang_thai_display }}
-                        </span>
-                    </div>
-                </div>
+    .hero-title {
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+    }
+
+    .hero-desc {
+        max-width: 800px;
+        margin: 0 auto;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+
+    /* Phần Mục tiêu */
+    .objective-section {
+        background-color: #f8f9fa;
+        padding: 60px 0;
+    }
+    
+    .obj-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 5px solid #0d6efd; /* Điểm nhấn màu xanh */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        height: 100%;
+        transition: transform 0.2s;
+    }
+    .obj-card:hover {
+        transform: translateX(5px);
+    }
+
+    /* Phần Chức năng (Icon to) */
+    .feature-section {
+        padding: 80px 0;
+    }
+    
+    .feature-box {
+        text-align: center;
+        padding: 30px;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+    .feature-box:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-color: transparent;
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background-color: #e7f1ff;
+        color: #0d6efd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px auto;
+        font-size: 2rem;
+    }
+    
+    /* Màu riêng cho từng chức năng */
+    .icon-map { background-color: #e7f1ff; color: #0d6efd; }
+    .icon-manage { background-color: #e0f8e9; color: #198754; }
+    .icon-alert { background-color: #fff3cd; color: #ffc107; }
+    .icon-rescue { background-color: #f8d7da; color: #dc3545; }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 50px;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #495057;
+        position: relative;
+    }
+    .section-header::after {
+        content: "";
+        width: 50px;
+        height: 3px;
+        background: #0d6efd;
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* Footer text section */
+    .footer-note {
+        background-color: #212529;
+        color: #adb5bd;
+        padding: 40px 0;
+        text-align: center;
+        font-style: italic;
+        border-top: 5px solid #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid p-0">
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-5 hero-title">Hệ thống Quản lý Hồ bơi Công cộng WebGIS</h1>
+            <p class="hero-desc">
+                Hệ thống được xây dựng nhằm hỗ trợ công tác quản lý hồ bơi công cộng thông qua công nghệ <strong>WebGIS</strong>. 
+                Người quản lý có thể theo dõi vị trí, cập nhật thông tin hồ, ghi nhận sự cố và giám sát an toàn trực tiếp trên bản đồ số.
+            </p>
+            <div class="mt-4">
+                <a href="{% url 'map' %}" class="btn btn-primary btn-lg px-4 me-2 rounded-pill"><i class="fa-solid fa-map-location-dot"></i> Truy cập Bản đồ</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-lg px-4 rounded-pill"><i class="fa-solid fa-chart-line"></i> Xem Thống kê</a>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <h4 class="text-muted">Chưa có hồ bơi nào trong hệ thống.</h4>
-            <p>Hãy vào trang Admin để thêm dữ liệu nhé!</p>
-        </div>
-        {% endfor %}
     </div>
 </div>
 
-</body>
-</html>
+<section class="objective-section">
+    <div class="container">
+        <h3 class="section-header mb-5">Mục Tiêu Hệ Thống</h3>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="obj-card">
+                    <h5 class="fw-bold mb-2"><i class="fa-solid fa-database text-primary me-2"></i> Số hóa dữ liệu</h5>
+                    <p class="text-muted mb-0 small">Số hóa toàn bộ dữ liệu vị trí và thuộc tính hồ bơi lên nền tảng số.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="obj-card">
+                    <h5 class="fw-bold mb-2"><i class="fa-solid fa-sitemap text-primary me-2"></i> Quản lý tập trung</h5>
+                    <p class="text-muted mb-0 small">Hỗ trợ công tác quản lý thống nhất từ một trung tâm điều hành.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="obj-card">
+                    <h5 class="fw-bold mb-2"><i class="fa-solid fa-shield-halved text-primary me-2"></i> An toàn sử dụng</h5>
+                    <p class="text-muted mb-0 small">Nâng cao tiêu chuẩn an toàn cho người dân khi sử dụng dịch vụ.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="obj-card">
+                    <h5 class="fw-bold mb-2"><i class="fa-solid fa-bolt text-primary me-2"></i> Xử lý nhanh</h5>
+                    <p class="text-muted mb-0 small">Cung cấp công cụ theo dõi và phản ứng sự cố tức thời.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="feature-section container">
+    <h3 class="section-header">Chức Năng Chính</h3>
+    <div class="row g-4 mt-2">
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="feature-icon icon-map">
+                    <i class="fa-solid fa-map"></i>
+                </div>
+                <h5 class="fw-bold">Bản đồ hồ bơi</h5>
+                <p class="text-muted">Hiển thị trực quan vị trí tất cả hồ bơi công cộng trên nền bản đồ tương tác (WebGIS).</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="feature-icon icon-manage">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <h5 class="fw-bold">Quản lý hồ</h5>
+                <p class="text-muted">Cung cấp công cụ Thêm, Sửa, Xóa và cập nhật thuộc tính hồ bơi theo thời gian thực.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="feature-icon icon-alert">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h5 class="fw-bold">Ghi nhận sự cố</h5>
+                <p class="text-muted">Đánh dấu vị trí, phân loại và lưu trữ lịch sử các sự cố xảy ra tại từng điểm.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-box">
+                <div class="feature-icon icon-rescue">
+                    <i class="fa-solid fa-life-ring"></i>
+                </div>
+                <h5 class="fw-bold">Theo dõi cứu hộ</h5>
+                <p class="text-muted">Giám sát vị trí và trạng thái hoạt động của nhân viên cứu hộ trên bản đồ.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5">
+    <hr>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-secondary fw-bold">Dữ liệu hiện có trong hệ thống</h5>
+        <a href="{% url 'quan_ly' %}" class="btn btn-sm btn-outline-secondary">Xem chi tiết</a>
+    </div>
+    <div class="row">
+        {% for ho in danh_sach_ho|slice:":4" %} <div class="col-6 col-md-3">
+            <div class="border rounded p-2 text-center bg-light">
+                <strong>{{ ho.ten_ho }}</strong><br>
+                <small class="text-muted">{{ ho.get_trang_thai_display }}</small>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-muted small text-center">Chưa có dữ liệu hồ bơi.</div>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="footer-note">
+    <div class="container">
+        <p class="mb-0">"Hệ thống được phát triển phục vụ nghiên cứu và ứng dụng công nghệ GIS trong quản lý cơ sở hạ tầng công cộng."</p>
+    </div>
+</div>
+
+{% endblock %}
