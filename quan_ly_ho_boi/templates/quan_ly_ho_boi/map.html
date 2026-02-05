@@ -1,6 +1,7 @@
 {% extends 'quan_ly_ho_boi/base.html' %}
 
 {% block content %}
+<div id="map" style="height: 600px;"></div>
 <h2 class="mb-3">Bản đồ Phân bố Hồ bơi (GIS)</h2>
 <div class="card shadow-sm">
     <div class="card-body p-0">
@@ -14,3 +15,47 @@
     </div>
 </div>
 {% endblock %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var map = L.map('map').setView([16.47, 107.59], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+    var overlayLayers = {};
+    var layerControl = L.control.layers(null, overlayLayers).addTo(map);
+    var poolLayer = L.geoJSON(null, {
+        onEachFeature: function(feature, layer) {
+            layer.bindPopup(
+                "<b>" + feature.properties.name + "</b><br>" +
+                "Trạng thái: " + feature.properties.status
+            );
+        }
+    }).addTo(map);
+    overlayLayers["Hồ bơi"] = poolLayer;
+    layerControl.addOverlay(poolLayer, "Hồ bơi");
+    map.on('click', function(e) {
+        var name = prompt("Tên hồ bơi?");
+        if(!name) return;
+        var feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [e.latlng.lng, e.latlng.lat]
+            },
+            "properties": {
+                "name": name,
+                "status": "Hoạt động"
+            }
+        };
+        poolLayer.addData(feature);
+});});
+map.on('contextmenu', function(e) {
+        var note = prompt("Mô tả sự cố:");
+        if(!note) return;
+        L.marker(e.latlng).addTo(map)
+            .bindPopup("<b>Sự cố:</b><br>" + note)
+            .openPopup();
+    });
+</script>
