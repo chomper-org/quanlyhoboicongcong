@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from quan_ly_ho_boi import views
 # Import các view mới
 from quan_ly_ho_boi.views import trang_chu, dashboard, ban_do, quan_ly_danh_sach, xoa_ho_boi
 
@@ -28,6 +29,8 @@ urlpatterns = [ # type: ignore
     path('map/', ban_do, name='map'),
     path('quan-ly/', quan_ly_danh_sach, name='quan_ly'),
     path('quan-ly/xoa/<int:ho_boi_id>/', xoa_ho_boi, name='xoa_ho_boi'),
+    path('luu-ho-boi/', views.luu_ho_boi, name='luu_ho_boi'),
+    path('api/get-pools/', views.get_pools, name='get_pools'),
 ]
 
 if settings.DEBUG:
