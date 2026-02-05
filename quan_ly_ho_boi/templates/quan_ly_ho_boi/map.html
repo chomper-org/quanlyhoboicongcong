@@ -56,15 +56,6 @@
         }
         map.on('locationfound', onLocationFound);
         map.on('locationerror', onLocationError);
-        var measureControl = new L.Control.Measure({
-        position: 'topright',
-        primaryLengthUnit: 'meters',
-        localization: 'en',
-        popupOptions: {
-            autoPan: false
-            } 
-        });
-        measureControl.addTo(map);
     });
     function searchPool() {
         var input = document.getElementById('searchBox').value.toLowerCase();
