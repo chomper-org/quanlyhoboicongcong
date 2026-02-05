@@ -64,15 +64,7 @@
             completedColor: '#8b2ce6',
             localization: 'en'
         });
-        measureControl.addTo(map);
-        poolLayer = L.geoJSON(null, {
-            onEachFeature: function(feature, layer) {
-                layer.bindPopup(
-                    "<b>" + feature.properties.name + "</b><br>" +
-                    "Trạng thái: " + feature.properties.status
-                );
-            }
-        }).addTo(map);
+        
     });
     function searchPool() {
         var input = document.getElementById('searchBox').value.toLowerCase();
