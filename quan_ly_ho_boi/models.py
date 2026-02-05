@@ -15,6 +15,8 @@ class HoBoi(models.Model):
     dia_chi = models.TextField(verbose_name="Địa chỉ")
     do_sau = models.FloatField(help_text="Độ sâu tính bằng mét", verbose_name="Độ sâu (m)")
     suc_chua = models.IntegerField(verbose_name="Sức chứa tối đa")
+    vi_do = models.FloatField(null=True, blank=True, verbose_name="Vĩ độ")
+    kinh_do = models.FloatField(null=True, blank=True, verbose_name="Kinh độ")
     
     # 3. Sửa lỗi Decimal: Bọc số tiền trong Decimal()
     gia_ve_nguoi_lon = models.DecimalField(max_digits=10, decimal_places=0, default=Decimal('50000'), verbose_name="Giá vé người lớn")

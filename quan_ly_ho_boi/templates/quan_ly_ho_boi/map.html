@@ -74,21 +74,41 @@
         if (!currentMousePos) return;
         const key = e.key.toLowerCase();
         if (key === 't') {
-        var name = prompt("Nhập tên hồ bơi mới tại vị trí chuột:");
-        if (!name) return;
-
-        var feature = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [currentMousePos.lng, currentMousePos.lat]
-            },
-            "properties": {
-                "name": name,
-                "status": "Hoạt động"
+        var name = prompt("Nhập tên hồ bơi mới:");
+        if (name) {
+                fetch('/luu-ho-boi/', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') 
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        lat: currentMousePos.lat,
+                        lng: currentMousePos.lng
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        L.marker([currentMousePos.lat, currentMousePos.lng])
+                         .addTo(poolLayer)
+                         .bindPopup("<b>" + name + "</b><br>Đã lưu vào hệ thống!")
+                         .openPopup();
+                    } else {
+                        alert("Lỗi: " + data.message);
+                    }
+                    })
+                .catch(error => console.error('Lỗi fetch:', error));
             }
-        };
-        poolLayer.addData(feature);
+        }
+        if (key === 'y') {
+            var note = prompt("Mô tả sự cố:");
+            if (note) {
+                L.marker(currentMousePos, {icon: redIcon}).addTo(map)
+                 .bindPopup("<b>Sự cố:</b> " + note).openPopup();
+            }
+        }
     }
     if (key === 'y') {
         var note = prompt("Mô tả sự cố tại vị trí chuột:");
