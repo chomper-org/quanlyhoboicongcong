@@ -57,14 +57,14 @@
         map.on('locationfound', onLocationFound);
         map.on('locationerror', onLocationError);
         var measureControl = new L.Control.Measure({
-            position: 'topright',
-            primaryLengthUnit: 'meters',
-            primaryAreaUnit: 'sqmeters',
-            activeColor: '#db4a44',
-            completedColor: '#8b2ce6',
-            localization: 'en'
+        position: 'topright',
+        primaryLengthUnit: 'meters',
+        localization: 'en',
+        popupOptions: {
+            autoPan: false
+            } 
         });
-        
+        measureControl.addTo(map);
     });
     function searchPool() {
         var input = document.getElementById('searchBox').value.toLowerCase();
