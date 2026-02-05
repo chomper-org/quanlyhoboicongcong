@@ -1,27 +1,17 @@
-"""
-URL configuration for PoolManager project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-# Import các view mới
 from quan_ly_ho_boi.views import trang_chu, dashboard, ban_do, quan_ly_danh_sach, xoa_ho_boi
 
-urlpatterns = [ # type: ignore
+# --- CẤU HÌNH GIAO DIỆN ADMIN TẠI ĐÂY ---
+from django.contrib import admin
+admin.site.site_header = "HỆ THỐNG QUẢN LÝ "     # Tiêu đề lớn ở trên cùng
+admin.site.site_title = "quản trị viên quản lý hồ bơi"           # Tiêu đề trên thẻ trình duyệt
+admin.site.index_title = "Bảng điều khiển quản trị"    # Tiêu đề tại trang chủ admin
+# ---------------------------------------
+
+urlpatterns = [
     path('admin/', admin.site.urls),
     path('', trang_chu, name='home'),
     path('dashboard/', dashboard, name='dashboard'),
@@ -31,4 +21,16 @@ urlpatterns = [ # type: ignore
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # type: ignore
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    # Tắt quảng cáo của thư viện và dùng menu icon
+SIMPLEUI_HOME_INFO = False 
+SIMPLEUI_ANALYSIS = False 
+
+# Nếu muốn đổi icon cho các mục bên trái (ví dụ)
+SIMPLEUI_ICON = {
+    'Hồ bơi': 'fas fa-swimming-pool',
+    'Vé đặt': 'fas fa-ticket-alt',
+    'Người dùng': 'fas fa-user-shield',  # Nhìn sang hơn icon mặc định
+    'Nhóm': 'fas fa-users-cog',
+}
