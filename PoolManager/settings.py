@@ -1,6 +1,6 @@
 """
 Django settings for PoolManager project.
-Updated for SimpleUI & Vietnamese Context.
+Cấu hình chuẩn cho giao diện SIMPLEUI.
 """
 
 from pathlib import Path
@@ -19,7 +19,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
-    'simpleui', # Giao diện đẹp (Phải để đầu tiên)
+    'simpleui', # Giao diện đẹp (Phải để dòng đầu tiên)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -82,37 +82,37 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# --- CẤU HÌNH NGÔN NGỮ & GIỜ (QUAN TRỌNG CHO SIMPLEUI) ---
-LANGUAGE_CODE = 'vi' # Chuyển sang tiếng Việt
+# --- CẤU HÌNH NGÔN NGỮ & GIỜ (QUAN TRỌNG) ---
+LANGUAGE_CODE = 'vi' # Chuyển sang Tiếng Việt
 TIME_ZONE = 'Asia/Ho_Chi_Minh' # Giờ Việt Nam
 USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static') # Thêm dòng này để tránh lỗi khi deploy
+STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
 
 # Cấu hình đường dẫn lưu ảnh (Media)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# --- CẤU HÌNH SIMPLEUI (THAY THẾ CHO JAZZMIN) ---
+# --- CẤU HÌNH GIAO DIỆN SIMPLEUI ---
 SIMPLEUI_HOME_INFO = False  # Tắt thông tin server ở trang chủ cho gọn
-SIMPLEUI_ANALYSIS = False   # Tắt thu thập phân tích của SimpleUI
+SIMPLEUI_ANALYSIS = False   # Tắt thu thập phân tích
 
-# Logo và Tiêu đề
-SIMPLEUI_LOGO = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png' # Link icon tạm
+# Logo và Tiêu đề trang Admin
+SIMPLEUI_LOGO = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png'
 SIMPLEUI_HOME_TITLE = 'HỒ BƠI CÔNG CỘNG' 
-SIMPLEUI_DEFAULT_THEME = 'admin.lte.css' # Giao diện mặc định
+SIMPLEUI_DEFAULT_THEME = 'admin.lte.css' # Theme màu mặc định (Giống AdminLTE)
 
-# Cấu hình Icon (Mapping icon cho đúng Model của bạn)
+# Cấu hình Icon (Mapping theo tên verbose_name trong models.py)
 SIMPLEUI_ICON = {
-    'Hồ bơi': 'fas fa-swimming-pool',  # Icon hồ bơi
+    'Hồ bơi': 'fas fa-swimming-pool',  # Icon người bơi
     'Vé đặt': 'fas fa-ticket-alt',     # Icon vé
-    'Users': 'fas fa-user',            # Icon người dùng
-    'Groups': 'fas fa-users'           # Icon nhóm
+    'Users': 'fas fa-user',            
+    'Groups': 'fas fa-users'           
 }
 
-# Tắt quảng cáo của SimpleUI
+# Tắt quảng cáo/link rác của SimpleUI
 SIMPLEUI_HOME_QUICK = True
 SIMPLEUI_HOME_ACTION = True
