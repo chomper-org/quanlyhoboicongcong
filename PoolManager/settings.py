@@ -1,6 +1,6 @@
 """
 Django settings for PoolManager project.
-Cấu hình chuẩn cho giao diện SIMPLEUI.
+Cấu hình chuẩn cho giao diện SIMPLEUI (Phiên bản đẹp & Gọn).
 """
 
 from pathlib import Path
@@ -19,7 +19,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
-    'simpleui', # Giao diện đẹp (Phải để dòng đầu tiên)
+    'simpleui', # SimpleUI phải luôn nằm đầu tiên
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -82,37 +82,46 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# --- CẤU HÌNH NGÔN NGỮ & GIỜ (QUAN TRỌNG) ---
-LANGUAGE_CODE = 'vi' # Chuyển sang Tiếng Việt
-TIME_ZONE = 'Asia/Ho_Chi_Minh' # Giờ Việt Nam
+# --- CẤU HÌNH NGÔN NGỮ & GIỜ ---
+LANGUAGE_CODE = 'vi' # Tiếng Việt
+TIME_ZONE = 'Asia/Ho_Chi_Minh' # Giờ VN
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
 
-# Cấu hình đường dẫn lưu ảnh (Media)
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# --- CẤU HÌNH GIAO DIỆN SIMPLEUI ---
-SIMPLEUI_HOME_INFO = False  # Tắt thông tin server ở trang chủ cho gọn
-SIMPLEUI_ANALYSIS = False   # Tắt thu thập phân tích
+# ==========================================
+# --- CẤU HÌNH GIAO DIỆN SIMPLEUI (ĐÃ FIX LỖI MẤT MENU) ---
+# ==========================================
 
-# Logo và Tiêu đề trang Admin
-SIMPLEUI_LOGO = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png'
-SIMPLEUI_HOME_TITLE = 'HỒ BƠI CÔNG CỘNG' 
-SIMPLEUI_DEFAULT_THEME = 'admin.lte.css' # Theme màu mặc định (Giống AdminLTE)
+# 1. Thông tin cơ bản
+SIMPLEUI_HOME_INFO = False  
+SIMPLEUI_ANALYSIS = False   
+SIMPLEUI_LOADING = True     
 
-# Cấu hình Icon (Mapping theo tên verbose_name trong models.py)
+# 2. Logo & Tiêu đề
+SIMPLEUI_LOGO = 'https://cdn-icons-png.flaticon.com/512/2972/2972166.png'
+SIMPLEUI_HOME_TITLE = 'QUẢN TRỊ HỒ BƠI' 
+SIMPLEUI_HOME_ICON = 'fas fa-water' 
+
+# 3. Giao diện (Theme)
+SIMPLEUI_DEFAULT_THEME = 'admin.lte.css' 
+
+# 4. Icon Menu (FontAwesome)
 SIMPLEUI_ICON = {
-    'Hồ bơi': 'fas fa-swimming-pool',  # Icon người bơi
-    'Vé đặt': 'fas fa-ticket-alt',     # Icon vé
-    'Users': 'fas fa-user',            
-    'Groups': 'fas fa-users'           
+    'Hồ bơi': 'fas fa-swimming-pool',    
+    'Vé đặt': 'fas fa-file-invoice-dollar', 
+    'Users': 'fas fa-user-tie',          
+    'Groups': 'fas fa-users-cog',        
 }
 
-# Tắt quảng cáo/link rác của SimpleUI
-SIMPLEUI_HOME_QUICK = True
-SIMPLEUI_HOME_ACTION = True
+SIMPLEUI_HOME_QUICK = True   
+SIMPLEUI_HOME_ACTION = False 
+
+# QUAN TRỌNG: Đã xóa phần SIMPLEUI_CONFIG gây lỗi mất menu
