@@ -19,7 +19,11 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+<<<<<<< HEAD
+    'simpleui',
+=======
     'simpleui', # Giao diện đẹp (Phải để dòng đầu tiên)
+>>>>>>> main
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
