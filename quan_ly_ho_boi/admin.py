@@ -1,6 +1,10 @@
 ﻿from django.contrib import admin
 from .models import HoBoi, DatVe
 
+class CustomAdminStyle(admin.ModelAdmin): # type: ignore
+    class Media:
+        css = { 'all': ('css/admin_fix.css',) } # <--- Khai báo file CSS ở đây
+
 # Thêm # type: ignore vào cuối dòng class để tắt cảnh báo Pylance
 @admin.register(HoBoi)
 class HoBoiAdmin(admin.ModelAdmin): # type: ignore

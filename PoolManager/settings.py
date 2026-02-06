@@ -41,7 +41,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'PoolManager.urls'
 
-TEMPLATES = [
+TEMPLATES = [ # type: ignore
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
@@ -59,7 +59,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'PoolManager.wsgi.application'
 
 # Database
-DATABASES = {
+DATABASES = { # type: ignore
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
@@ -126,5 +126,45 @@ SIMPLEUI_ICON = {
     'Groups': 'fas fa-users-cog',
 }
 
+SIMPLEUI_CONFIG = { # type: ignore
+    # 1. Tắt menu mặc định của Django để tự mình sắp xếp
+    'system_keep': False,
+
+    # 2. Danh sách Menu (Bạn muốn hiện gì thì viết vào đây)
+    'menus': [
+        {
+            'name': 'Nghiệp vụ Chính', # Tên nhóm menu cha
+            'icon': 'fas fa-swimming-pool', # Icon nhóm
+            'models': [
+                {
+                    'name': 'Quản lý Hồ bơi',
+                    'icon': 'fas fa-water',
+                    'url': 'quan_ly_ho_boi/hoboi/' # Cấu trúc: app_name/model_name/
+                },
+                {
+                    'name': 'Quản lý Vé đặt',
+                    'icon': 'fas fa-ticket-alt',
+                    'url': 'quan_ly_ho_boi/datve/'
+                }
+            ]
+        },
+        {
+            'name': 'Hệ thống',
+            'icon': 'fas fa-cogs',
+            'models': [
+                {
+                    'name': 'Tài khoản nhân viên',
+                    'icon': 'fas fa-user-tie',
+                    'url': 'auth/user/'
+                },
+                {
+                    'name': 'Phân quyền (Nhóm)',
+                    'icon': 'fas fa-users-cog',
+                    'url': 'auth/group/'
+                }
+            ]
+        }
+    ]
+}
 SIMPLEUI_HOME_QUICK = True
 SIMPLEUI_HOME_ACTION = False

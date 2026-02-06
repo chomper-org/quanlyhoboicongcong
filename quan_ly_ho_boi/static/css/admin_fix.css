@@ -1,0 +1,23 @@
+/* File: quan_ly_ho_boi/static/css/admin_fix.css */
+
+:root {
+    --menu-width: 320px; /* <--- MUỐN TO BAO NHIÊU THÌ SỬA SỐ NÀY */
+}
+
+/* Ép kích thước cho khung menu SimpleUI */
+.el-aside.menu {
+    width: var(--menu-width) !important;
+    flex-basis: var(--menu-width) !important;
+    max-width: var(--menu-width) !important;
+}
+
+/* Ép kích thước cho Logo */
+.logo-wrap {
+    width: var(--menu-width) !important;
+    min-width: var(--menu-width) !important;
+}
+
+/* Đẩy nội dung chính sang phải */
+main.el-main {
+    width: calc(100% - var(--menu-width)) !important;
+}
