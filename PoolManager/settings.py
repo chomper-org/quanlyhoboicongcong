@@ -97,31 +97,34 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ==========================================
-# --- CẤU HÌNH GIAO DIỆN SIMPLEUI (ĐÃ FIX LỖI MẤT MENU) ---
+# --- CẤU HÌNH GIAO DIỆN SIMPLEUI (ĐÃ FIX LỖI LOGO) ---
 # ==========================================
 
 # 1. Thông tin cơ bản
-SIMPLEUI_HOME_INFO = False  
-SIMPLEUI_ANALYSIS = False   
-SIMPLEUI_LOADING = True     
+SIMPLEUI_HOME_INFO = False
+SIMPLEUI_ANALYSIS = False
+SIMPLEUI_LOADING = True
 
-# 2. Logo & Tiêu đề
-SIMPLEUI_LOGO = 'https://cdn-icons-png.flaticon.com/512/2972/2972166.png'
-SIMPLEUI_HOME_TITLE = 'QUẢN TRỊ HỒ BƠI' 
-SIMPLEUI_HOME_ICON = 'fas fa-water' 
+# 2. Logo & Tiêu đề (QUAN TRỌNG NHẤT Ở ĐÂY)
+# --- Fix lỗi nền trắng: Dùng link ảnh PNG trong suốt ---
+# (Mình dùng tạm link icon này, nó là nền trong suốt chuẩn)
+SIMPLEUI_LOGO = 'https://cdn-icons-png.flaticon.com/512/10375/10375033.png'
 
-# 3. Giao diện (Theme)
-SIMPLEUI_DEFAULT_THEME = 'admin.lte.css' 
+# --- Fix tiêu đề theo yêu cầu ---
+SIMPLEUI_HOME_TITLE = 'HỆ THỐNG QUẢN LÝ'
 
-# 4. Icon Menu (FontAwesome)
+SIMPLEUI_HOME_ICON = 'fas fa-tasks'
+
+# 3. Giao diện
+SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
+
+# 4. Icon Menu
 SIMPLEUI_ICON = {
-    'Hồ bơi': 'fas fa-swimming-pool',    
-    'Vé đặt': 'fas fa-file-invoice-dollar', 
-    'Users': 'fas fa-user-tie',          
-    'Groups': 'fas fa-users-cog',        
+    'Hồ bơi': 'fas fa-swimming-pool',
+    'Vé đặt': 'fas fa-file-invoice-dollar',
+    'Users': 'fas fa-user-tie',
+    'Groups': 'fas fa-users-cog',
 }
 
-SIMPLEUI_HOME_QUICK = True   
-SIMPLEUI_HOME_ACTION = False 
-
-# QUAN TRỌNG: Đã xóa phần SIMPLEUI_CONFIG gây lỗi mất menu
+SIMPLEUI_HOME_QUICK = True
+SIMPLEUI_HOME_ACTION = False
