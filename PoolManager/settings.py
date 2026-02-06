@@ -125,21 +125,3 @@ import os  # <-- Nếu đầu file chưa có thì thêm dòng này
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-JAZZMIN_SETTINGS = {
-    "site_title": "Quản trị Hồ Bơi",
-    "site_header": "HỒ BƠI CÔNG CỘNG",
-    "welcome_sign": "Chào mừng bạn đến với Hệ thống Quản trị",
-    "copyright": "Quản lý Hồ Bơi Ltd",
-    "search_model": ["auth.User", "auth.Group"],
-    
-    # Cấu hình Icon cho menu bên trái
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-        # Thay 'ten_app.Model' bằng tên app và model của bạn
-        "hoboiapp.HoSo": "fas fa-swimming-pool", 
-        "hoboiapp.VeDat": "fas fa-ticket-alt",
-    },
-    "show_ui_builder": True, # Bật cái này để bạn tự chỉnh màu trực tiếp trên web
-}
