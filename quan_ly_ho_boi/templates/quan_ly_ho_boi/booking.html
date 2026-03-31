@@ -1,0 +1,65 @@
+{% extends 'quan_ly_ho_boi/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-3">Đặt vé hồ bơi</h2>
+
+                <div class="mb-4 p-3 bg-light rounded">
+                    <h5 class="mb-2">{{ ho_boi.ten_ho }}</h5>
+                    <p class="mb-1"><strong>Địa chỉ:</strong> {{ ho_boi.dia_chi }}</p>
+                    <p class="mb-1"><strong>Trạng thái:</strong> {{ ho_boi.get_trang_thai_display }}</p>
+                    <p class="mb-0"><strong>Giá vé:</strong> Người lớn {{ ho_boi.gia_ve_nguoi_lon }} VND - Trẻ em {{ ho_boi.gia_ve_tre_em }} VND</p>
+                </div>
+
+                {% if errors %}
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            {% for error in errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if success_message %}
+                    <div class="alert alert-success">
+                        {{ success_message }}
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="ngay_su_dung" class="form-label">Chọn ngày sử dụng</label>
+                        <input type="date" id="ngay_su_dung" name="ngay_su_dung" class="form-control" value="{{ form_data.ngay_su_dung }}">
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="so_luong_nguoi_lon" class="form-label">Số người lớn</label>
+                            <input type="number" id="so_luong_nguoi_lon" name="so_luong_nguoi_lon" min="0" class="form-control" value="{{ form_data.so_luong_nguoi_lon }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="so_luong_tre_em" class="form-label">Số trẻ em</label>
+                            <input type="number" id="so_luong_tre_em" name="so_luong_tre_em" min="0" class="form-control" value="{{ form_data.so_luong_tre_em }}">
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Đặt vé ngay</button>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary ms-2">Quay lại</a>
+                    </div>
+                </form>
+
+                {% if tong_tien is not None %}
+                <div class="mt-4 alert alert-info">
+                    <strong>Tổng ước tính:</strong> {{ tong_tien }} VND
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

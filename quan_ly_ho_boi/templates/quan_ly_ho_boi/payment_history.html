@@ -1,0 +1,56 @@
+{% extends 'quan_ly_ho_boi/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h2 class="card-title mb-1">Lịch sử thanh toán</h2>
+                        <p class="text-muted mb-0">Danh sách các giao dịch thanh toán đã ghi nhận.</p>
+                    </div>
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">Về trang chủ</a>
+                </div>
+
+                {% if lich_su %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Mã đặt vé</th>
+                                    <th scope="col">Hồ bơi</th>
+                                    <th scope="col">Khách hàng</th>
+                                    <th scope="col">Ngày thanh toán</th>
+                                    <th scope="col">Phương thức</th>
+                                    <th scope="col">Số tiền</th>
+                                    <th scope="col">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in lich_su %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>#{{ payment.dat_ve.id }}</td>
+                                        <td>{{ payment.dat_ve.ho_boi.ten_ho }}</td>
+                                        <td>{{ payment.dat_ve.khach_hang.username }}</td>
+                                        <td>{{ payment.ngay_thanh_toan|date:'d/m/Y H:i' }}</td>
+                                        <td>{{ payment.phuong_thuc }}</td>
+                                        <td>{{ payment.so_tien }} VND</td>
+                                        <td>{{ payment.trang_thai }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Hiện chưa có giao dịch thanh toán nào. Hãy tạo đặt vé và thanh toán để xem lịch sử tại đây.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

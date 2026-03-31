@@ -109,6 +109,73 @@
         font-style: italic;
         border-top: 5px solid #0d6efd;
     }
+
+    .pool-carousel {
+        position: relative;
+    }
+
+    .pool-track {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .pool-track::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .pool-track::-webkit-scrollbar-thumb {
+        background: rgba(13, 110, 253, 0.45);
+        border-radius: 999px;
+    }
+
+    .pool-card-wrap {
+        min-width: 280px;
+        flex: 0 0 auto;
+    }
+
+    .pool-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: none;
+        background: #0d6efd;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+        z-index: 10;
+    }
+
+    .pool-nav-btn:hover {
+        background: #0b5ed7;
+    }
+
+    .pool-nav-left {
+        left: -18px;
+    }
+
+    .pool-nav-right {
+        right: -18px;
+    }
+
+    @media (max-width: 768px) {
+        .pool-nav-btn {
+            width: 36px;
+            height: 36px;
+        }
+
+        .pool-card-wrap {
+            min-width: 250px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -210,17 +277,48 @@
         <h5 class="text-secondary fw-bold">Dữ liệu hiện có trong hệ thống</h5>
         <a href="{% url 'quan_ly' %}" class="btn btn-sm btn-outline-secondary">Xem chi tiết</a>
     </div>
-    <div class="row">
-        {% for ho in danh_sach_ho|slice:":4" %} <div class="col-6 col-md-3">
-            <div class="border rounded p-2 text-center bg-light">
-                <strong>{{ ho.ten_ho }}</strong><br>
-                <small class="text-muted">{{ ho.get_trang_thai_display }}</small>
+    {% if danh_sach_ho %}
+    <div class="pool-carousel">
+        <button type="button" class="pool-nav-btn pool-nav-left" onclick="scrollPools('left')" aria-label="Lùi trái">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="pool-track">
+            {% for ho in danh_sach_ho %}
+            <div class="pool-card-wrap">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if ho.hinh_anh %}
+                    <img src="{{ ho.hinh_anh.url }}" class="card-img-top" alt="{{ ho.ten_ho }}">
+                    {% else %}
+                    <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%238ca0b6'/%3E%3Ctext x='200' y='105' font-family='Arial' font-size='24' fill='%23ffffff' text-anchor='middle'%3EHồ bơi%3C/text%3E%3C/svg%3E" class="card-img-top" alt="{{ ho.ten_ho }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ ho.ten_ho }}</h5>
+                        <p class="mb-2">
+                            {% if ho.trang_thai == 'MO' %}
+                                <span class="badge bg-success">Đang mở</span>
+                            {% elif ho.trang_thai == 'BAO_TRI' %}
+                                <span class="badge bg-warning text-dark">Bảo trì</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Đóng cửa</span>
+                            {% endif %}
+                        </p>
+                        <p class="card-text text-success mb-1">Người lớn: {{ ho.gia_ve_nguoi_lon }} VND</p>
+                        <p class="card-text text-success mb-3">Trẻ em: {{ ho.gia_ve_tre_em }} VND</p>
+                        <a href="{% url 'dat_ve' ho.id %}" class="btn btn-primary btn-sm w-100">Đặt vé</a>
+                    </div>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-12 text-muted small text-center">Chưa có dữ liệu hồ bơi.</div>
-        {% endfor %}
+        <button type="button" class="pool-nav-btn pool-nav-right" onclick="scrollPools('right')" aria-label="Tiến phải">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
     </div>
+    {% else %}
+    <div class="alert alert-secondary text-center mb-0">
+        Chưa có dữ liệu hồ bơi.
+    </div>
+    {% endif %}
 </section>
 
 <div class="footer-note">
@@ -228,5 +326,16 @@
         <p class="mb-0">"Hệ thống được phát triển phục vụ nghiên cứu và ứng dụng công nghệ GIS trong quản lý cơ sở hạ tầng công cộng."</p>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+    function scrollPools(direction) {
+        const track = document.querySelector('.pool-track');
+        if (!track) return;
+        const distance = track.clientWidth * 0.75;
+        track.scrollBy({ left: direction === 'left' ? -distance : distance, behavior: 'smooth' });
+    }
+</script>
+{% endblock %}
 
 {% endblock %}

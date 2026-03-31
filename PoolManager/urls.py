@@ -20,6 +20,9 @@ urlpatterns = [
     path('map/', ban_do, name='map'),
     path('quan-ly/', quan_ly_danh_sach, name='quan_ly'),
     path('quan-ly/xoa/<int:ho_boi_id>/', xoa_ho_boi, name='xoa_ho_boi'),
+    path('dat-ve/<int:ho_boi_id>/', views.dat_ve, name='dat_ve'),
+    path('checkout/<int:datve_id>/', views.checkout, name='checkout'),
+    path('lich-su-thanh-toan/', views.lich_su_thanh_toan, name='payment_history'),
     path('luu-ho-boi/', views.luu_ho_boi, name='luu_ho_boi'),
     path('api/get-pools/', views.get_pools, name='get_pools'),
 ]

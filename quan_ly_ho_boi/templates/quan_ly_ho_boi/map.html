@@ -1,37 +1,145 @@
 {% extends 'quan_ly_ho_boi/base.html' %}
+{% load static %}
 
 {% block content %}
 <h2 class="mb-3">Bản đồ Phân bố Hồ bơi (GIS)</h2>
 
 <div class="card shadow-sm">
     <div class="p-2 bg-light border-bottom">
-        <input type="text" id="searchBox" placeholder="Tìm hồ bơi theo tên..." class="form-control" onkeyup="searchPool()">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <div class="row g-2">
+                    <div class="col-sm-7">
+                        <input type="text" id="searchBox" placeholder="Tìm hồ bơi theo tên hoặc địa chỉ..." class="form-control" oninput="applyFilters()">
+                    </div>
+                    <div class="col-sm-5">
+                        <select id="statusFilter" class="form-select" onchange="applyFilters()">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="MO">Đang mở</option>
+                            <option value="BAO_TRI">Bảo trì</option>
+                            <option value="DONG">Đóng cửa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row g-2 justify-content-end">
+                    <div class="col-sm-6">
+                        <button class="btn btn-outline-primary w-100" onclick="locateMe()">Định vị tôi</button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button class="btn btn-outline-secondary w-100" onclick="resetMap()">Làm mới</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-12 text-end">
+                <span id="poolCount" class="badge bg-primary">0 hồ bơi</span>
+            </div>
+        </div>
     </div>
     <div class="card-body p-0">
-        <div id="map" style="height: 600px; width: 100%; z-index: 1;"></div>
+        <div id="map" style="height: 720px; width: 100%;"></div>
     </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure/dist/leaflet-measure.css"/>
-
+<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"/>
 <style>
-    .leaflet-control-measure .leaflet-control-measure-toggle {
-        background-image: url(https://cdn.jsdelivr.net/npm/leaflet-measure/dist/images/measure.png);
-        background-size: 16px 16px;
+    .leaflet-popup-content {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+        color: #212529;
+    }
+    .leaflet-popup-content .pool-popup {
+        min-width: 240px;
+    }
+    .leaflet-popup-content .pool-popup-image {
+        width: 100%;
+        height: 150px;
+        overflow: hidden;
+        border-radius: 0.5rem;
+        background: #f8f9fa;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .leaflet-popup-content .pool-popup-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .leaflet-popup-content .pool-popup-image-empty {
+        color: #6c757d;
+        font-size: 0.92rem;
+        padding: 0.5rem;
+        text-align: center;
+    }
+    .leaflet-popup-content .pool-popup-title {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    .leaflet-popup-content .pool-popup-row {
+        margin-bottom: 0.35rem;
+        line-height: 1.35;
+    }
+    .leaflet-popup-content .pool-popup-row strong {
+        display: inline-block;
+        width: 7rem;
+    }
+    .leaflet-popup-content .pool-popup-actions {
+        margin-top: 0.75rem;
+    }
+    .leaflet-popup-content a.btn {
+        margin-top: 8px;
+        display: inline-block;
+        width: 100%;
+    }
+    .leaflet-popup-content .pool-popup-actions .btn {
+        color: #fff;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .leaflet-popup-content .pool-popup-actions .btn:hover {
+        color: #fff;
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+    .map-control-panel {
+        position: relative;
+        z-index: 1000;
+    }
+    .pool-status-mo {
+        /* Image-based icon colors are defined in SVG files */
+    }
+    .pool-status-bao-tri {
+        /* Image-based icon colors are defined in SVG files */
+    }
+    .pool-status-dong {
+        /* Image-based icon colors are defined in SVG files */
+    }
+    .pool-selected {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 8px rgba(0,0,0,0.35));
     }
 </style>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet-measure/dist/leaflet-measure.js"></script>
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
 
 <script>
-    // 1. KHAI BÁO BIẾN TOÀN CỤC (CỰC KỲ QUAN TRỌNG)
     var map;
     var poolLayer;
-    var currentMousePos = null; // Phải khai báo biến này ở đây
+    var currentMousePos = null;
+    var currentPosition = null;
+    var allPools = [];
+    var selectedPoolMarker = null;
+    var userMarker = null;
+    var userAccuracyCircle = null;
+    var routeControl = null;
+    var imageBase = "{% static 'images/' %}";
 
-    // 2. HÀM GETCOOKIE (Để dùng cho fetch sau này)
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -47,121 +155,257 @@
         return cookieValue;
     }
 
-    // 3. KHỞI TẠO BẢN ĐỒ KHI TRANG LOAD XONG
     document.addEventListener("DOMContentLoaded", function() {
-        // Khởi tạo map
         map = L.map('map').setView([10.7769, 106.7009], 12);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
 
-        // Theo dõi vị trí chuột
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        });
+
+        var carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors © CARTO'
+        });
+
+        var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri'
+        });
+
+        var baseMaps = {
+            "OpenStreetMap": osm,
+            "Carto Light": carto,
+            "Satellite": satellite
+        };
+
+        osm.addTo(map);
+        L.control.layers(baseMaps).addTo(map);
+        L.control.scale().addTo(map);
+
+        poolLayer = L.featureGroup().addTo(map);
+
+        map.locate({setView: false, maxZoom: 16});
+
+        map.on('locationfound', function(e) {
+            currentPosition = e.latlng;
+            updateUserMarker(e.latlng, e.accuracy);
+        });
+
+        map.on('locationerror', function() {
+            console.warn('Không xác định được vị trí người dùng.');
+        });
+
         map.on('mousemove', function(e) {
             currentMousePos = e.latlng;
         });
 
-        // Lớp chứa hồ bơi
-        poolLayer = L.geoJSON(null, {
-            onEachFeature: function(feature, layer) {
-                layer.bindPopup("<b>" + feature.properties.name + "</b>");
+        loadPools();
+    });
+
+    function getPoolIcon(status, selected) {
+        return getPoolImageIcon(status, selected);
+    }
+
+    function getPoolImageIcon(status, selected) {
+        var iconUrl = imageBase + 'pool-marker-open.svg';
+        if (status === 'BAO_TRI') iconUrl = imageBase + 'pool-marker-maintenance.svg';
+        else if (status === 'DONG') iconUrl = imageBase + 'pool-marker-closed.svg';
+        if (selected) iconUrl = imageBase + 'pool-marker-selected.svg';
+        return L.icon({
+            iconUrl: iconUrl,
+            iconSize: [36, 48],
+            iconAnchor: [18, 48],
+            popupAnchor: [0, -42]
+        });
+    }
+
+    function getUserIcon() {
+        return getUserImageIcon();
+    }
+
+    function getUserImageIcon() {
+        return L.icon({
+            iconUrl: imageBase + 'user-marker.svg',
+            iconSize: [36, 48],
+            iconAnchor: [18, 48],
+            popupAnchor: [0, -36]
+        });
+    }
+
+    function refreshIcons() {
+        poolLayer.eachLayer(function(layer) {
+            if (layer.feature) {
+                var status = layer.feature.properties.status_code;
+                var selected = layer === selectedPoolMarker;
+                layer.setIcon(getPoolIcon(status, selected));
             }
-        }).addTo(map);
-
-        // Công cụ đo đạc (Đã fix lỗi nhảy map)
-        var measureControl = new L.Control.Measure({
-            position: 'topright',
-            primaryLengthUnit: 'meters',
-            localization: 'en',
-            popupOptions: { autoPan: false }
         });
-        measureControl.addTo(map);
+        if (userMarker) {
+            userMarker.setIcon(getUserIcon());
+        }
+    }
 
-        // Định vị người dùng
-        map.locate({setView: true, maxZoom: 16});
+    function updateUserMarker(latlng, accuracy) {
+        var popupHtml = `
+            <div class="pool-popup">
+                <div class="pool-popup-title">Bạn đang ở đây</div>
+                <div class="pool-popup-row"><strong>Vĩ độ:</strong> ${latlng.lat.toFixed(6)}</div>
+                <div class="pool-popup-row"><strong>Kinh độ:</strong> ${latlng.lng.toFixed(6)}</div>
+                <div class="pool-popup-row"><strong>Độ chính xác:</strong> ${Math.round(accuracy)} m</div>
+            </div>
+        `;
 
-        map.on('locationfound', function(e) {
-            var radius = e.accuracy / 2;
-            L.marker(e.latlng).addTo(map)
-                .bindPopup("Bạn đang ở đây").openPopup();
-            L.circle(e.latlng, radius).addTo(map);
-        });
-        // LOAD DỮ LIỆU CŨ
-        function loadPools() {
+        if (userMarker) {
+            userMarker.setLatLng(latlng).setPopupContent(popupHtml);
+        } else {
+            userMarker = L.marker(latlng, {
+                icon: getUserIcon(),
+                interactive: true
+            }).addTo(map).bindPopup(popupHtml, { autoClose: false, closeOnClick: false });
+        }
+
+        userMarker.openPopup();
+
+        if (userAccuracyCircle) {
+            userAccuracyCircle.setLatLng(latlng).setRadius(accuracy / 2);
+        } else {
+            userAccuracyCircle = L.circle(latlng, {
+                radius: accuracy / 2,
+                color: '#007bff',
+                fillColor: '#007bff',
+                fillOpacity: 0.12,
+                weight: 2
+            }).addTo(map);
+        }
+    }
+
+    function loadPools() {
         fetch('/api/get-pools/')
             .then(response => response.json())
             .then(data => {
-                poolLayer.addData(data); // Đổ dữ liệu từ Database vào Layer bản đồ
+                allPools = Array.isArray(data.features) ? data.features
+                    : Array.isArray(data) ? data
+                    : Array.isArray(data.data) ? data.data
+                    : [];
+                renderPools(allPools);
             })
             .catch(error => console.error('Lỗi khi tải dữ liệu hồ bơi:', error));
     }
-    loadPools();
-    });
 
-    // 4. HÀM TÌM KIẾM
-    function searchPool() {
-        var input = document.getElementById('searchBox').value.toLowerCase();
-        poolLayer.eachLayer(function(layer) {
-            var name = layer.feature.properties.name.toLowerCase();
-            layer.setOpacity(name.includes(input) ? 1 : 0.2);
+    function renderPools(poolFeatures) {
+        poolLayer.clearLayers();
+        resetSelectedPool();
+
+        poolFeatures.forEach(function(feature) {
+            poolLayer.addLayer(createPoolMarker(feature));
         });
+
+        if (poolLayer.getLayers().length) {
+            map.fitBounds(poolLayer.getBounds(), { padding: [40, 40] });
+        }
+        updatePoolCount(poolLayer.getLayers().length);
     }
-    // 5. PHÍM TẮT (THÊM HỒ BƠI VÀ BÁO SỰ CỐ)
-    window.addEventListener('keydown', function(e) {
-        if (e.target.tagName === 'INPUT') return;
-        if (!currentMousePos) return;
 
-        const key = e.key.toLowerCase();
-
-    // PHÍM T: THÊM HỒ BƠI
-    if (key === 't') {
-    var name = prompt("Nhập tên hồ bơi mới:");
-    if (!name) return;
-
-    // Gửi dữ liệu về Django
-    fetch('/luu-ho-boi/', {  // Đường dẫn này phải khớp với urls.py
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken') // Đảm bảo đã có hàm getCookie ở trên
-        },
-        body: JSON.stringify({
-            name: name,
-            lat: currentMousePos.lat,
-            lng: currentMousePos.lng
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            var feature = {
-                "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [currentMousePos.lng, currentMousePos.lat]
-                },
-                "properties": { "name": name }
-            };
-            poolLayer.addData(feature);
-            console.log("Đã lưu hồ bơi ID:", data.id);
-        } else {
-            alert("Lưu thất bại!");
+    function updatePoolCount(count) {
+        var element = document.getElementById('poolCount');
+        if (!element) {
+            console.warn('Không tìm thấy poolCount element');
+            return;
         }
-    })
-    .catch(error => console.error('Lỗi kết nối:', error));
-}
-        // PHÍM Y: BÁO SỰ CỐ
-        if (key === 'y') {
-            var note = prompt("Mô tả sự cố:");
-            if (!note) return;
-            L.marker(currentMousePos, {
-                icon: L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41]
-                })
-            }).addTo(map).bindPopup("<b>SỰ CỐ:</b> " + note).openPopup();
+        element.textContent = `${count} hồ bơi`;
+    }
+
+    function createPoolMarker(feature) {
+        var coords = feature.geometry.coordinates;
+        var props = feature.properties;
+        var marker = L.marker([coords[1], coords[0]], {
+            icon: getPoolIcon(props.status_code, false)
+        });
+        marker.feature = feature;
+
+        var imageUrl = props.image || '';
+        if (imageUrl && imageUrl.startsWith('/')) {
+            imageUrl = window.location.origin + imageUrl;
         }
-    });
+
+        var popupHtml = `
+            <div class="pool-popup">
+                ${imageUrl ? `
+                    <div class="pool-popup-image">
+                        <img src="${imageUrl}" alt="${props.name}" />
+                    </div>
+                ` : `
+                    <div class="pool-popup-image pool-popup-image-empty">
+                        Chưa có ảnh hồ bơi
+                    </div>
+                `}
+                <div class="pool-popup-title">${props.name}</div>
+                <div class="pool-popup-row"><strong>Trạng thái:</strong> ${props.status}</div>
+                <div class="pool-popup-row"><strong>Địa chỉ:</strong> ${props.address}</div>
+                <div class="pool-popup-row"><strong>Độ sâu:</strong> ${props.depth} m</div>
+                <div class="pool-popup-row"><strong>Sức chứa:</strong> ${props.capacity} người</div>
+                <div class="pool-popup-row"><strong>Giá người lớn:</strong> ${props.price_adult} VNĐ</div>
+                <div class="pool-popup-row"><strong>Giá trẻ em:</strong> ${props.price_child} VNĐ</div>
+                <div class="pool-popup-actions">
+                    <a href="/dat-ve/${props.id}/" class="btn btn-sm btn-primary">Đặt vé</a>
+                </div>
+            </div>
+        `;
+
+        marker.bindPopup(popupHtml);
+        marker.on('click', function() {
+            selectPoolMarker(marker, props.status_code);
+            if (routeControl) {
+                map.removeControl(routeControl);
+                routeControl = null;
+            }
+        });
+        return marker;
+    }
+
+    function selectPoolMarker(marker, status) {
+        if (selectedPoolMarker && selectedPoolMarker !== marker) {
+            resetSelectedPool();
+        }
+        selectedPoolMarker = marker;
+        marker.setIcon(getPoolIcon(status, true));
+    }
+
+    function resetSelectedPool() {
+        if (!selectedPoolMarker) return;
+        var feature = selectedPoolMarker.feature;
+        var status = feature && feature.properties ? feature.properties.status_code : 'MO';
+        selectedPoolMarker.setIcon(getPoolIcon(status, false));
+        selectedPoolMarker = null;
+    }
+
+    function applyFilters() {
+        var keyword = document.getElementById('searchBox').value.toLowerCase();
+        var statusFilter = document.getElementById('statusFilter').value;
+
+        var filtered = allPools.filter(function(feature) {
+            var props = feature.properties;
+            var text = `${props.name} ${props.address}`.toLowerCase();
+            var matchKeyword = keyword === '' || text.indexOf(keyword) !== -1;
+            var matchStatus = statusFilter === 'all' || props.status_code === statusFilter;
+            return matchKeyword && matchStatus;
+        });
+
+        renderPools(filtered);
+    }
+
+    function locateMe() {
+        map.locate({setView: true, maxZoom: 16});
+    }
+
+    function resetMap() {
+        document.getElementById('searchBox').value = '';
+        document.getElementById('statusFilter').value = 'all';
+        renderPools(allPools);
+        if (routeControl) {
+            map.removeControl(routeControl);
+            routeControl = null;
+        }
+    }
+
+
 </script>
 {% endblock %}

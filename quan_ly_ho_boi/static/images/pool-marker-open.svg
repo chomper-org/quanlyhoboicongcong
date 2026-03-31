@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 64" width="48" height="64">
+  <defs>
+    <linearGradient id="openGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#51cf66"/>
+      <stop offset="100%" stop-color="#2f9e44"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 2C13.5 2 5.5 10 5.5 20.5c0 10.3 18.5 35.6 18.5 35.6s18.5-25.3 18.5-35.6C42.5 10 34.5 2 24 2z" fill="url(#openGrad)" stroke="#fff" stroke-width="3"/>
+  <circle cx="24" cy="20" r="8" fill="#fff" opacity="0.9"/>
+</svg>

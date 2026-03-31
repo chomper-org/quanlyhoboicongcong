@@ -58,3 +58,29 @@ class DatVe(models.Model):
 
     def __str__(self):
         return f"{self.khach_hang.username} - {self.ho_boi.ten_ho} ({self.ngay_su_dung})"
+
+# Model Thanh toán lịch sử
+class Payment(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('Tiền mặt', 'Tiền mặt'),
+        ('Thẻ ngân hàng', 'Thẻ ngân hàng'),
+        ('Thanh toán di động', 'Thanh toán di động'),
+    ]
+    PAYMENT_STATUS_CHOICES = [
+        ('Hoàn thành', 'Hoàn thành'),
+        ('Đang chờ', 'Đang chờ'),
+        ('Hủy', 'Hủy'),
+    ]
+
+    dat_ve = models.OneToOneField(DatVe, on_delete=models.CASCADE, verbose_name="Vé đặt")
+    phuong_thuc = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default='Tiền mặt', verbose_name='Phương thức')
+    so_tien = models.DecimalField(max_digits=12, decimal_places=0, verbose_name='Số tiền')
+    ngay_thanh_toan = models.DateTimeField(auto_now_add=True, verbose_name='Ngày thanh toán')
+    trang_thai = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Hoàn thành', verbose_name='Trạng thái')
+
+    class Meta:
+        verbose_name = "Lịch sử thanh toán"
+        verbose_name_plural = "Lịch sử thanh toán"
+
+    def __str__(self):
+        return f"Thanh toán #{self.id} - {self.dat_ve} - {self.trang_thai}"
