@@ -4,11 +4,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 from django.utils.dateparse import parse_date
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.db.models import Sum
 from .models import HoBoi, DatVe, Payment
+from .forms import HoBoiForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -162,23 +164,23 @@ def lich_su_thanh_toan(request: HttpRequest):
         'lich_su': lich_su,
     })
 
+
 # 8. Trang admin tùy chỉnh (Tổng hợp quản lý)
 @login_required
 def admin_home(request: HttpRequest):
     if not request.user.is_staff:
         return redirect('home')  # Chỉ cho phép staff truy cập
     
-    # Thống kê tổng quan
+    # --- DỮ LIỆU CHO TAB THỐNG KÊ (DASHBOARD) ---
     tong_ho_boi = HoBoi.objects.count()
     tong_ve_dat = DatVe.objects.count()
     ho_dang_mo = HoBoi.objects.filter(trang_thai='MO').count()
     tong_doanh_thu = Payment.objects.filter(trang_thai='Hoàn thành').aggregate(total=Sum('so_tien'))['total'] or 0
-    
-    # Danh sách hồ bơi gần đây
     ho_boi_gan_day = HoBoi.objects.order_by('-id')[:5]
-    
-    # Danh sách đặt vé gần đây
     ve_dat_gan_day = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')[:10]
+    
+    # --- DỮ LIỆU CHO TAB QUẢN LÝ HỒ BƠI ---
+    danh_sach_ho = HoBoi.objects.all()
     
     context = {
         'tong_ho_boi': tong_ho_boi,
@@ -187,6 +189,7 @@ def admin_home(request: HttpRequest):
         'tong_doanh_thu': tong_doanh_thu,
         'ho_boi_gan_day': ho_boi_gan_day,
         've_dat_gan_day': ve_dat_gan_day,
+        'danh_sach_ho': danh_sach_ho, # Đã thêm dữ liệu này
     }
     return render(request, 'quan_ly_ho_boi/admin_panel.html', context)
 
@@ -217,10 +220,49 @@ def xoa_ho_boi(request: HttpRequest, ho_boi_id : int):
     ho_boi = get_object_or_404(HoBoi, id=ho_boi_id)
     if request.method == 'POST':
         ho_boi.delete()
-        return redirect('quan_ly')
-    return redirect('quan_ly')
+        return redirect('admin_panel')
+    return redirect('admin_panel')
 
-# 10. Trang chủ công khai (Home Page)
+# 10. Tạo hồ bơi mới trong admin
+@login_required
+def tao_ho_boi(request: HttpRequest):
+    if not request.user.is_staff:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = HoBoiForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Hồ bơi đã được tạo thành công.')
+            return redirect('admin_panel')
+    else:
+        form = HoBoiForm()
+
+    return render(request, 'quan_ly_ho_boi/admin_pool_form.html', {
+        'form': form,
+    })
+
+# 11. Chỉnh sửa hồ bơi trong admin
+@login_required
+def chinh_sua_ho_boi(request: HttpRequest, ho_boi_id: int):
+    if not request.user.is_staff:
+        return redirect('home')
+
+    ho_boi = get_object_or_404(HoBoi, id=ho_boi_id)
+    if request.method == 'POST':
+        form = HoBoiForm(request.POST, request.FILES, instance=ho_boi)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thông tin hồ bơi đã được cập nhật.')
+            return redirect('admin_panel')
+    else:
+        form = HoBoiForm(instance=ho_boi)
+
+    return render(request, 'quan_ly_ho_boi/admin_pool_form.html', {
+        'form': form,
+    })
+
+# 12. Trang chủ công khai (Home Page)
 def home_page(request: HttpRequest):
     """Trang chủ cho khách hàng công khai"""
     danh_sach_ho = HoBoi.objects.all()
@@ -232,7 +274,7 @@ def home_page(request: HttpRequest):
     return render(request, 'quan_ly_ho_boi/home.html', context)
 
 # 11. Trang cá nhân (User Profile)
-@login_required(login_url='/admin-panel/login/')
+@login_required(login_url='/login/')
 def user_profile(request: HttpRequest):
     """Trang thông tin cá nhân của người dùng (Bắt buộc đăng nhập)"""
     user = request.user
@@ -248,6 +290,39 @@ def user_profile(request: HttpRequest):
         'tong_ve_da_dat': lich_su_ve.count(),
     }
     return render(request, 'quan_ly_ho_boi/profile.html', context)
+
+# 12. Đăng nhập cho user bình thường
+def login_user(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('profile')
+        else:
+            return render(request, 'quan_ly_ho_boi/login_user.html', {'error': 'Tên đăng nhập hoặc mật khẩu không đúng.'})
+    return render(request, 'quan_ly_ho_boi/login_user.html')
+
+# 13. Đăng xuất user
+def logout_user(request):
+    logout(request)
+    return redirect('home')
+
+# 14. Đăng ký user
+def register_user(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_staff = False
+            user.is_superuser = False
+            user.save()
+            return redirect('login_user')
+    else:
+        form = UserCreationForm()
+    return render(request, 'quan_ly_ho_boi/register.html', {'form': form})
+
 # 6. Lưu xử lí dữ liệu
 @csrf_exempt
 def luu_ho_boi(request):

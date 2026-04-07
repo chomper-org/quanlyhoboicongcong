@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Sửa hồ bơi{% else %}Thêm hồ bơi{% endif %} | Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-[#0f172a] text-gray-200 font-sans min-h-screen">
+    <div class="max-w-6xl mx-auto py-10 px-6">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white">{% if form.instance.pk %}Sửa hồ bơi{% else %}Thêm hồ bơi mới{% endif %}</h1>
+                <p class="text-gray-400 mt-2">Quản lý thông tin hồ bơi ngay trong giao diện admin tùy chỉnh.</p>
+            </div>
+            <a href="{% url 'admin_panel' %}" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-blue-600 text-white hover:bg-blue-500 transition">
+                <i class="fas fa-arrow-left"></i> Quay lại Admin Panel
+            </a>
+        </div>
+
+        <div class="bg-[#1e293b] p-8 rounded-3xl border border-gray-800 shadow-lg">
+            {% if form.errors %}
+            <div class="mb-6 rounded-2xl border border-red-600 bg-red-600/10 p-4 text-red-200">
+                <div class="font-semibold mb-2">Có lỗi xảy ra:</div>
+                <ul class="list-disc list-inside space-y-1">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Tên hồ bơi</label>
+                        {{ form.ten_ho }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Trạng thái</label>
+                        {{ form.trang_thai }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Địa chỉ</label>
+                        {{ form.dia_chi }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Hình ảnh</label>
+                        {{ form.hinh_anh }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Độ sâu (m)</label>
+                        {{ form.do_sau }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Sức chứa</label>
+                        {{ form.suc_chua }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Vĩ độ</label>
+                        {{ form.vi_do }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Kinh độ</label>
+                        {{ form.kinh_do }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Giá vé người lớn</label>
+                        {{ form.gia_ve_nguoi_lon }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Giá vé trẻ em</label>
+                        {{ form.gia_ve_tre_em }}
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <button type="submit" class="px-8 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-500 transition">
+                        {% if form.instance.pk %}Cập nhật hồ bơi{% else %}Tạo hồ bơi mới{% endif %}
+                    </button>
+                    <a href="{% url 'admin_panel' %}" class="px-8 py-3 rounded-2xl border border-gray-700 text-gray-200 hover:bg-white/5 transition">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | PoolFinder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="min-h-screen bg-[url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80')] bg-cover bg-center text-gray-900">
+    <div class="min-h-screen bg-slate-900/70 flex items-center justify-center px-4 py-12">
+        <div class="max-w-2xl w-full grid lg:grid-cols-2 gap-8 bg-white/95 backdrop-blur rounded-3xl shadow-2xl overflow-hidden border border-white/40">
+            <div class="hidden lg:flex flex-col justify-center bg-gradient-to-br from-sky-600 to-cyan-500 p-10 text-white">
+                <div class="mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white/20 mb-4 shadow-lg">
+                        <i class="fas fa-swimming-pool text-2xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">PoolFinder</h2>
+                </div>
+                <p class="text-sm text-sky-100/90 leading-relaxed">Trang quản lý vé hồ bơi thân thiện và hiện đại. Đăng nhập để tiếp tục đặt vé, xem lịch sử và quản lý trải nghiệm hồ bơi của bạn.</p>
+                <div class="mt-auto space-y-4">
+                    <div class="rounded-3xl bg-white/10 p-4 border border-white/20">
+                        <span class="block text-sm uppercase tracking-[0.3em] text-sky-100/70">Tip</span>
+                        <p class="mt-2 text-sm text-sky-50">Nhập đúng thông tin đăng ký của bạn để truy cập nhanh.</p>
+                    </div>
+                    <div class="rounded-3xl bg-white/10 p-4 border border-white/20">
+                        <span class="block text-sm uppercase tracking-[0.3em] text-sky-100/70">Hướng dẫn</span>
+                        <p class="mt-2 text-sm text-sky-50">Nếu chưa có tài khoản, chọn Đăng ký và tạo tài khoản user mới ngay.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-8 py-10 lg:px-12">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-sky-600 text-white mx-auto mb-4 shadow-lg">
+                        <i class="fas fa-sign-in-alt text-2xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold">Đăng nhập</h1>
+                    <p class="text-gray-500 mt-2">Đăng nhập để tiếp tục quản lý vé và đặt hồ bơi.</p>
+                </div>
+
+                {% if error %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-6">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>{{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    <div>
+                        <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">Tên đăng nhập</label>
+                        <input type="text" id="username" name="username" required placeholder="Nhập tên đăng nhập"
+                               class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200 transition" />
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Mật khẩu</label>
+                        <input type="password" id="password" name="password" required placeholder="Nhập mật khẩu"
+                               class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200 transition" />
+                    </div>
+                    <button type="submit" class="w-full rounded-3xl bg-sky-600 py-3 text-white font-semibold transition hover:bg-sky-700 shadow-lg shadow-sky-500/20">
+                        <i class="fas fa-door-open mr-2"></i>Đăng nhập</button>
+                </form>
+
+                <div class="mt-8 text-center text-sm text-slate-600">
+                    <p>Chưa có tài khoản? <a href="{% url 'register_user' %}" class="font-semibold text-sky-600 hover:text-sky-700">Đăng ký ngay</a></p>
+                    <a href="{% url 'home' %}" class="inline-flex items-center justify-center mt-4 text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-arrow-left mr-2"></i>Quay lại trang chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

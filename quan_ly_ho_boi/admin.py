@@ -17,3 +17,4 @@ class DatVeAdmin(admin.ModelAdmin): # type: ignore
     list_display = ('khach_hang', 'ho_boi', 'ngay_su_dung', 'tong_tien')
     list_filter = ('ngay_su_dung', 'ho_boi')
     search_fields = ('khach_hang__username', 'ho_boi__ten_ho')
+

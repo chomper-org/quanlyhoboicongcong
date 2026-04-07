@@ -1,313 +1,173 @@
-{% load static %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HỆ THỐNG QUẢN LÝ | Bảng điều khiển quản trị</title>
+    <title>Admin Dashboard | PoolManager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html {
-            scroll-behavior: smooth;
-        }
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #e2e8f0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            min-height: 100vh;
-        }
-        .sidebar-nav a {
-            transition: all 0.3s ease;
-        }
-        .sidebar-nav a:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-left-color: #3b82f6;
-            color: #60a5fa;
-        }
-        .sidebar-nav a.active {
-            background: rgba(59, 130, 246, 0.15);
-            border-left-color: #60a5fa;
-            color: #93c5fd;
-        }
-        .stat-card {
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3);
-        }
-        .btn-secondary {
-            transition: all 0.3s ease;
-        }
-        .btn-secondary:hover {
-            background: #334155;
-            color: #93c5fd;
-        }
-        table tr:hover {
-            background: rgba(59, 130, 246, 0.05);
-        }
+        /* Hiệu ứng chuyển tab mượt mà */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-    <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-slate-900 border-r border-slate-800 overflow-y-auto fixed h-screen">
-            <!-- Logo -->
-            <div class="p-6 border-b border-slate-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-swimming-pool text-white text-lg"></i>
+<body class="bg-[#0f172a] text-gray-200 font-sans flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-[#1e293b] border-r border-gray-800 flex flex-col">
+        <div class="h-16 flex items-center px-6 border-b border-gray-800">
+            <i class="fas fa-swimming-pool text-blue-500 text-2xl mr-3"></i>
+            <span class="text-xl font-bold text-white">Admin Panel</span>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <button onclick="switchTab('tab-dashboard', this)" class="w-full flex items-center px-4 py-3 bg-blue-600 text-white rounded-xl transition tab-btn">
+                <i class="fas fa-chart-pie mr-3 w-5"></i>
+                <span class="font-medium">Thống kê (Dashboard)</span>
+            </button>
+            
+            <button onclick="switchTab('tab-manage', this)" class="w-full flex items-center px-4 py-3 text-gray-400 hover:bg-[#0f172a] hover:text-white rounded-xl transition tab-btn">
+                <i class="fas fa-list mr-3 w-5"></i>
+                <span class="font-medium">Quản lý hồ bơi</span>
+            </button>
+        </nav>
+        <div class="p-4 border-t border-gray-800">
+            <a href="{% url 'logout_admin' %}" class="flex items-center px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition">
+                <i class="fas fa-sign-out-alt mr-3 w-5"></i>
+                <span class="font-medium">Đăng xuất</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <header class="h-16 bg-[#1e293b]/80 backdrop-blur border-b border-gray-800 flex items-center justify-between px-8 sticky top-0 z-10">
+            <h2 class="text-xl font-semibold text-white" id="page-title">Thống kê tổng quan</h2>
+            <div class="flex items-center gap-4">
+                <div class="bg-[#0f172a] px-4 py-2 rounded-lg border border-gray-700 flex items-center">
+                    <i class="fas fa-search text-gray-500 mr-2"></i>
+                    <input type="text" placeholder="Tìm kiếm nhanh..." class="bg-transparent border-none outline-none text-sm text-gray-200 placeholder-gray-500 w-48">
+                </div>
+                <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white">
+                    {{ request.user.username|make_list|first|upper }}
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8">
+            {% if messages %}
+            <div class="mb-6 space-y-3">
+                {% for message in messages %}
+                <div class="rounded-2xl border px-4 py-3 text-sm font-medium {% if message.tags == 'success' %}border-emerald-500 bg-emerald-500/10 text-emerald-200{% elif message.tags == 'error' %}border-red-500 bg-red-500/10 text-red-200{% else %}border-gray-700 bg-slate-800 text-gray-200{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg">
+                        <div class="text-gray-400 text-sm font-medium mb-2">Tổng doanh thu</div>
+                        <div class="text-3xl font-bold text-white">{{ tong_doanh_thu }}đ</div>
                     </div>
-                    <div>
-                        <p class="text-sm font-semibold text-white">QUẢN LÝ</p>
-                        <p class="text-xs text-gray-400">Hồ Bơi</p>
+                    <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg">
+                        <div class="text-gray-400 text-sm font-medium mb-2">Tổng hồ bơi</div>
+                        <div class="text-3xl font-bold text-white">{{ tong_ho_boi }}</div>
+                    </div>
+                    <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg">
+                        <div class="text-gray-400 text-sm font-medium mb-2">Đang mở cửa</div>
+                        <div class="text-3xl font-bold text-green-400">{{ ho_dang_mo }}</div>
+                    </div>
+                    <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg">
+                        <div class="text-gray-400 text-sm font-medium mb-2">Tổng vé đã đặt</div>
+                        <div class="text-3xl font-bold text-blue-400">{{ tong_ve_dat }}</div>
+                    </div>
+                </div>
+
+                <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg">
+                    <h3 class="text-lg font-bold text-white mb-4">Vé đặt gần đây</h3>
+                    <p class="text-gray-400 text-sm italic">Khu vực này có thể nhúng thêm biểu đồ Chart.js trong tương lai.</p>
+                </div>
+            </div>
+
+            <div id="tab-manage" class="tab-content">
+                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden">
+                    <div class="p-6 border-b border-gray-800 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Danh sách hồ bơi trên hệ thống</h3>
+                        <a href="{% url 'tao_ho_boi' %}" class="inline-flex items-center bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                            <i class="fas fa-plus mr-2"></i>Thêm hồ bơi mới
+                        </a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800">
+                                    <th class="p-4 font-medium">ID</th>
+                                    <th class="p-4 font-medium">Tên hồ bơi</th>
+                                    <th class="p-4 font-medium">Trạng thái</th>
+                                    <th class="p-4 font-medium">Giá vé (NL / TE)</th>
+                                    <th class="p-4 font-medium text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ho in danh_sach_ho %}
+                                <tr class="border-b border-gray-800 hover:bg-[#0f172a] transition text-sm">
+                                    <td class="p-4">#{{ ho.id }}</td>
+                                    <td class="p-4 font-semibold text-white">{{ ho.ten_ho }}</td>
+                                    <td class="p-4">
+                                        {% if ho.trang_thai == 'MO' %}
+                                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold">Đang mở</span>
+                                        {% else %}
+                                            <span class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold">Đóng cửa</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-4">{{ ho.gia_ve_nguoi_lon }} / {{ ho.gia_ve_tre_em }}</td>
+                                    <td class="p-4 text-right">
+                                        <a href="{% url 'chinh_sua_ho_boi' ho.id %}" class="text-blue-400 hover:text-blue-300 mr-3" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>
+                                        <form action="{% url 'xoa_ho_boi' ho.id %}" method="POST" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="text-red-400 hover:text-red-300" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa hồ bơi này không?');">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Menu -->
-            <nav class="p-4 space-y-2 sidebar-nav">
-                <div class="px-3 py-2 mt-6">
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Nghiệp vụ chính</p>
-                </div>
-                <a href="{% url 'admin_panel' %}" class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg border-l-4 border-transparent active">
-                    <i class="fas fa-chart-line w-5"></i>
-                    <span>Bảng điều khiển</span>
-                </a>
-                <a href="{% url 'quan_ly' %}" class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg border-l-4 border-transparent hover:text-gray-200">
-                    <i class="fas fa-water w-5"></i>
-                    <span>Quản lý hồ bơi</span>
-                </a>
-                <a href="{% url 'payment_history' %}" class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg border-l-4 border-transparent hover:text-gray-200">
-                    <i class="fas fa-history w-5"></i>
-                    <span>Lịch sử thanh toán</span>
-                </a>
+        </div>
+    </main>
 
-                <div class="px-3 py-2 mt-6">
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Hệ thống</p>
-                </div>
-                <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg border-l-4 border-transparent hover:text-gray-200">
-                    <i class="fas fa-chart-bar w-5"></i>
-                    <span>Thống kê</span>
-                </a>
-                <a href="{% url 'home' %}" class="flex items-center gap-3 px-4 py-3 text-gray-400 rounded-lg border-l-4 border-transparent hover:text-gray-200">
-                    <i class="fas fa-home w-5"></i>
-                    <span>Về trang chủ</span>
-                </a>
-            </nav>
+    <script>
+        function switchTab(tabId, btnElement) {
+            // 1. Ẩn tất cả các tab
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 2. Hiện tab được chọn
+            document.getElementById(tabId).classList.add('active');
 
-            <!-- User Info at Bottom -->
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-800">
-                <div class="flex items-center gap-3 px-3 py-3 bg-slate-800 rounded-xl">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold">
-                        {{ user.username|first|upper }}
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-white truncate">{{ user.get_full_name|default:user.username }}</p>
-                        <p class="text-xs text-gray-400">Admin</p>
-                    </div>
-                </div>
-            </div>
-        </aside>
+            // 3. Xóa màu xanh ở tất cả các nút menu
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-gray-400');
+            });
 
-        <!-- Main Content -->
-        <main class="flex-1 ml-64 flex flex-col overflow-hidden">
-            <!-- Topbar -->
-            <div class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8">
-                <div>
-                    <h1 class="text-2xl font-bold text-white">Bảng điều khiển</h1>
-                    <p class="text-sm text-gray-400">Chào mừng trở lại, {{ user.get_full_name|default:user.username }}</p>
-                </div>
-                <div class="flex items-center gap-6">
-                    <!-- Search -->
-                    <div class="hidden md:flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
-                        <i class="fas fa-search text-gray-400"></i>
-                        <input type="search" placeholder="Tìm kiếm..." class="bg-transparent text-gray-300 placeholder-gray-500 outline-none w-48">
-                    </div>
-                    <!-- Logout -->
-                    <a href="{% url 'logout_admin' %}" class="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-red-400 transition-colors">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="text-sm">Đăng xuất</span>
-                    </a>
-                </div>
-            </div>
+            // 4. Tô màu xanh cho nút menu vừa được bấm
+            btnElement.classList.remove('text-gray-400');
+            btnElement.classList.add('bg-blue-600', 'text-white');
 
-            <!-- Content Area -->
-            <div class="flex-1 overflow-y-auto">
-                <div class="p-8">
-                    <!-- Breadcrumb -->
-                    <div class="mb-8">
-                        <p class="text-gray-400 text-sm"><i class="fas fa-home mr-2"></i>Bảng điều khiển / <span class="text-gray-300">Tổng quan</span></p>
-                    </div>
-
-                    <!-- Stats Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <!-- Stat Card 1 -->
-                        <div class="stat-card bg-gradient-to-br from-blue-900 to-blue-800 border border-blue-700 rounded-2xl p-6 text-center">
-                            <div class="flex items-center justify-center mb-3">
-                                <i class="fas fa-swimming-pool text-blue-400 text-3xl"></i>
-                            </div>
-                            <h3 class="text-3xl font-bold text-white">{{ tong_ho_boi }}</h3>
-                            <p class="text-blue-200 text-sm mt-2">Tổng hồ bơi</p>
-                        </div>
-
-                        <!-- Stat Card 2 -->
-                        <div class="stat-card bg-gradient-to-br from-emerald-900 to-emerald-800 border border-emerald-700 rounded-2xl p-6 text-center">
-                            <div class="flex items-center justify-center mb-3">
-                                <i class="fas fa-check-circle text-emerald-400 text-3xl"></i>
-                            </div>
-                            <h3 class="text-3xl font-bold text-white">{{ ho_dang_mo }}</h3>
-                            <p class="text-emerald-200 text-sm mt-2">Đang mở cửa</p>
-                        </div>
-
-                        <!-- Stat Card 3 -->
-                        <div class="stat-card bg-gradient-to-br from-amber-900 to-amber-800 border border-amber-700 rounded-2xl p-6 text-center">
-                            <div class="flex items-center justify-center mb-3">
-                                <i class="fas fa-ticket-alt text-amber-400 text-3xl"></i>
-                            </div>
-                            <h3 class="text-3xl font-bold text-white">{{ tong_ve_dat }}</h3>
-                            <p class="text-amber-200 text-sm mt-2">Vé đã đặt</p>
-                        </div>
-
-                        <!-- Stat Card 4 -->
-                        <div class="stat-card bg-gradient-to-br from-violet-900 to-violet-800 border border-violet-700 rounded-2xl p-6 text-center">
-                            <div class="flex items-center justify-center mb-3">
-                                <i class="fas fa-dollar-sign text-violet-400 text-3xl"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold text-white">{{ tong_doanh_thu|floatformat:0 }}</h3>
-                            <p class="text-violet-200 text-sm mt-2">VND Doanh thu</p>
-                        </div>
-                    </div>
-
-                    <!-- Tables Section -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Pools Table -->
-                        <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
-                            <div class="px-6 py-4 border-b border-slate-700 bg-slate-900">
-                                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                                    <i class="fas fa-water text-blue-400"></i>
-                                    Hồ bơi gần đây
-                                </h3>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm">
-                                    <thead>
-                                        <tr class="border-b border-slate-700 bg-slate-900">
-                                            <th class="px-6 py-3 text-left text-gray-300 font-semibold">Tên hồ</th>
-                                            <th class="px-6 py-3 text-left text-gray-300 font-semibold">Địa chỉ</th>
-                                            <th class="px-6 py-3 text-left text-gray-300 font-semibold">Trạng thái</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-700">
-                                        {% for ho in ho_boi_gan_day %}
-                                        <tr class="hover:bg-slate-700 transition-colors">
-                                            <td class="px-6 py-3 text-gray-300">{{ ho.ten_ho }}</td>
-                                            <td class="px-6 py-3 text-gray-400 text-sm">{{ ho.dia_chi|truncatechars:40 }}</td>
-                                            <td class="px-6 py-3">
-                                                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold {% if ho.trang_thai == 'MO' %}bg-emerald-900 text-emerald-200{% else %}bg-slate-700 text-gray-300{% endif %}">
-                                                    {{ ho.get_trang_thai_display }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td colspan="3" class="px-6 py-8 text-center text-gray-400">
-                                                <i class="fas fa-inbox text-2xl mb-2 block"></i>
-                                                Chưa có hồ bơi nào
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="px-6 py-4 border-t border-slate-700 bg-slate-900">
-                                <a href="{% url 'quan_ly' %}" class="btn-primary inline-block px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-500">
-                                    Xem tất cả hồ bơi →
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Bookings Table -->
-                        <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
-                            <div class="px-6 py-4 border-b border-slate-700 bg-slate-900">
-                                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                                    <i class="fas fa-calendar-check text-emerald-400"></i>
-                                    Đặt vé gần đây
-                                </h3>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm">
-                                    <thead>
-                                        <tr class="border-b border-slate-700 bg-slate-900">
-                                            <th class="px-6 py-3 text-left text-gray-300 font-semibold">Khách hàng</th>
-                                            <th class="px-6 py-3 text-left text-gray-300 font-semibold">Hồ bơi</th>
-                                            <th class="px-6 py-3 text-left text-gray-300 font-semibold">Ngày đặt</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-700">
-                                        {% for ve in ve_dat_gan_day %}
-                                        <tr class="hover:bg-slate-700 transition-colors">
-                                            <td class="px-6 py-3 text-gray-300">{{ ve.khach_hang.username }}</td>
-                                            <td class="px-6 py-3 text-gray-400 text-sm">{{ ve.ho_boi.ten_ho|truncatechars:30 }}</td>
-                                            <td class="px-6 py-3 text-gray-400">{{ ve.ngay_dat|date:'d/m/Y' }}</td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td colspan="3" class="px-6 py-8 text-center text-gray-400">
-                                                <i class="fas fa-inbox text-2xl mb-2 block"></i>
-                                                Chưa có đặt vé nào
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="px-6 py-4 border-t border-slate-700 bg-slate-900">
-                                <a href="{% url 'payment_history' %}" class="btn-primary inline-block px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-500">
-                                    Xem lịch sử thanh toán →
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="mt-8 bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <i class="fas fa-lightning-bolt text-amber-400"></i>
-                            Hành động nhanh
-                        </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <a href="{% url 'quan_ly' %}" class="btn-primary px-4 py-3 bg-blue-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-blue-500 transition-all">
-                                <i class="fas fa-list"></i> Quản lý hồ bơi
-                            </a>
-                            <a href="{% url 'dashboard' %}" class="btn-secondary px-4 py-3 bg-slate-700 text-gray-300 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-slate-600 transition-all">
-                                <i class="fas fa-chart-bar"></i> Xem thống kê
-                            </a>
-                            <a href="{% url 'payment_history' %}" class="btn-secondary px-4 py-3 bg-slate-700 text-gray-300 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-slate-600 transition-all">
-                                <i class="fas fa-history"></i> Lịch sử TT
-                            </a>
-                            <a href="{% url 'home' %}" class="btn-secondary px-4 py-3 bg-slate-700 text-gray-300 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-slate-600 transition-all">
-                                <i class="fas fa-home"></i> Trang chủ
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+            // 5. Đổi tiêu đề trang ở Topbar
+            const titleMap = {
+                'tab-dashboard': 'Thống kê tổng quan',
+                'tab-manage': 'Quản lý danh sách hồ bơi'
+            };
+            document.getElementById('page-title').innerText = titleMap[tabId];
+        }
+    </script>
 </body>
 </html>

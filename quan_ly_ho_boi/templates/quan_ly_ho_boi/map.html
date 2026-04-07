@@ -1,411 +1,297 @@
-{% extends 'quan_ly_ho_boi/base.html' %}
-{% load static %}
-
-{% block content %}
-<h2 class="mb-3">Bản đồ Phân bố Hồ bơi (GIS)</h2>
-
-<div class="card shadow-sm">
-    <div class="p-2 bg-light border-bottom">
-        <div class="row g-2 align-items-center">
-            <div class="col-md-6">
-                <div class="row g-2">
-                    <div class="col-sm-7">
-                        <input type="text" id="searchBox" placeholder="Tìm hồ bơi theo tên hoặc địa chỉ..." class="form-control" oninput="applyFilters()">
-                    </div>
-                    <div class="col-sm-5">
-                        <select id="statusFilter" class="form-select" onchange="applyFilters()">
-                            <option value="all">Tất cả trạng thái</option>
-                            <option value="MO">Đang mở</option>
-                            <option value="BAO_TRI">Bảo trì</option>
-                            <option value="DONG">Đóng cửa</option>
-                        </select>
-                    </div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ GIS | WebGIS Quản lý Hồ bơi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        .leaflet-popup-content { margin: 12px; width: 280px !important; }
+        .leaflet-control-layers { border-radius: 8px !important; border: none !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important; }
+        .suggestion-item { padding: 8px 16px; cursor: pointer; border-bottom: 1px solid #e5e7eb; }
+        .suggestion-item:hover { background-color: #f3f4f6; }
+        .suggestion-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
+    
+    <nav class="bg-white shadow-md z-50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-xl font-bold text-blue-600"><i class="fas fa-swimming-pool mr-2"></i>PoolFinder</span>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="row g-2 justify-content-end">
-                    <div class="col-sm-6">
-                        <button class="btn btn-outline-primary w-100" onclick="locateMe()">Định vị tôi</button>
-                    </div>
-                    <div class="col-sm-6">
-                        <button class="btn btn-outline-secondary w-100" onclick="resetMap()">Làm mới</button>
-                    </div>
+                <div class="flex items-center gap-6">
+                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Trang chủ</a>
+                    <a href="{% url 'map' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition">Bản đồ GIS</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition font-medium"><i class="fas fa-user mr-2"></i>{{ user.username }}</a>
+                        <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng xuất</a>
+                    {% else %}
+                        <a href="{% url 'login_user' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Đăng nhập</a>
+                        <a href="{% url 'register_user' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">Đăng ký</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div class="row g-2 mt-2">
-            <div class="col-md-12 text-end">
-                <span id="poolCount" class="badge bg-primary">0 hồ bơi</span>
+    </nav>
+
+    <main class="flex-1 relative z-0">
+        <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] flex gap-2 w-full max-w-2xl px-4">
+            <div class="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 relative">
+                <div class="flex items-center px-4 py-2">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" id="searchInput" placeholder="Tìm tên hoặc địa chỉ..." class="w-full outline-none text-sm text-gray-700" autocomplete="off">
+                </div>
+                <div id="suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg max-h-60 overflow-y-auto hidden z-10">
+                    <!-- Gợi ý sẽ được thêm vào đây -->
+                </div>
+            </div>
+            <select id="statusFilter" class="bg-white rounded-lg shadow-lg px-4 py-2 outline-none text-sm border border-gray-200 text-gray-700 font-medium">
+                <option value="ALL">Tất cả trạng thái</option>
+                <option value="MO">Đang mở cửa</option>
+                <option value="DONG">Đóng cửa</option>
+            </select>
+            <button id="resetBtn" class="bg-white hover:bg-blue-50 text-blue-600 px-4 py-2 rounded-lg shadow-lg border border-gray-200 transition flex items-center gap-2" title="Làm mới & Định vị">
+                <i class="fas fa-sync-alt" id="resetIcon"></i>
+                <span class="text-xs font-bold hidden sm:inline">Làm mới</span>
+            </button>
+        </div>
+
+        <div class="absolute top-20 right-4 z-[1000]">
+            <div class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg font-bold text-sm">
+                Hiển thị: <span id="poolCounter" class="ml-1 text-yellow-300">0</span>
             </div>
         </div>
-    </div>
-    <div class="card-body p-0">
-        <div id="map" style="height: 720px; width: 100%;"></div>
-    </div>
-</div>
 
-<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"/>
-<style>
-    .leaflet-popup-content {
-        padding: 12px 14px;
-        font-size: 0.95rem;
-        color: #212529;
-    }
-    .leaflet-popup-content .pool-popup {
-        min-width: 240px;
-    }
-    .leaflet-popup-content .pool-popup-image {
-        width: 100%;
-        height: 150px;
-        overflow: hidden;
-        border-radius: 0.5rem;
-        background: #f8f9fa;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .leaflet-popup-content .pool-popup-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .leaflet-popup-content .pool-popup-image-empty {
-        color: #6c757d;
-        font-size: 0.92rem;
-        padding: 0.5rem;
-        text-align: center;
-    }
-    .leaflet-popup-content .pool-popup-title {
-        margin: 0 0 0.5rem;
-        font-size: 1rem;
-        font-weight: 700;
-    }
-    .leaflet-popup-content .pool-popup-row {
-        margin-bottom: 0.35rem;
-        line-height: 1.35;
-    }
-    .leaflet-popup-content .pool-popup-row strong {
-        display: inline-block;
-        width: 7rem;
-    }
-    .leaflet-popup-content .pool-popup-actions {
-        margin-top: 0.75rem;
-    }
-    .leaflet-popup-content a.btn {
-        margin-top: 8px;
-        display: inline-block;
-        width: 100%;
-    }
-    .leaflet-popup-content .pool-popup-actions .btn {
-        color: #fff;
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-    .leaflet-popup-content .pool-popup-actions .btn:hover {
-        color: #fff;
-        background-color: #0b5ed7;
-        border-color: #0a58ca;
-    }
-    .map-control-panel {
-        position: relative;
-        z-index: 1000;
-    }
-    .pool-status-mo {
-        /* Image-based icon colors are defined in SVG files */
-    }
-    .pool-status-bao-tri {
-        /* Image-based icon colors are defined in SVG files */
-    }
-    .pool-status-dong {
-        /* Image-based icon colors are defined in SVG files */
-    }
-    .pool-selected {
-        transform: scale(1.15);
-        filter: drop-shadow(0 0 8px rgba(0,0,0,0.35));
-    }
-</style>
-<script src="{% static 'leaflet/leaflet.js' %}"></script>
+        <div id="leaflet-map" class="w-full h-full"></div>
+    </main>
 
-<script>
-    var map;
-    var poolLayer;
-    var currentMousePos = null;
-    var currentPosition = null;
-    var allPools = [];
-    var selectedPoolMarker = null;
-    var userMarker = null;
-    var userAccuracyCircle = null;
-    var routeControl = null;
-    var imageBase = "{% static 'images/' %}";
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
+            
+            const map = L.map('leaflet-map', {
+                center: [10.7769, 106.6964], 
+                zoom: 13,
+                layers: [osmLayer]
+            });
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+            L.control.layers({"Bản đồ chuẩn": osmLayer, "Vệ tinh": satelliteLayer}).addTo(map);
+            L.control.scale({metric: true, imperial: false}).addTo(map);
+
+            let allPoolsData = [];
+            let markerGroup = L.featureGroup().addTo(map);
+            let userMarker = null;
+
+            function getCustomIcon(statusCode) {
+                let color = statusCode === 'MO' ? 'green' : 'red';
+                return new L.Icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+                });
+            }
+
+            function renderMarkers(pools) {
+                markerGroup.clearLayers();
+                pools.forEach(feature => {
+                    const coords = feature.geometry.coordinates;
+                    const props = feature.properties;
+                    const marker = L.marker([coords[1], coords[0]], {icon: getCustomIcon(props.status_code)});
+                    
+                    let imgHtml = props.image ? `<img src="${props.image}" class="w-full h-32 object-cover rounded-t-lg mb-2">` : `<div class="w-full h-32 bg-blue-100 flex items-center justify-center rounded-t-lg mb-2 text-blue-300"><i class="fas fa-image text-3xl"></i></div>`;
+                    let statusHtml = props.status_code === 'MO' ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Đang mở</span>` : `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Đóng cửa</span>`;
+                    
+                    const popupContent = `
+                        <div class="popup-container -m-3">
+                            ${imgHtml}
+                            <div class="px-3 pb-3">
+                                <h5 class="font-bold text-lg text-gray-900 leading-tight mb-1">${props.name}</h5>
+                                <p class="text-xs text-gray-500 mb-2 truncate"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i>${props.address}</p>
+                                <div class="flex justify-between items-center mb-4">${statusHtml}<span class="text-sm font-bold text-blue-600">${props.price_adult}đ/vé</span></div>
+                                <a href="/dat-ve/${props.id}/" class="block w-full text-center bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700 transition font-medium text-sm">Đặt vé ngay</a>
+                            </div>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    markerGroup.addLayer(marker);
+                });
+                document.getElementById('poolCounter').innerText = pools.length;
+            }
+
+            // Hàm định vị người dùng
+            function locateUser(isInitial = false) {
+                if ("geolocation" in navigator) {
+                    const icon = document.getElementById('resetIcon');
+                    if (icon) icon.classList.add('fa-spin');
+
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        if (userMarker) map.removeLayer(userMarker);
+                        
+                        const userIcon = new L.Icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                            iconSize: [25, 41], iconAnchor: [12, 41]
+                        });
+                        
+                        userMarker = L.marker([lat, lng], {icon: userIcon}).addTo(map).bindPopup('<b>Vị trí của bạn</b>');
+                        map.setView([lat, lng], 14);
+                        if (icon) icon.classList.remove('fa-spin');
+                    }, error => {
+                        if (!isInitial) alert("Không thể lấy vị trí. Vui lòng kiểm tra quyền truy cập vị trí.");
+                        if (icon) icon.classList.remove('fa-spin');
+                    });
                 }
             }
-        }
-        return cookieValue;
-    }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        map = L.map('map').setView([10.7769, 106.7009], 12);
+            // Tải dữ liệu ban đầu
+            fetch('{% url "get_pools" %}')
+                .then(response => response.json())
+                .then(data => {
+                    allPoolsData = data.features;
+                    renderMarkers(allPoolsData);
+                    // Tự động định vị ngay khi vào trang
+                    locateUser(true); 
+                });
 
-        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        });
-
-        var carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap contributors © CARTO'
-        });
-
-        var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles © Esri'
-        });
-
-        var baseMaps = {
-            "OpenStreetMap": osm,
-            "Carto Light": carto,
-            "Satellite": satellite
-        };
-
-        osm.addTo(map);
-        L.control.layers(baseMaps).addTo(map);
-        L.control.scale().addTo(map);
-
-        poolLayer = L.featureGroup().addTo(map);
-
-        map.locate({setView: false, maxZoom: 16});
-
-        map.on('locationfound', function(e) {
-            currentPosition = e.latlng;
-            updateUserMarker(e.latlng, e.accuracy);
-        });
-
-        map.on('locationerror', function() {
-            console.warn('Không xác định được vị trí người dùng.');
-        });
-
-        map.on('mousemove', function(e) {
-            currentMousePos = e.latlng;
-        });
-
-        loadPools();
-    });
-
-    function getPoolIcon(status, selected) {
-        return getPoolImageIcon(status, selected);
-    }
-
-    function getPoolImageIcon(status, selected) {
-        var iconUrl = imageBase + 'pool-marker-open.svg';
-        if (status === 'BAO_TRI') iconUrl = imageBase + 'pool-marker-maintenance.svg';
-        else if (status === 'DONG') iconUrl = imageBase + 'pool-marker-closed.svg';
-        if (selected) iconUrl = imageBase + 'pool-marker-selected.svg';
-        return L.icon({
-            iconUrl: iconUrl,
-            iconSize: [36, 48],
-            iconAnchor: [18, 48],
-            popupAnchor: [0, -42]
-        });
-    }
-
-    function getUserIcon() {
-        return getUserImageIcon();
-    }
-
-    function getUserImageIcon() {
-        return L.icon({
-            iconUrl: imageBase + 'user-marker.svg',
-            iconSize: [36, 48],
-            iconAnchor: [18, 48],
-            popupAnchor: [0, -36]
-        });
-    }
-
-    function refreshIcons() {
-        poolLayer.eachLayer(function(layer) {
-            if (layer.feature) {
-                var status = layer.feature.properties.status_code;
-                var selected = layer === selectedPoolMarker;
-                layer.setIcon(getPoolIcon(status, selected));
+            // Xử lý bộ lọc
+            function applyFilters() {
+                let searchText = document.getElementById('searchInput').value.toLowerCase();
+                let statusVal = document.getElementById('statusFilter').value;
+                let filtered = allPoolsData.filter(f => {
+                    let matchT = f.properties.name.toLowerCase().includes(searchText) || f.properties.address.toLowerCase().includes(searchText);
+                    let matchS = (statusVal === 'ALL') || (f.properties.status_code === statusVal);
+                    return matchT && matchS;
+                });
+                renderMarkers(filtered);
             }
-        });
-        if (userMarker) {
-            userMarker.setIcon(getUserIcon());
-        }
-    }
 
-    function updateUserMarker(latlng, accuracy) {
-        var popupHtml = `
-            <div class="pool-popup">
-                <div class="pool-popup-title">Bạn đang ở đây</div>
-                <div class="pool-popup-row"><strong>Vĩ độ:</strong> ${latlng.lat.toFixed(6)}</div>
-                <div class="pool-popup-row"><strong>Kinh độ:</strong> ${latlng.lng.toFixed(6)}</div>
-                <div class="pool-popup-row"><strong>Độ chính xác:</strong> ${Math.round(accuracy)} m</div>
-            </div>
-        `;
-
-        if (userMarker) {
-            userMarker.setLatLng(latlng).setPopupContent(popupHtml);
-        } else {
-            userMarker = L.marker(latlng, {
-                icon: getUserIcon(),
-                interactive: true
-            }).addTo(map).bindPopup(popupHtml, { autoClose: false, closeOnClick: false });
-        }
-
-        userMarker.openPopup();
-
-        if (userAccuracyCircle) {
-            userAccuracyCircle.setLatLng(latlng).setRadius(accuracy / 2);
-        } else {
-            userAccuracyCircle = L.circle(latlng, {
-                radius: accuracy / 2,
-                color: '#007bff',
-                fillColor: '#007bff',
-                fillOpacity: 0.12,
-                weight: 2
-            }).addTo(map);
-        }
-    }
-
-    function loadPools() {
-        fetch('/api/get-pools/')
-            .then(response => response.json())
-            .then(data => {
-                allPools = Array.isArray(data.features) ? data.features
-                    : Array.isArray(data) ? data
-                    : Array.isArray(data.data) ? data.data
-                    : [];
-                renderPools(allPools);
-            })
-            .catch(error => console.error('Lỗi khi tải dữ liệu hồ bơi:', error));
-    }
-
-    function renderPools(poolFeatures) {
-        poolLayer.clearLayers();
-        resetSelectedPool();
-
-        poolFeatures.forEach(function(feature) {
-            poolLayer.addLayer(createPoolMarker(feature));
-        });
-
-        if (poolLayer.getLayers().length) {
-            map.fitBounds(poolLayer.getBounds(), { padding: [40, 40] });
-        }
-        updatePoolCount(poolLayer.getLayers().length);
-    }
-
-    function updatePoolCount(count) {
-        var element = document.getElementById('poolCount');
-        if (!element) {
-            console.warn('Không tìm thấy poolCount element');
-            return;
-        }
-        element.textContent = `${count} hồ bơi`;
-    }
-
-    function createPoolMarker(feature) {
-        var coords = feature.geometry.coordinates;
-        var props = feature.properties;
-        var marker = L.marker([coords[1], coords[0]], {
-            icon: getPoolIcon(props.status_code, false)
-        });
-        marker.feature = feature;
-
-        var imageUrl = props.image || '';
-        if (imageUrl && imageUrl.startsWith('/')) {
-            imageUrl = window.location.origin + imageUrl;
-        }
-
-        var popupHtml = `
-            <div class="pool-popup">
-                ${imageUrl ? `
-                    <div class="pool-popup-image">
-                        <img src="${imageUrl}" alt="${props.name}" />
-                    </div>
-                ` : `
-                    <div class="pool-popup-image pool-popup-image-empty">
-                        Chưa có ảnh hồ bơi
-                    </div>
-                `}
-                <div class="pool-popup-title">${props.name}</div>
-                <div class="pool-popup-row"><strong>Trạng thái:</strong> ${props.status}</div>
-                <div class="pool-popup-row"><strong>Địa chỉ:</strong> ${props.address}</div>
-                <div class="pool-popup-row"><strong>Độ sâu:</strong> ${props.depth} m</div>
-                <div class="pool-popup-row"><strong>Sức chứa:</strong> ${props.capacity} người</div>
-                <div class="pool-popup-row"><strong>Giá người lớn:</strong> ${props.price_adult} VNĐ</div>
-                <div class="pool-popup-row"><strong>Giá trẻ em:</strong> ${props.price_child} VNĐ</div>
-                <div class="pool-popup-actions">
-                    <a href="/dat-ve/${props.id}/" class="btn btn-sm btn-primary">Đặt vé</a>
-                </div>
-            </div>
-        `;
-
-        marker.bindPopup(popupHtml);
-        marker.on('click', function() {
-            selectPoolMarker(marker, props.status_code);
-            if (routeControl) {
-                map.removeControl(routeControl);
-                routeControl = null;
+            // Hàm hiển thị gợi ý
+            function showSuggestions(filteredPools) {
+                const suggestionsDiv = document.getElementById('suggestions');
+                suggestionsDiv.innerHTML = '';
+                if (filteredPools.length > 0 && document.getElementById('searchInput').value.trim() !== '') {
+                    filteredPools.slice(0, 5).forEach(pool => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.innerHTML = `<strong>${pool.properties.name}</strong><br><small class="text-gray-500">${pool.properties.address}</small>`;
+                        div.addEventListener('click', () => {
+                            selectSuggestion(pool);
+                        });
+                        suggestionsDiv.appendChild(div);
+                    });
+                    suggestionsDiv.classList.remove('hidden');
+                } else {
+                    suggestionsDiv.classList.add('hidden');
+                }
             }
+
+            // Hàm ẩn gợi ý
+            function hideSuggestions() {
+                document.getElementById('suggestions').classList.add('hidden');
+            }
+
+            // Hàm chọn gợi ý
+            function selectSuggestion(pool) {
+                document.getElementById('searchInput').value = pool.properties.name;
+                hideSuggestions();
+                zoomToPool(pool);
+            }
+
+            // Hàm zoom vào hồ bơi
+            function zoomToPool(pool) {
+                const coords = pool.geometry.coordinates;
+                map.flyTo([coords[1], coords[0]], 16, {
+                    duration: 1.5, // Thời gian zoom (giây)
+                    easeLinearity: 0.25 // Độ mượt của animation
+                });
+                // Đợi animation hoàn thành rồi mở popup
+                setTimeout(() => {
+                    markerGroup.eachLayer(layer => {
+                        if (layer.getLatLng().lat === coords[1] && layer.getLatLng().lng === coords[0]) {
+                            layer.openPopup();
+                        }
+                    });
+                }, 1500);
+            }
+
+            // Sự kiện input cho ô tìm kiếm
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                if (query === '') {
+                    hideSuggestions();
+                    applyFilters();
+                    return;
+                }
+                const filtered = allPoolsData.filter(pool =>
+                    pool.properties.name.toLowerCase().includes(query) ||
+                    pool.properties.address.toLowerCase().includes(query)
+                );
+                showSuggestions(filtered);
+                applyFilters();
+            });
+
+            // Sự kiện keydown cho Enter
+            document.getElementById('searchInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value.toLowerCase().trim();
+                    if (query !== '') {
+                        const exactMatch = allPoolsData.find(pool =>
+                            pool.properties.name.toLowerCase() === query
+                        );
+                        if (exactMatch) {
+                            zoomToPool(exactMatch);
+                        } else {
+                            // Nếu không có exact match, zoom vào match đầu tiên
+                            const firstMatch = allPoolsData.find(pool =>
+                                pool.properties.name.toLowerCase().includes(query) ||
+                                pool.properties.address.toLowerCase().includes(query)
+                            );
+                            if (firstMatch) {
+                                zoomToPool(firstMatch);
+                            }
+                        }
+                    }
+                    hideSuggestions();
+                }
+            });
+
+            // Sự kiện click ra ngoài để ẩn gợi ý
+            document.addEventListener('click', function(e) {
+                const searchContainer = document.querySelector('.flex-1.bg-white');
+                if (!searchContainer.contains(e.target)) {
+                    hideSuggestions();
+                }
+            });
+
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+            // Nút Reset giờ đây kiêm luôn chức năng định vị lại
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('statusFilter').value = 'ALL';
+                renderMarkers(allPoolsData);
+                locateUser(); 
+            });
         });
-        return marker;
-    }
+    </script>
 
-    function selectPoolMarker(marker, status) {
-        if (selectedPoolMarker && selectedPoolMarker !== marker) {
-            resetSelectedPool();
-        }
-        selectedPoolMarker = marker;
-        marker.setIcon(getPoolIcon(status, true));
-    }
-
-    function resetSelectedPool() {
-        if (!selectedPoolMarker) return;
-        var feature = selectedPoolMarker.feature;
-        var status = feature && feature.properties ? feature.properties.status_code : 'MO';
-        selectedPoolMarker.setIcon(getPoolIcon(status, false));
-        selectedPoolMarker = null;
-    }
-
-    function applyFilters() {
-        var keyword = document.getElementById('searchBox').value.toLowerCase();
-        var statusFilter = document.getElementById('statusFilter').value;
-
-        var filtered = allPools.filter(function(feature) {
-            var props = feature.properties;
-            var text = `${props.name} ${props.address}`.toLowerCase();
-            var matchKeyword = keyword === '' || text.indexOf(keyword) !== -1;
-            var matchStatus = statusFilter === 'all' || props.status_code === statusFilter;
-            return matchKeyword && matchStatus;
-        });
-
-        renderPools(filtered);
-    }
-
-    function locateMe() {
-        map.locate({setView: true, maxZoom: 16});
-    }
-
-    function resetMap() {
-        document.getElementById('searchBox').value = '';
-        document.getElementById('statusFilter').value = 'all';
-        renderPools(allPools);
-        if (routeControl) {
-            map.removeControl(routeControl);
-            routeControl = null;
-        }
-    }
-
-
-</script>
-{% endblock %}
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-sm">
+                <a href="{% url 'login_admin' %}" class="hover:text-gray-300 transition">Dành cho Ban quản trị</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
