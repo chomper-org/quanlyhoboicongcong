@@ -27,7 +27,11 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'map' %}">Bản đồ GIS</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'payment_history' %}">Lịch sử thanh toán</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'quan_ly' %}">Quản lý</a></li>
-                <li class="nav-item"><a class="nav-link btn btn-light text-primary ms-2 px-3 fw-bold" href="/admin">Admin</a></li>
+                {% if user.is_staff %}
+                <li class="nav-item"><a class="nav-link btn btn-warning text-dark ms-2 px-3 fw-bold" href="{% url 'admin_panel' %}">Admin Panel</a></li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link btn btn-warning text-dark ms-2 px-3 fw-bold" href="{% url 'login_admin' %}">Admin Panel</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>

@@ -3,7 +3,11 @@ from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_date
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect
+from django.db.models import Sum
 from .models import HoBoi, DatVe, Payment
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -158,13 +162,92 @@ def lich_su_thanh_toan(request: HttpRequest):
         'lich_su': lich_su,
     })
 
-# 7. Chức năng Xóa hồ bơi
+# 8. Trang admin tùy chỉnh (Tổng hợp quản lý)
+@login_required
+def admin_home(request: HttpRequest):
+    if not request.user.is_staff:
+        return redirect('home')  # Chỉ cho phép staff truy cập
+    
+    # Thống kê tổng quan
+    tong_ho_boi = HoBoi.objects.count()
+    tong_ve_dat = DatVe.objects.count()
+    ho_dang_mo = HoBoi.objects.filter(trang_thai='MO').count()
+    tong_doanh_thu = Payment.objects.filter(trang_thai='Hoàn thành').aggregate(total=Sum('so_tien'))['total'] or 0
+    
+    # Danh sách hồ bơi gần đây
+    ho_boi_gan_day = HoBoi.objects.order_by('-id')[:5]
+    
+    # Danh sách đặt vé gần đây
+    ve_dat_gan_day = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')[:10]
+    
+    context = {
+        'tong_ho_boi': tong_ho_boi,
+        'tong_ve_dat': tong_ve_dat,
+        'ho_dang_mo': ho_dang_mo,
+        'tong_doanh_thu': tong_doanh_thu,
+        'ho_boi_gan_day': ho_boi_gan_day,
+        've_dat_gan_day': ve_dat_gan_day,
+    }
+    return render(request, 'quan_ly_ho_boi/admin_panel.html', context)
+
+# 8.1. Login cho admin panel
+def login_admin(request: HttpRequest):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_panel')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect('admin_panel')
+        else:
+            messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng, hoặc bạn không có quyền truy cập.')
+    
+    return render(request, 'quan_ly_ho_boi/login_admin.html')
+
+# 8.2. Logout cho admin panel
+def logout_admin(request: HttpRequest):
+    logout(request)
+    return redirect('login_admin')
+
+# 9. Chức năng Xóa hồ bơi
 def xoa_ho_boi(request: HttpRequest, ho_boi_id : int):
     ho_boi = get_object_or_404(HoBoi, id=ho_boi_id)
     if request.method == 'POST':
         ho_boi.delete()
         return redirect('quan_ly')
     return redirect('quan_ly')
+
+# 10. Trang chủ công khai (Home Page)
+def home_page(request: HttpRequest):
+    """Trang chủ cho khách hàng công khai"""
+    danh_sach_ho = HoBoi.objects.all()
+    ho_dang_mo = HoBoi.objects.filter(trang_thai='MO').count()
+    context = {
+        'danh_sach_ho': danh_sach_ho,
+        'ho_dang_mo': ho_dang_mo,
+    }
+    return render(request, 'quan_ly_ho_boi/home.html', context)
+
+# 11. Trang cá nhân (User Profile)
+@login_required(login_url='/admin-panel/login/')
+def user_profile(request: HttpRequest):
+    """Trang thông tin cá nhân của người dùng (Bắt buộc đăng nhập)"""
+    user = request.user
+    # Lịch sử vé đặt của người dùng
+    lich_su_ve = DatVe.objects.filter(khach_hang=user).select_related('ho_boi').order_by('-ngay_dat')[:10]
+    # Lịch sử thanh toán của người dùng
+    lich_su_thanh_toan = Payment.objects.filter(dat_ve__khach_hang=user).select_related('dat_ve__ho_boi').order_by('-ngay_thanh_toan')[:5]
+    
+    context = {
+        'user': user,
+        'lich_su_ve': lich_su_ve,
+        'lich_su_thanh_toan': lich_su_thanh_toan,
+        'tong_ve_da_dat': lich_su_ve.count(),
+    }
+    return render(request, 'quan_ly_ho_boi/profile.html', context)
 # 6. Lưu xử lí dữ liệu
 @csrf_exempt
 def luu_ho_boi(request):

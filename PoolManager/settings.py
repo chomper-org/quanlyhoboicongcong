@@ -4,7 +4,7 @@ Cấu hình chuẩn cho giao diện SIMPLEUI (Phiên bản đẹp & Gọn).
 """
 
 from pathlib import Path
-import os 
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,7 +19,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
-    'simpleui', # SimpleUI phải luôn nằm đầu tiên
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -61,8 +61,16 @@ WSGI_APPLICATION = 'PoolManager.wsgi.application'
 # Database
 DATABASES = { # type: ignore
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'poolweb',
+        'USER': 'root',
+        'PASSWORD': 'ServBay.dev',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1",
+        },
     }
 }
 
@@ -96,75 +104,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# ==========================================
-# --- CẤU HÌNH GIAO DIỆN SIMPLEUI (ĐÃ FIX LỖI LOGO) ---
-# ==========================================
+# Login URL for admin panel
+LOGIN_URL = '/admin-panel/login/'
 
-# 1. Thông tin cơ bản
-SIMPLEUI_HOME_INFO = False
-SIMPLEUI_ANALYSIS = False
-SIMPLEUI_LOADING = True
 
-# 2. Logo & Tiêu đề (QUAN TRỌNG NHẤT Ở ĐÂY)
-# --- Fix lỗi nền trắng: Dùng link ảnh PNG trong suốt ---
-# (Mình dùng tạm link icon này, nó là nền trong suốt chuẩn)
-SIMPLEUI_LOGO = 'https://cdn-icons-png.flaticon.com/512/10375/10375033.png'
-
-# --- Fix tiêu đề theo yêu cầu ---
-SIMPLEUI_HOME_TITLE = 'HỆ THỐNG QUẢN LÝ'
-
-SIMPLEUI_HOME_ICON = 'fas fa-tasks'
-
-# 3. Giao diện
-SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
-
-# 4. Icon Menu
-SIMPLEUI_ICON = {
-    'Hồ bơi': 'fas fa-swimming-pool',
-    'Vé đặt': 'fas fa-file-invoice-dollar',
-    'Users': 'fas fa-user-tie',
-    'Groups': 'fas fa-users-cog',
-}
-
-SIMPLEUI_CONFIG = { # type: ignore
-    # 1. Tắt menu mặc định của Django để tự mình sắp xếp
-    'system_keep': False,
-
-    # 2. Danh sách Menu (Bạn muốn hiện gì thì viết vào đây)
-    'menus': [
-        {
-            'name': 'Nghiệp vụ Chính', # Tên nhóm menu cha
-            'icon': 'fas fa-swimming-pool', # Icon nhóm
-            'models': [
-                {
-                    'name': 'Quản lý Hồ bơi',
-                    'icon': 'fas fa-water',
-                    'url': 'quan_ly_ho_boi/hoboi/' # Cấu trúc: app_name/model_name/
-                },
-                {
-                    'name': 'Quản lý Vé đặt',
-                    'icon': 'fas fa-ticket-alt',
-                    'url': 'quan_ly_ho_boi/datve/'
-                }
-            ]
-        },
-        {
-            'name': 'Hệ thống',
-            'icon': 'fas fa-cogs',
-            'models': [
-                {
-                    'name': 'Tài khoản nhân viên',
-                    'icon': 'fas fa-user-tie',
-                    'url': 'auth/user/'
-                },
-                {
-                    'name': 'Phân quyền (Nhóm)',
-                    'icon': 'fas fa-users-cog',
-                    'url': 'auth/group/'
-                }
-            ]
-        }
-    ]
-}
-SIMPLEUI_HOME_QUICK = True
-SIMPLEUI_HOME_ACTION = False
