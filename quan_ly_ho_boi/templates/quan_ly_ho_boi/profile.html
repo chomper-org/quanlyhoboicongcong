@@ -62,11 +62,13 @@
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                     <div class="h-32 bg-gradient-to-r from-blue-400 to-purple-500"></div>
                     <div class="px-6 py-4 text-center -mt-16 relative pb-6">
+                        <a href="{% url 'profile' %}" class="inline-block no-underline text-inherit">
                         <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-5xl font-bold shadow-lg border-4 border-white">
                             {{ user.username|first|upper }}
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h2>
                         <p class="text-gray-500 text-sm mb-4">@{{ user.username }}</p>
+                    </a>
                         
                         <div class="space-y-3 text-left bg-gray-50 rounded-lg p-4 mb-4">
                             <div class="flex items-center gap-3">
@@ -100,14 +102,8 @@
                         <i class="fas fa-bolt text-amber-500 mr-2"></i>Hành động
                     </h3>
                     <div class="space-y-3">
-                        <a href="{% url 'home' %}" class="block w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-center">
+                        <a href="{% url 'map' %}" class="block w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-center">
                             <i class="fas fa-search mr-2"></i>Tìm hồ bơi
-                        </a>
-                        <a href="{% url 'payment_history' %}" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-center">
-                            <i class="fas fa-history mr-2"></i>Lịch sử thanh toán
-                        </a>
-                        <a href="{% url 'dashboard' %}" class="block w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium text-center">
-                            <i class="fas fa-chart-bar mr-2"></i>Thống kê
                         </a>
                     </div>
                 </div>

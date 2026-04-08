@@ -30,17 +30,21 @@
                     {% if user.is_authenticated %}
                         {% if user.is_staff and user.is_superuser %}
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                                    {{ user.username|make_list|first|upper }}
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">{{ user.username }}</span>
+                                <a href="{% url 'profile' %}" class="flex items-center gap-3 no-underline">
+                                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                                        {{ user.username|make_list|first|upper }}
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700 hover:text-blue-800 transition">{{ user.username }}</span>
+                                </a>
                             </div>
                         {% else %}
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                                    {{ user.username|make_list|first|upper }}
-                                </div>
-                                <a href="{% url 'profile' %}" class="text-blue-600 hover:text-blue-800 transition font-medium">{{ user.username }}</a>
+                                <a href="{% url 'profile' %}" class="flex items-center gap-3 no-underline">
+                                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                                        {{ user.username|make_list|first|upper }}
+                                    </div>
+                                    <span class="text-blue-600 hover:text-blue-800 transition font-medium">{{ user.username }}</span>
+                                </a>
                             </div>
                         {% endif %}
                         <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng xuất</a>
@@ -53,12 +57,89 @@
         </div>
     </nav>
 
-    <section class="relative py-20 px-4 text-center">
-        <h1 class="text-5xl font-bold text-gray-900 mb-6">Khám phá <span class="text-blue-600">hồ bơi lý tưởng</span></h1>
-        <p class="text-xl text-gray-600 mb-8">Hệ thống quản lý và tìm kiếm hồ bơi công cộng hiện đại nhất.</p>
-        <a href="{% url 'map' %}" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-lg">
-            <i class="fas fa-map-marked-alt mr-2"></i> Mở bản đồ tìm kiếm ngay
-        </a>
+    <section class="relative py-24 px-4 text-center text-white bg-[url('https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat">
+        <div class="absolute inset-0 bg-gray-900/60 z-0"></div>
+        
+        <div class="max-w-7xl mx-auto relative z-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold uppercase tracking-wide mb-6">Hệ Thống Quản Lý Hồ Bơi Công Cộng</h1>
+            <p class="text-lg md:text-xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Hệ thống được xây dựng nhằm hỗ trợ công tác quản lý hồ bơi công cộng thông qua công nghệ <strong>WebGIS</strong>. 
+                Người quản lý có thể theo dõi vị trí, cập nhật thông tin hồ, ghi nhận sự cố và giám sát an toàn trực tiếp trên bản đồ số.
+            </p>
+            <div class="flex justify-center gap-4">
+                <a href="{% url 'map' %}" class="px-8 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition font-bold shadow-lg flex items-center">
+                    <i class="fas fa-map-location-dot mr-2"></i> Truy cập Bản đồ
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 px-4 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 relative">
+                <h2 class="text-2xl font-bold text-gray-700 uppercase mb-4">Mục Tiêu Hệ Thống</h2>
+                <div class="w-12 h-1 bg-blue-600 mx-auto rounded"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg border-l-[5px] border-blue-600 shadow-sm hover:translate-x-1 hover:shadow-md transition duration-300">
+                    <h5 class="font-bold text-lg mb-2"><i class="fas fa-database text-blue-600 mr-2"></i> Số hóa dữ liệu</h5>
+                    <p class="text-gray-500 text-sm">Số hóa toàn bộ dữ liệu vị trí và thuộc tính hồ bơi lên nền tảng số.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg border-l-[5px] border-blue-600 shadow-sm hover:translate-x-1 hover:shadow-md transition duration-300">
+                    <h5 class="font-bold text-lg mb-2"><i class="fas fa-sitemap text-blue-600 mr-2"></i> Quản lý tập trung</h5>
+                    <p class="text-gray-500 text-sm">Hỗ trợ công tác quản lý thống nhất từ một trung tâm điều hành.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg border-l-[5px] border-blue-600 shadow-sm hover:translate-x-1 hover:shadow-md transition duration-300">
+                    <h5 class="font-bold text-lg mb-2"><i class="fas fa-shield-halved text-blue-600 mr-2"></i> An toàn sử dụng</h5>
+                    <p class="text-gray-500 text-sm">Nâng cao tiêu chuẩn an toàn cho người dân khi sử dụng dịch vụ.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg border-l-[5px] border-blue-600 shadow-sm hover:translate-x-1 hover:shadow-md transition duration-300">
+                    <h5 class="font-bold text-lg mb-2"><i class="fas fa-bolt text-blue-600 mr-2"></i> Xử lý nhanh</h5>
+                    <p class="text-gray-500 text-sm">Cung cấp công cụ theo dõi và phản ứng sự cố tức thời.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 relative">
+                <h2 class="text-2xl font-bold text-gray-700 uppercase mb-4">Chức Năng Chính</h2>
+                <div class="w-12 h-1 bg-blue-600 mx-auto rounded"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center p-8 border border-gray-100 rounded-2xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:border-transparent transition duration-300">
+                    <div class="w-20 h-20 bg-[#e7f1ff] text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                        <i class="fas fa-map"></i>
+                    </div>
+                    <h5 class="font-bold text-lg mb-3">Bản đồ hồ bơi</h5>
+                    <p class="text-gray-500 text-sm">Hiển thị trực quan vị trí tất cả hồ bơi trên nền bản đồ tương tác (WebGIS).</p>
+                </div>
+                <div class="text-center p-8 border border-gray-100 rounded-2xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:border-transparent transition duration-300">
+                    <div class="w-20 h-20 bg-[#e0f8e9] text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                        <i class="fas fa-pen-to-square"></i>
+                    </div>
+                    <h5 class="font-bold text-lg mb-3">Quản lý hồ</h5>
+                    <p class="text-gray-500 text-sm">Cung cấp công cụ Thêm, Sửa, Xóa và cập nhật thuộc tính hồ bơi.</p>
+                </div>
+                <div class="text-center p-8 border border-gray-100 rounded-2xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:border-transparent transition duration-300">
+                    <div class="w-20 h-20 bg-[#fff3cd] text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </div>
+                    <h5 class="font-bold text-lg mb-3">Ghi nhận sự cố</h5>
+                    <p class="text-gray-500 text-sm">Đánh dấu vị trí, phân loại và lưu trữ lịch sử các sự cố xảy ra.</p>
+                </div>
+                <div class="text-center p-8 border border-gray-100 rounded-2xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:border-transparent transition duration-300">
+                    <div class="w-20 h-20 bg-[#f8d7da] text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                        <i class="fas fa-life-ring"></i>
+                    </div>
+                    <h5 class="font-bold text-lg mb-3">Theo dõi cứu hộ</h5>
+                    <p class="text-gray-500 text-sm">Giám sát vị trí và trạng thái hoạt động của nhân viên cứu hộ.</p>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section class="py-12 px-4 bg-gray-50 overflow-hidden">
@@ -93,8 +174,8 @@
     </section>
 
     <footer class="bg-gray-800 text-white py-4">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-400">
+            <p>"Hệ thống được phát triển phục vụ nghiên cứu và ứng dụng công nghệ GIS trong quản lý cơ sở hạ tầng công cộng."</p>
         </div>
     </footer>
 

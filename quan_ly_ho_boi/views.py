@@ -291,6 +291,10 @@ def user_profile(request: HttpRequest):
     }
     return render(request, 'quan_ly_ho_boi/profile.html', context)
 
+# Custom 404 page handler
+def page_not_found_view(request, exception=None):
+    return render(request, 'quan_ly_ho_boi/404.html', status=404)
+
 # 12. Đăng nhập cho user bình thường
 def login_user(request):
     if request.method == 'POST':
