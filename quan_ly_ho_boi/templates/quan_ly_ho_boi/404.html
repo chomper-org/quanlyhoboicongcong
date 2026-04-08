@@ -1,225 +1,46 @@
-{% extends "quan_ly_ho_boi/base.html" %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Không tìm thấy trang | PoolFinder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0b0f19; /* Nền vũ trụ sâu thẳm */
+        }
+        /* Hiệu ứng trôi nổi cho hành tinh */
+        .float-anim {
+            animation: floating 6s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-white overflow-hidden relative">
+    
+    <div class="absolute inset-0 z-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
 
-{% block extra_css %}
-<style>
-    body {
-        background: #eaedf0;
-    }
-    .error-page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3rem 1rem;
-    }
-    .error-card {
-        position: relative;
-        width: 100%;
-        max-width: 1080px;
-        border-radius: 32px;
-        background: #f3f4f6;
-        box-shadow: 0 40px 80px rgba(15, 23, 42, 0.12);
-        overflow: hidden;
-        border: 1px solid rgba(15, 23, 42, 0.06);
-    }
-    .error-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.8) 0%, transparent 22%),
-                    radial-gradient(circle at 80% 30%, rgba(255,255,255,0.8) 0%, transparent 20%);
-        pointer-events: none;
-    }
-    .error-dots {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-    }
-    .error-dots span {
-        position: absolute;
-        display: block;
-        width: 120px;
-        height: 22px;
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.08);
-        filter: blur(0.5px);
-    }
-    .error-dots span:nth-child(1) { top: 10%; left: 12%; width: 120px; }
-    .error-dots span:nth-child(2) { top: 18%; left: 65%; width: 95px; opacity: .7; }
-    .error-dots span:nth-child(3) { top: 26%; left: 35%; width: 110px; opacity: .85; }
-    .error-dots span:nth-child(4) { top: 45%; left: 15%; width: 130px; opacity: .55; }
-    .error-dots span:nth-child(5) { top: 60%; left: 62%; width: 140px; opacity: .6; }
-    .error-dots span:nth-child(6) { top: 76%; left: 32%; width: 90px; opacity: .5; }
-    .error-body {
-        position: relative;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        padding: 4rem 3rem;
-    }
-    .error-text {
-        max-width: 480px;
-    }
-    .error-label {
-        display: inline-block;
-        margin-bottom: 1rem;
-        color: #68708d;
-        font-size: 0.9rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-    }
-    .error-title {
-        font-size: clamp(2.8rem, 4vw, 4.2rem);
-        line-height: 0.95;
-        font-weight: 900;
-        margin-bottom: 1rem;
-        color: #111827;
-    }
-    .error-subtitle {
-        margin-bottom: 2rem;
-        color: #4b5563;
-        font-size: 1rem;
-    }
-    .error-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    .error-graphic {
-        flex: 1 1 320px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-    }
-    .graphic-inner {
-        position: relative;
-        display: inline-flex;
-        gap: 1rem;
-        align-items: center;
-    }
-    .graphic-block,
-    .graphic-ring {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 900;
-        text-shadow: 0 16px 30px rgba(0,0,0,0.18);
-    }
-    .graphic-block {
-        width: 150px;
-        height: 190px;
-        border-radius: 28px;
-        background: linear-gradient(145deg, #eaa4ff 0%, #6c53ff 100%);
-        box-shadow: 0 24px 48px rgba(18, 28, 63, 0.18);
-        font-size: 5rem;
-        position: relative;
-    }
-    .graphic-block::after {
-        content: "";
-        position: absolute;
-        inset: 12px;
-        border-radius: 20px;
-        background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.26), transparent 42%);
-    }
-    .graphic-ring {
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, #7df1e9 0%, #0f4c8c 58%, #0d3361 100%);
-        box-shadow: 0 28px 52px rgba(12, 31, 75, 0.24);
-        font-size: 5.2rem;
-        position: relative;
-    }
-    .graphic-ring::before {
-        content: "";
-        position: absolute;
-        inset: 14px;
-        border-radius: 50%;
-        background: radial-gradient(circle at center, rgba(255,255,255,0.22), transparent 55%);
-    }
-    .graphic-ring::after {
-        content: "";
-        position: absolute;
-        inset: 42px;
-        border-radius: 50%;
-        background: #f2f7ff;
-        opacity: 0.14;
-    }
-    .error-graphic::after {
-        content: "";
-        position: absolute;
-        bottom: 1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 70%;
-        height: 28px;
-        border-radius: 50%;
-        background: rgba(17, 24, 39, 0.12);
-        filter: blur(2px);
-    }
-    @media (max-width: 900px) {
-        .error-body {
-            padding: 3rem 1.5rem;
-        }
-        .graphic-block,
-        .graphic-ring {
-            width: 120px;
-            height: 150px;
-            font-size: 4rem;
-        }
-        .graphic-ring {
-            width: 150px;
-        }
-    }
-    @media (max-width: 680px) {
-        .error-body {
-            flex-direction: column;
-            text-align: center;
-        }
-        .error-text {
-            width: 100%;
-        }
-        .error-graphic {
-            justify-content: center;
-        }
-    }
-</style>
-{% endblock %}
+    <div class="max-w-3xl w-full px-6 text-center flex flex-col items-center relative z-10">
+        
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 tracking-wide">
+            OOPS! BẠN LẠC VÀO HỐ ĐEN RỒI
+        </h1>
+        <p class="text-lg text-gray-400 mb-10 leading-relaxed max-w-xl mx-auto">
+            Hành tinh mang tên trang web này không tồn tại trong hệ mặt trời của chúng tôi. 
+            Hãy kích hoạt động cơ khẩn cấp để quay về quỹ đạo an toàn nhé!
+        </p>
 
-{% block content %}
-<div class="error-page">
-    <div class="error-card">
-        <div class="error-dots">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="error-body">
-            <div class="error-text">
-                <div class="error-label">Page not found</div>
-                <h1 class="error-title">Whoa, bạn đã đi quá xa...</h1>
-                <p class="error-subtitle">Trang này đã bị lạc và không tồn tại nữa. Hãy thử quay về trang chủ hoặc tìm lại hồ bơi phù hợp.</p>
-                <div class="error-actions">
-                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Quay về trang chủ</a>
-                    <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg">Xem hồ bơi khác</a>
-                </div>
-            </div>
-            <div class="error-graphic">
-                <div class="graphic-inner">
-                    <div class="graphic-block">4</div>
-                    <div class="graphic-ring">0</div>
-                    <div class="graphic-block">4</div>
-                </div>
-            </div>
-        </div>
+        <a href="{% url 'home' %}" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-full font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 text-lg">
+            <i class="fas fa-rocket"></i> Trở về Sảnh chính
+        </a>
+
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

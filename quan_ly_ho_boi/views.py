@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.db.models import Sum
 from .models import HoBoi, DatVe, Payment
-from .forms import HoBoiForm
+from .forms import HoBoiForm, DatVeForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -223,6 +223,18 @@ def xoa_ho_boi(request: HttpRequest, ho_boi_id : int):
         return redirect('admin_panel')
     return redirect('admin_panel')
 
+@login_required
+def xoa_dat_ve(request: HttpRequest, datve_id: int):
+    if not request.user.is_staff:
+        return redirect('home')
+
+    dat_ve = get_object_or_404(DatVe, id=datve_id)
+    if request.method == 'POST':
+        dat_ve.delete()
+        messages.success(request, 'Vé đặt đã được xóa.')
+        return redirect('admin_panel')
+    return redirect('admin_panel')
+
 # 10. Tạo hồ bơi mới trong admin
 @login_required
 def tao_ho_boi(request: HttpRequest):
@@ -260,6 +272,26 @@ def chinh_sua_ho_boi(request: HttpRequest, ho_boi_id: int):
 
     return render(request, 'quan_ly_ho_boi/admin_pool_form.html', {
         'form': form,
+    })
+
+@login_required
+def chinh_sua_dat_ve(request: HttpRequest, datve_id: int):
+    if not request.user.is_staff:
+        return redirect('home')
+
+    dat_ve = get_object_or_404(DatVe, id=datve_id)
+    if request.method == 'POST':
+        form = DatVeForm(request.POST, instance=dat_ve)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thông tin vé đã được cập nhật.')
+            return redirect('admin_panel')
+    else:
+        form = DatVeForm(instance=dat_ve)
+
+    return render(request, 'quan_ly_ho_boi/admin_edit_booking.html', {
+        'form': form,
+        'dat_ve': dat_ve,
     })
 
 # 12. Trang chủ công khai (Home Page)

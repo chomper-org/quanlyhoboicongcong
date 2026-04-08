@@ -1,5 +1,5 @@
 from django import forms
-from .models import HoBoi
+from .models import HoBoi, DatVe
 
 class HoBoiForm(forms.ModelForm):
     class Meta:
@@ -27,4 +27,14 @@ class HoBoiForm(forms.ModelForm):
             'gia_ve_tre_em': forms.NumberInput(attrs={'class': 'w-full rounded-xl border border-gray-700 bg-[#0f172a] text-gray-200 px-4 py-3', 'placeholder': 'Giá vé trẻ em'}),
             'trang_thai': forms.Select(attrs={'class': 'w-full rounded-xl border border-gray-700 bg-[#0f172a] text-gray-200 px-4 py-3'}),
             'hinh_anh': forms.ClearableFileInput(attrs={'class': 'text-gray-200'}),
+        }
+
+class DatVeForm(forms.ModelForm):
+    class Meta:
+        model = DatVe
+        fields = ['ngay_su_dung', 'so_luong_nguoi_lon', 'so_luong_tre_em']
+        widgets = {
+            'ngay_su_dung': forms.DateInput(attrs={'class': 'w-full rounded-xl border border-gray-700 bg-[#0f172a] text-gray-200 px-4 py-3', 'type': 'date'}),
+            'so_luong_nguoi_lon': forms.NumberInput(attrs={'class': 'w-full rounded-xl border border-gray-700 bg-[#0f172a] text-gray-200 px-4 py-3', 'min': 0}),
+            'so_luong_tre_em': forms.NumberInput(attrs={'class': 'w-full rounded-xl border border-gray-700 bg-[#0f172a] text-gray-200 px-4 py-3', 'min': 0}),
         }

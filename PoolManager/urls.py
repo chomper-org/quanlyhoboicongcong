@@ -6,7 +6,6 @@ from quan_ly_ho_boi import views
 from quan_ly_ho_boi.views import trang_chu, dashboard, ban_do, quan_ly_danh_sach, xoa_ho_boi, admin_home, login_admin, logout_admin, home_page, user_profile, login_user, logout_user, register_user, tao_ho_boi, chinh_sua_ho_boi
 
 # --- CẤU HÌNH GIAO DIỆN ADMIN TẠI ĐÂY ---
-from django.contrib import admin
 admin.site.site_header = "HỆ THỐNG QUẢN LÝ "     # Tiêu đề lớn ở trên cùng
 admin.site.site_title = "quản trị viên quản lý hồ bơi"           # Tiêu đề trên thẻ trình duyệt
 admin.site.index_title = "Bảng điều khiển quản trị"    # Tiêu đề tại trang chủ admin
@@ -33,6 +32,9 @@ urlpatterns = [
     path('admin-panel/login/', login_admin, name='login_admin'),
     path('admin-panel/logout/', logout_admin, name='logout_admin'),
     path('admin-panel/', admin_home, name='admin_panel'),
+    path('admin-panel/dat-ve/<int:datve_id>/sua/', views.chinh_sua_dat_ve, name='chinh_sua_dat_ve'),
+    path('admin-panel/dat-ve/<int:datve_id>/xoa/', views.xoa_dat_ve, name='xoa_dat_ve'),
+    path('test-404/', views.page_not_found_view, name='test_404'),
 ]
 
 handler404 = 'quan_ly_ho_boi.views.page_not_found_view'

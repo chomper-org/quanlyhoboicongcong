@@ -30,6 +30,10 @@
                 <i class="fas fa-list mr-3 w-5"></i>
                 <span class="font-medium">Quản lý hồ bơi</span>
             </button>
+            <button onclick="switchTab('tab-bookings', this)" class="w-full flex items-center px-4 py-3 text-gray-400 hover:bg-[#0f172a] hover:text-white rounded-xl transition tab-btn">
+                <i class="fas fa-ticket-alt mr-3 w-5"></i>
+                <span class="font-medium">Quản lý vé đặt</span>
+            </button>
         </nav>
         <div class="p-4 border-t border-gray-800">
             <a href="{% url 'logout_admin' %}" class="flex items-center px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition">
@@ -136,7 +140,56 @@
                         </table>
                     </div>
                 </div>
-            </div>
+                </div>
+                <div id="tab-bookings" class="tab-content">
+                    <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden">
+                        <div class="p-6 border-b border-gray-800 flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-white">Danh sách vé đặt gần đây</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800">
+                                        <th class="p-4 font-medium">Mã vé</th>
+                                        <th class="p-4 font-medium">Khách hàng</th>
+                                        <th class="p-4 font-medium">Hồ bơi</th>
+                                        <th class="p-4 font-medium">Ngày đặt</th>
+                                        <th class="p-4 font-medium">Ngày sử dụng</th>
+                                        <th class="p-4 font-medium">Người lớn / Trẻ em</th>
+                                        <th class="p-4 font-medium">Tổng tiền</th>
+                                        <th class="p-4 font-medium text-right">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ve in ve_dat_gan_day %}
+                                    <tr class="border-b border-gray-800 hover:bg-[#0f172a] transition text-sm">
+                                        <td class="p-4">#{{ ve.id }}</td>
+                                        <td class="p-4 font-semibold text-white">{{ ve.khach_hang.username }}</td>
+                                        <td class="p-4">{{ ve.ho_boi.ten_ho }}</td>
+                                        <td class="p-4">{{ ve.ngay_dat|date:'d/m/Y H:i' }}</td>
+                                        <td class="p-4">{{ ve.ngay_su_dung|date:'d/m/Y' }}</td>
+                                        <td class="p-4">{{ ve.so_luong_nguoi_lon }} / {{ ve.so_luong_tre_em }}</td>
+                                        <td class="p-4">{{ ve.tong_tien }}đ</td>
+                                        <td class="p-4 text-right">
+                                            <a href="{% url 'chinh_sua_dat_ve' ve.id %}" class="text-blue-400 hover:text-blue-300 mr-3" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>
+                                            <form action="{% url 'xoa_dat_ve' ve.id %}" method="POST" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="text-red-400 hover:text-red-300" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa vé đặt này không?');">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="p-4 text-center text-gray-400">Chưa có vé đặt nào.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
         </div>
     </main>
@@ -164,9 +217,10 @@
             // 5. Đổi tiêu đề trang ở Topbar
             const titleMap = {
                 'tab-dashboard': 'Thống kê tổng quan',
-                'tab-manage': 'Quản lý danh sách hồ bơi'
+                'tab-manage': 'Quản lý danh sách hồ bơi',
+                'tab-bookings': 'Quản lý vé đặt'
             };
-            document.getElementById('page-title').innerText = titleMap[tabId];
+            document.getElementById('page-title').innerText = titleMap[tabId] || 'Admin Panel';
         }
     </script>
 </body>
