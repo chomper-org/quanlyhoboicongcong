@@ -6,6 +6,8 @@
     <title>{% if form.instance.pk %}Sửa hồ bơi{% else %}Thêm hồ bơi{% endif %} | Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha512-sA+e2mF3+dyzO3FDRkJYvNxj6HCf6oVScmju6yiU8MczD9S8Hp60KbiZHEV8SwdFhJsvX0nqp8Qf+J6A2b0hQw==" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha512-Iu14bGQpo5B2dCPX2Brv5M9rVTYm7QO7xq4PdoWp0Qzt6Xkz+VQeXlPq28bGxKEJKrmvKLq2kq2EYG9wTqeO6Q==" crossorigin=""></script>
 </head>
 <body class="bg-[#0f172a] text-gray-200 font-sans min-h-screen">
     <div class="max-w-6xl mx-auto py-10 px-6">
@@ -71,6 +73,12 @@
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Kinh độ</label>
                         {{ form.kinh_do }}
                     </div>
+                    <div class="md:col-span-2">
+                        <div class="rounded-3xl border border-gray-700 bg-slate-950/70 p-5">
+                            <h2 class="text-lg font-semibold text-white mb-4">Bản đồ vị trí hồ bơi</h2>
+                            <div id="mapPreview" class="h-96 rounded-3xl border border-gray-700"></div>
+                        </div>
+                    </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Giá vé người lớn</label>
                         {{ form.gia_ve_nguoi_lon }}
@@ -90,5 +98,70 @@
             </form>
         </div>
     </div>
+
+    <script>
+        const fields = {
+            tenHo: document.getElementById('id_ten_ho'),
+            diaChi: document.getElementById('id_dia_chi'),
+            viDo: document.getElementById('id_vi_do'),
+            kinhDo: document.getElementById('id_kinh_do'),
+            trangThai: document.getElementById('id_trang_thai'),
+            doSau: document.getElementById('id_do_sau'),
+            sucChua: document.getElementById('id_suc_chua'),
+            giaNguoiLon: document.getElementById('id_gia_ve_nguoi_lon'),
+            giaTreEm: document.getElementById('id_gia_ve_tre_em'),
+        };
+
+        const map = L.map('mapPreview').setView([10.8231, 106.6297], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19,
+        }).addTo(map);
+        const marker = L.marker([10.8231, 106.6297]).addTo(map);
+
+        function getPopupContent(lat, lng) {
+            const name = fields.tenHo?.value || 'Chưa nhập tên hồ bơi';
+            const address = fields.diaChi?.value || 'Chưa nhập địa chỉ';
+            const status = fields.trangThai?.options[fields.trangThai.selectedIndex]?.text || 'Chưa chọn trạng thái';
+            const depth = fields.doSau?.value ? `${fields.doSau.value} m` : 'Chưa nhập độ sâu';
+            const capacity = fields.sucChua?.value ? `${fields.sucChua.value}` : 'Chưa nhập sức chứa';
+            const adult = fields.giaNguoiLon?.value ? `${fields.giaNguoiLon.value} đ` : 'Chưa nhập giá vé người lớn';
+            const child = fields.giaTreEm?.value ? `${fields.giaTreEm.value} đ` : 'Chưa nhập giá vé trẻ em';
+
+            return `
+                <div style="line-height:1.35; max-width:260px;">
+                    <strong style="font-size:1rem;">${name}</strong><br/>
+                    ${address}<br/>
+                    ${status}<br/>
+                    ${depth} · ${capacity}<br/>
+                    ${adult} · ${child}<br/>
+                    <small>Vĩ độ: ${lat.toFixed(6)} · Kinh độ: ${lng.toFixed(6)}</small>
+                </div>
+            `;
+        }
+
+        function updatePreview() {
+            const lat = parseFloat(fields.viDo?.value);
+            const lng = parseFloat(fields.kinhDo?.value);
+
+            if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng], 15);
+                marker.bindPopup(getPopupContent(lat, lng)).openPopup();
+            } else {
+                marker.bindPopup('Nhập vĩ độ và kinh độ hợp lệ để xem preview').openPopup();
+            }
+        }
+
+        Object.values(fields).forEach(field => {
+            field?.addEventListener('input', updatePreview);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePreview();
+            requestAnimationFrame(() => map.invalidateSize());
+            setTimeout(() => map.invalidateSize(), 300);
+        });
+    </script>
 </body>
 </html>
