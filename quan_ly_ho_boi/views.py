@@ -404,6 +404,10 @@ def pool_list(request):
     context = {
         'pools': pools
     }
+    pools = HoBoi.objects.annotate(
+        avg_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    ).distinct().all()
     return render(request, 'quan_ly_ho_boi/pool_list.html')
 def pool_list(request):
     # Lấy tất cả HoBoi, tính điểm trung bình (avg_rating) 
@@ -412,13 +416,23 @@ def pool_list(request):
         avg_rating=Avg('reviews__rating'),
         review_count=Count('reviews')
     ).all()
-    
+    pools = HoBoi.objects.annotate(
+        avg_rating=Avg('reviews__rating'),
+        # Thêm distinct=True vào đây để đảm bảo đếm chính xác, không bị nhân bản dòng
+        review_count=Count('reviews', distinct=True) 
+    ).distinct().all()
     return render(request, 'quan_ly_ho_boi/pool_list.html', {'pools': pools})
 
 @login_required
 def add_review(request, ho_boi_id):
+    ho_boi = get_object_or_404(HoBoi, id=ho_boi_id)
+    
     if request.method == 'POST':
-        ho_boi = get_object_or_404(HoBoi, id=ho_boi_id)
+        # KIỂM TRA: Nếu user đã đánh giá hồ bơi này rồi thì báo lỗi và chặn lại
+        if Review.objects.filter(ho_boi=ho_boi, user=request.user).exists():
+            messages.error(request, "Bạn đã đánh giá hồ bơi này rồi. Mỗi tài khoản chỉ được đánh giá 1 lần!")
+            return redirect('pool_list')
+
         rating = request.POST.get('rating')
         comment = request.POST.get('comment')
         
@@ -428,7 +442,8 @@ def add_review(request, ho_boi_id):
             rating=rating,
             comment=comment
         )
-        messages.success(request, "Cảm ơn bạn đã đánh giá!")
+        messages.success(request, "Cảm ơn bạn đã gửi đánh giá!")
+        
     return redirect('pool_list')
 def submit_review(request):
     if request.method == 'POST':
