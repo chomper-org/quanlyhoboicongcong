@@ -9,11 +9,12 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
     
-    <nav class="bg-white shadow-md z-50">
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <span class="text-xl font-bold text-blue-600"><i class="fas fa-swimming-pool mr-2"></i>PoolFinder</span>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-swimming-pool text-2xl text-blue-600"></i>
+                    <span class="text-xl font-bold text-gray-800">PoolFinder</span>
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Trang chủ</a>
@@ -21,36 +22,96 @@
                     <a href="{% url 'map' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Bản đồ GIS</a>
                      <a href="{% url 'pool_list' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition">Danh sách</a>
                 </div>
-                <div class="flex items-center gap-4">
+                <div>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'profile' %}" class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition font-medium"><i class="fas fa-user mr-2"></i>{{ user.username }}</a>
+                        <span class="text-gray-700 font-medium mr-4">{{ user.username }}</span>
+                        <a href="{% url 'logout_user' %}" class="text-red-500 text-sm">Đăng xuất</a>
                     {% else %}
-                        <a href="{% url 'login_user' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Đăng nhập</a>
+                        <a href="{% url 'login_user' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Đăng nhập</a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Danh sách Hồ bơi</h1>
-                <p class="text-gray-500 mt-1">Khám phá và đánh giá các hồ bơi công cộng chất lượng</p>
-            </div>
-            
-            <div class="flex gap-3 w-full md:w-auto">
-                <div class="relative flex-1 md:w-64">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    <input type="text" placeholder="Tìm tên hồ bơi..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                </div>
-                <select class="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none text-gray-700">
-                    <option>Sắp xếp: Đánh giá cao</option>
-                    <option>Sắp xếp: Giá thấp nhất</option>
-                    <option>Sắp xếp: Mới nhất</option>
-                </select>
-            </div>
-        </div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Hồ Bơi Công Cộng</h1>
+            <p class="text-gray-500">Tìm kiếm, đặt vé và đánh giá trải nghiệm của bạn</p>
+        </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for pool in pools %}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
+                
+                <div class="relative h-48 bg-gray-200">
+                    {% if pool.hinh_anh %}
+                        <img src="{{ pool.hinh_anh.url }}" class="w-full h-full object-cover" alt="{{ pool.ten_ho }}">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                            <i class="fas fa-image text-4xl"></i>
+                        </div>
+                    {% endif %}
+                    <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm">
+                        <span class="text-yellow-500 font-bold">{{ pool.avg_rating|default:"0"|floatformat:1 }}</span>
+                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <div class="p-6 flex-grow">
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">{{ pool.ten_ho }}</h2>
+                    <p class="text-gray-500 text-sm mb-4"><i class="fas fa-map-marker-alt mr-2"></i>{{ pool.dia_chi }}</p>
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <span class="text-xs text-gray-400 uppercase font-bold">Giá vé người lớn</span>
+                            <p class="text-blue-600 font-bold">{{ pool.gia_ve_nguoi_lon|default:"0" }}đ</p>
+                        </div>
+                        <a href="{% url 'dat_ve' pool.id %}" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 transition">Đặt vé ngay</a>
+                    </div>
+
+                    <div class="space-y-3 mt-4 border-t pt-4 max-h-48 overflow-y-auto">
+                        <h3 class="text-sm font-bold text-gray-700 uppercase">Đánh giá ({{ pool.review_count }})</h3>
+                        {% for review in pool.reviews.all %}
+                            <div class="bg-gray-50 p-3 rounded-lg text-sm">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="font-bold text-blue-700">{{ review.user.username }}</span>
+                                    <span class="text-xs text-yellow-500">{{ review.rating }}★</span>
+                                </div>
+                                <p class="text-gray-600 italic">"{{ review.comment }}"</p>
+                            </div>
+                        {% empty %}
+                            <p class="text-gray-400 text-xs italic">Chưa có đánh giá nào.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="p-4 bg-gray-50 border-t">
+                    {% if user.is_authenticated %}
+                        <form method="POST" action="{% url 'add_review' pool.id %}" class="flex flex-col gap-2">
+                            {% csrf_token %}
+                            <div class="flex gap-2">
+                                <select name="rating" class="p-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="5">5 ★</option>
+                                    <option value="4">4 ★</option>
+                                    <option value="3">3 ★</option>
+                                    <option value="2">2 ★</option>
+                                    <option value="1">1 ★</option>
+                                </select>
+                                <input type="text" name="comment" placeholder="Nhận xét của bạn..." class="flex-1 p-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <p class="text-center text-xs text-gray-400 italic">Đăng nhập để gửi đánh giá</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+</body>
+</html>

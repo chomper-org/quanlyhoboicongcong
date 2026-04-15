@@ -1,10 +1,10 @@
 ﻿from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-from decimal import Decimal # <--- 1. Import thêm cái này
-from typing import Any      # <--- 2. Import thêm cái này
+from decimal import Decimal
+from typing import Any
 
-# Model Hồ Bơi
+# 1. Model Hồ Bơi (Chính - Đã xóa phần trùng lặp ở dưới)
 class HoBoi(models.Model):
     TRANG_THAI_CHOICES = [
         ('MO', 'Đang mở'),
@@ -19,7 +19,6 @@ class HoBoi(models.Model):
     vi_do = models.FloatField(verbose_name="Vĩ độ")
     kinh_do = models.FloatField(verbose_name="Kinh độ")
     
-    # 3. Sửa lỗi Decimal: Bọc số tiền trong Decimal()
     gia_ve_nguoi_lon = models.DecimalField(max_digits=10, decimal_places=0, default=Decimal('50000'), verbose_name="Giá vé người lớn")
     gia_ve_tre_em = models.DecimalField(max_digits=10, decimal_places=0, default=Decimal('30000'), verbose_name="Giá vé trẻ em")
     
@@ -31,9 +30,9 @@ class HoBoi(models.Model):
         verbose_name_plural = "Danh sách Hồ bơi"
 
     def __str__(self):
-        return str(self.ten_ho) # Ép kiểu string cho chắc chắn
+        return str(self.ten_ho)
 
-# Model Vé/Đặt chỗ
+# 2. Model Vé/Đặt chỗ
 class DatVe(models.Model):
     khach_hang = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Khách hàng")
     ho_boi = models.ForeignKey(HoBoi, on_delete=models.CASCADE, verbose_name="Hồ bơi")
@@ -43,9 +42,7 @@ class DatVe(models.Model):
     so_luong_tre_em = models.IntegerField(default=0, verbose_name="Số trẻ em")
     tong_tien = models.DecimalField(max_digits=12, decimal_places=0, editable=False, verbose_name="Tổng tiền")
 
-    # 4. Sửa lỗi args/kwargs: Khai báo kiểu :Any
     def save(self, *args: Any, **kwargs: Any):
-        # Tính toán dùng Decimal để tránh lỗi
         gia_nl = self.ho_boi.gia_ve_nguoi_lon
         gia_te = self.ho_boi.gia_ve_tre_em
         
@@ -60,7 +57,7 @@ class DatVe(models.Model):
     def __str__(self):
         return f"{self.khach_hang.username} - {self.ho_boi.ten_ho} ({self.ngay_su_dung})"
 
-# Model Thanh toán lịch sử
+# 3. Model Thanh toán lịch sử
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('Tiền mặt', 'Tiền mặt'),
@@ -86,31 +83,10 @@ class Payment(models.Model):
     def __str__(self):
         return f"Thanh toán #{self.id} - {self.dat_ve} - {self.trang_thai}"
 
-class Pool(models.Model):
-    STATUS_CHOICES = (
-        ('MO', 'Đang mở cửa'),
-        ('DONG', 'Đóng cửa'),
-    )
-    
-    name = models.CharField(max_length=255, verbose_name="Tên hồ bơi")
-    address = models.CharField(max_length=255, verbose_name="Địa chỉ")
-    image = models.URLField(blank=True, null=True, verbose_name="Link ảnh minh họa")
-    price_adult = models.IntegerField(default=0, verbose_name="Giá vé người lớn")
-    status_code = models.CharField(max_length=10, choices=STATUS_CHOICES, default='MO')
-    
-    # Tọa độ GIS cơ bản (Nếu dùng PostGIS thì có thể thay bằng PointField)
-    latitude = models.FloatField(verbose_name="Vĩ độ")
-    longitude = models.FloatField(verbose_name="Kinh độ")
-
-    def __str__(self):
-        return self.name
-
+# 4. Model Đánh Giá (Review)
 class Review(models.Model):
-    # Liên kết với Pool. related_name='reviews' giúp gọi ngược lại từ Pool rất tiện
-    pool = models.ForeignKey(Pool, on_delete=models.CASCADE, related_name='reviews')
+    ho_boi = models.ForeignKey(HoBoi, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Người dùng")
-    
-    # Điểm đánh giá giới hạn từ 1 đến 5 sao
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)], 
         verbose_name="Điểm số (1-5)"
@@ -119,4 +95,6 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày đánh giá")
 
     def __str__(self):
-        return f"{self.user.username} đánh giá {self.pool.name} ({self.rating} sao)"
+        return f"{self.user.username} đánh giá {self.ho_boi.ten_ho} ({self.rating} sao)"
+
+# Ghi chú: Mình đã gỡ bỏ class Pool vì nó đang dư thừa và gây nhầm lẫn với class HoBoi

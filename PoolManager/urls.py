@@ -36,6 +36,8 @@ path('gioi-thieu/', views.gioi_thieu, name='gioi_thieu'),
     path('admin-panel/dat-ve/<int:datve_id>/xoa/', views.xoa_dat_ve, name='xoa_dat_ve'),
     path('test-404/', views.page_not_found_view, name='test_404'),
     path('danh-sach/', views.pool_list, name='pool_list'),
+    path('pool/<int:ho_boi_id>/review/', views.add_review, name='add_review'),
+    path('submit-review/', views.submit_review, name='submit_review'),
 ]
 
 handler404 = 'quan_ly_ho_boi.views.page_not_found_view'
