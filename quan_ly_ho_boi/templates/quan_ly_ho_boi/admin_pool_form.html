@@ -6,8 +6,9 @@
     <title>{% if form.instance.pk %}Sửa hồ bơi{% else %}Thêm hồ bơi{% endif %} | Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha512-sA+e2mF3+dyzO3FDRkJYvNxj6HCf6oVScmju6yiU8MczD9S8Hp60KbiZHEV8SwdFhJsvX0nqp8Qf+J6A2b0hQw==" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha512-Iu14bGQpo5B2dCPX2Brv5M9rVTYm7QO7xq4PdoWp0Qzt6Xkz+VQeXlPq28bGxKEJKrmvKLq2kq2EYG9wTqeO6Q==" crossorigin=""></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body class="bg-[#0f172a] text-gray-200 font-sans min-h-screen">
     <div class="max-w-6xl mx-auto py-10 px-6">
@@ -56,6 +57,16 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Hình ảnh</label>
                         {{ form.hinh_anh }}
+                        
+                        <div id="imagePreviewContainer" class="mt-4 {% if not form.instance.hinh_anh %}hidden{% endif %}">
+                            <label class="block text-xs text-gray-400 mb-1">Ảnh xem trước:</label>
+                            <img id="imagePreview" 
+                                src="{% if form.instance.hinh_anh %}{{ form.instance.hinh_anh.url }}{% endif %}" 
+                                alt="Preview" 
+                                class="w-full h-48 object-cover rounded-xl border border-gray-700 shadow-md">
+                        </div>
+                        
+                        <input type="hidden" id="existingImageUrl" value="{% if form.instance.hinh_anh %}{{ form.instance.hinh_anh.url }}{% endif %}">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Độ sâu (m)</label>
@@ -112,12 +123,22 @@
             giaTreEm: document.getElementById('id_gia_ve_tre_em'),
         };
 
-        const map = L.map('mapPreview').setView([10.8231, 106.6297], 12);
+        let initialLat = parseFloat(fields.viDo?.value) || 10.8231;
+        let initialLng = parseFloat(fields.kinhDo?.value) || 106.6297;
+
+        // Xử lý ảnh xem trước
+        let currentImageUrl = document.getElementById('existingImageUrl')?.value || '';
+        const imgInput = document.getElementById('id_hinh_anh');
+        const imgPreview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+
+        const map = L.map('mapPreview').setView([initialLat, initialLng], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 19,
         }).addTo(map);
-        const marker = L.marker([10.8231, 106.6297]).addTo(map);
+        
+        const marker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map);
 
         function getPopupContent(lat, lng) {
             const name = fields.tenHo?.value || 'Chưa nhập tên hồ bơi';
@@ -125,43 +146,121 @@
             const status = fields.trangThai?.options[fields.trangThai.selectedIndex]?.text || 'Chưa chọn trạng thái';
             const depth = fields.doSau?.value ? `${fields.doSau.value} m` : 'Chưa nhập độ sâu';
             const capacity = fields.sucChua?.value ? `${fields.sucChua.value}` : 'Chưa nhập sức chứa';
-            const adult = fields.giaNguoiLon?.value ? `${fields.giaNguoiLon.value} đ` : 'Chưa nhập giá vé người lớn';
-            const child = fields.giaTreEm?.value ? `${fields.giaTreEm.value} đ` : 'Chưa nhập giá vé trẻ em';
+            
+            // Xử lý hiển thị giá vé người lớn và trẻ em
+            const adultPrice = fields.giaNguoiLon?.value 
+                ? `${parseFloat(fields.giaNguoiLon.value).toLocaleString('vi-VN')} đ` 
+                : 'Chưa nhập';
+            const childPrice = fields.giaTreEm?.value 
+                ? `${parseFloat(fields.giaTreEm.value).toLocaleString('vi-VN')} đ` 
+                : 'Chưa nhập';
+            
+            let imgTag = '';
+            if (currentImageUrl) {
+                imgTag = `<img src="${currentImageUrl}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; border: 1px solid #cbd5e1;" alt="Hình hồ bơi">`;
+            }
 
             return `
-                <div style="line-height:1.35; max-width:260px;">
-                    <strong style="font-size:1rem;">${name}</strong><br/>
-                    ${address}<br/>
-                    ${status}<br/>
-                    ${depth} · ${capacity}<br/>
-                    ${adult} · ${child}<br/>
-                    <small>Vĩ độ: ${lat.toFixed(6)} · Kinh độ: ${lng.toFixed(6)}</small>
+                <div style="line-height:1.4; max-width:280px; min-width: 240px; font-family: sans-serif;">
+                    ${imgTag}
+                    <strong style="font-size:1.1rem; color: #1e293b; display:block; margin-bottom:4px;">${name}</strong>
+                    <span style="color: #64748b; font-size: 0.9rem; display:block; margin-bottom:8px;"><i class="fas fa-map-marker-alt"></i> ${address}</span>
+                    
+                    <div style="background: #f8fafc; padding: 8px; rounded: 8px; font-size: 0.9rem; border-radius: 8px;">
+                        <div style="margin-bottom: 4px;"><strong>Trạng thái:</strong> ${status}</div>
+                        <div style="margin-bottom: 4px;"><strong>Thông số:</strong> sâu ${depth} · sức chứa ${capacity}</div>
+                        <div style="color: #2563eb;"><strong>Vé người lớn:</strong> ${adultPrice}</div>
+                        <div style="color: #059669;"><strong>Vé trẻ em:</strong> ${childPrice}</div>
+                    </div>
+                    
+                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #e2e8f0;">
+                    <small style="color: #94a3b8; font-size: 0.75rem;">Tọa độ: ${lat.toFixed(6)}, ${lng.toFixed(6)}</small>
                 </div>
             `;
         }
 
-        function updatePreview() {
+        function updatePreview(animate = false) {
             const lat = parseFloat(fields.viDo?.value);
             const lng = parseFloat(fields.kinhDo?.value);
 
             if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
                 marker.setLatLng([lat, lng]);
-                map.setView([lat, lng], 15);
+                
+                if (animate) {
+                    map.flyTo([lat, lng], 16, { animate: true, duration: 1.5 });
+                } else {
+                    map.setView([lat, lng], map.getZoom());
+                }
+                
                 marker.bindPopup(getPopupContent(lat, lng)).openPopup();
             } else {
-                marker.bindPopup('Nhập vĩ độ và kinh độ hợp lệ để xem preview').openPopup();
+                marker.bindPopup('Vui lòng chọn vị trí trên bản đồ').openPopup();
             }
         }
 
-        Object.values(fields).forEach(field => {
-            field?.addEventListener('input', updatePreview);
+        // Cập nhật popup mà không cần bay/load lại vị trí bản đồ
+        function refreshPopupOnly() {
+            if(marker.isPopupOpen()) {
+                const lat = parseFloat(fields.viDo?.value) || initialLat;
+                const lng = parseFloat(fields.kinhDo?.value) || initialLng;
+                marker.setPopupContent(getPopupContent(lat, lng));
+            }
+        }
+
+        // Lắng nghe sự kiện tải file ảnh
+        if (imgInput) {
+            imgInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentImageUrl = event.target.result;
+                        imgPreview.src = currentImageUrl;
+                        previewContainer.classList.remove('hidden');
+                        refreshPopupOnly(); // Cập nhật hình mới vào popup ngay lập tức
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    // Nếu người dùng ấn Cancel khi chọn file, quay về ảnh cũ (nếu có)
+                    const existing = document.getElementById('existingImageUrl')?.value || '';
+                    currentImageUrl = existing;
+                    if (existing) {
+                        imgPreview.src = existing;
+                    } else {
+                        previewContainer.classList.add('hidden');
+                    }
+                    refreshPopupOnly();
+                }
+            });
+        }
+
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            if(fields.viDo) fields.viDo.value = lat.toFixed(6);
+            if(fields.kinhDo) fields.kinhDo.value = lng.toFixed(6);
+            updatePreview(true);
+        });
+
+        marker.on('dragend', function(e) {
+            const position = marker.getLatLng();
+            if(fields.viDo) fields.viDo.value = position.lat.toFixed(6);
+            if(fields.kinhDo) fields.kinhDo.value = position.lng.toFixed(6);
+            updatePreview(false);
+        });
+
+        ['viDo', 'kinhDo'].forEach(key => {
+            fields[key]?.addEventListener('change', () => updatePreview(true));
+        });
+
+        ['tenHo', 'diaChi', 'trangThai', 'doSau', 'sucChua', 'giaNguoiLon', 'giaTreEm'].forEach(key => {
+            fields[key]?.addEventListener('input', refreshPopupOnly);
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            updatePreview();
-            requestAnimationFrame(() => map.invalidateSize());
-            setTimeout(() => map.invalidateSize(), 300);
+            updatePreview(false);
+            setTimeout(() => { map.invalidateSize(); }, 500);
         });
-    </script>
+    </script>x
 </body>
 </html>
