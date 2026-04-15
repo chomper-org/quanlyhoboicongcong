@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <meta name="referrer" content="origin-when-cross-origin">
     <title>Bản đồ GIS | WebGIS Quản lý Hồ bơi</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,6 +15,9 @@
         .suggestion-item { padding: 8px 16px; cursor: pointer; border-bottom: 1px solid #e5e7eb; }
         .suggestion-item:hover { background-color: #f3f4f6; }
         .suggestion-item:last-child { border-bottom: none; }
+        /* CSS cho ngôi sao đánh giá */
+        .rating-stars .fa-star.active {color: #fbbf24; }
+        .rating-stars .fa-star:hover {color: #f59e0b; }
     </style>
 </head>
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
@@ -29,6 +31,7 @@
                 <div class="flex items-center gap-6">
                     <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Trang chủ</a>
                     <a href="{% url 'map' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition">Bản đồ GIS</a>
+                    <a href="{% url 'pool_list' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Danh sách</a>
                 </div>
                 <div class="flex items-center gap-4">
                     {% if user.is_authenticated %}
@@ -51,8 +54,7 @@
                     <input type="text" id="searchInput" placeholder="Tìm tên hoặc địa chỉ..." class="w-full outline-none text-sm text-gray-700" autocomplete="off">
                 </div>
                 <div id="suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg max-h-60 overflow-y-auto hidden z-10">
-                    <!-- Gợi ý sẽ được thêm vào đây -->
-                </div>
+                    </div>
             </div>
             <select id="statusFilter" class="bg-white rounded-lg shadow-lg px-4 py-2 outline-none text-sm border border-gray-200 text-gray-700 font-medium">
                 <option value="ALL">Tất cả trạng thái</option>
@@ -101,6 +103,7 @@
                 });
             }
 
+            // --- BẮT ĐẦU: Hàm Render Marker đã tích hợp Đánh Giá ---
             function renderMarkers(pools) {
                 markerGroup.clearLayers();
                 pools.forEach(feature => {
@@ -111,6 +114,25 @@
                     let imgHtml = props.image ? `<img src="${props.image}" class="w-full h-32 object-cover rounded-t-lg mb-2">` : `<div class="w-full h-32 bg-blue-100 flex items-center justify-center rounded-t-lg mb-2 text-blue-300"><i class="fas fa-image text-3xl"></i></div>`;
                     let statusHtml = props.status_code === 'MO' ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Đang mở</span>` : `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Đóng cửa</span>`;
                     
+                    // Form đánh giá
+                    let ratingHtml = `
+                        <div class="mt-4 pt-3 border-t border-gray-100">
+                            <p class="text-xs font-bold text-gray-700 mb-2">Đánh giá hồ bơi này:</p>
+                            <div class="flex flex-col gap-2">
+                                <div class="rating-stars text-gray-300 text-lg flex gap-1 cursor-pointer">
+                                    <i class="fas fa-star star-btn hover:text-yellow-400 transition" data-value="1"></i>
+                                    <i class="fas fa-star star-btn hover:text-yellow-400 transition" data-value="2"></i>
+                                    <i class="fas fa-star star-btn hover:text-yellow-400 transition" data-value="3"></i>
+                                    <i class="fas fa-star star-btn hover:text-yellow-400 transition" data-value="4"></i>
+                                    <i class="fas fa-star star-btn hover:text-yellow-400 transition" data-value="5"></i>
+                                </div>
+                                <input type="hidden" id="rating-value-${props.id}" value="0">
+                                <textarea id="comment-${props.id}" class="text-xs border rounded p-2 outline-none focus:border-blue-500 w-full resize-none" rows="2" placeholder="Viết cảm nhận..."></textarea>
+                                <button onclick="window.submitReview(${props.id})" class="bg-green-600 text-white text-xs py-1.5 rounded shadow hover:bg-green-700 transition font-bold w-full">Gửi đánh giá</button>
+                            </div>
+                        </div>
+                    `;
+
                     const popupContent = `
                         <div class="popup-container -m-3">
                             ${imgHtml}
@@ -119,6 +141,7 @@
                                 <p class="text-xs text-gray-500 mb-2 truncate"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i>${props.address}</p>
                                 <div class="flex justify-between items-center mb-4">${statusHtml}<span class="text-sm font-bold text-blue-600">${props.price_adult}đ/vé</span></div>
                                 <a href="/dat-ve/${props.id}/" class="block w-full text-center bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700 transition font-medium text-sm">Đặt vé ngay</a>
+                                ${ratingHtml}
                             </div>
                         </div>
                     `;
@@ -127,8 +150,8 @@
                 });
                 document.getElementById('poolCounter').innerText = pools.length;
             }
+            // --- KẾT THÚC: Hàm Render Marker ---
 
-            // Hàm định vị người dùng
             function locateUser(isInitial = false) {
                 if ("geolocation" in navigator) {
                     const icon = document.getElementById('resetIcon');
@@ -156,17 +179,14 @@
                 }
             }
 
-            // Tải dữ liệu ban đầu
             fetch('{% url "get_pools" %}')
                 .then(response => response.json())
                 .then(data => {
                     allPoolsData = data.features;
                     renderMarkers(allPoolsData);
-                    // Tự động định vị ngay khi vào trang
                     locateUser(true); 
                 });
 
-            // Xử lý bộ lọc
             function applyFilters() {
                 let searchText = document.getElementById('searchInput').value.toLowerCase();
                 let statusVal = document.getElementById('statusFilter').value;
@@ -178,7 +198,6 @@
                 renderMarkers(filtered);
             }
 
-            // Hàm hiển thị gợi ý
             function showSuggestions(filteredPools) {
                 const suggestionsDiv = document.getElementById('suggestions');
                 suggestionsDiv.innerHTML = '';
@@ -198,26 +217,22 @@
                 }
             }
 
-            // Hàm ẩn gợi ý
             function hideSuggestions() {
                 document.getElementById('suggestions').classList.add('hidden');
             }
 
-            // Hàm chọn gợi ý
             function selectSuggestion(pool) {
                 document.getElementById('searchInput').value = pool.properties.name;
                 hideSuggestions();
                 zoomToPool(pool);
             }
 
-            // Hàm zoom vào hồ bơi
             function zoomToPool(pool) {
                 const coords = pool.geometry.coordinates;
                 map.flyTo([coords[1], coords[0]], 16, {
-                    duration: 1.5, // Thời gian zoom (giây)
-                    easeLinearity: 0.25 // Độ mượt của animation
+                    duration: 1.5, 
+                    easeLinearity: 0.25 
                 });
-                // Đợi animation hoàn thành rồi mở popup
                 setTimeout(() => {
                     markerGroup.eachLayer(layer => {
                         if (layer.getLatLng().lat === coords[1] && layer.getLatLng().lng === coords[0]) {
@@ -227,7 +242,6 @@
                 }, 1500);
             }
 
-            // Sự kiện input cho ô tìm kiếm
             document.getElementById('searchInput').addEventListener('input', function() {
                 const query = this.value.toLowerCase().trim();
                 if (query === '') {
@@ -243,7 +257,6 @@
                 applyFilters();
             });
 
-            // Sự kiện keydown cho Enter
             document.getElementById('searchInput').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const query = this.value.toLowerCase().trim();
@@ -254,7 +267,6 @@
                         if (exactMatch) {
                             zoomToPool(exactMatch);
                         } else {
-                            // Nếu không có exact match, zoom vào match đầu tiên
                             const firstMatch = allPoolsData.find(pool =>
                                 pool.properties.name.toLowerCase().includes(query) ||
                                 pool.properties.address.toLowerCase().includes(query)
@@ -268,7 +280,6 @@
                 }
             });
 
-            // Sự kiện click ra ngoài để ẩn gợi ý
             document.addEventListener('click', function(e) {
                 const searchContainer = document.querySelector('.flex-1.bg-white');
                 if (!searchContainer.contains(e.target)) {
@@ -278,14 +289,104 @@
 
             document.getElementById('statusFilter').addEventListener('change', applyFilters);
 
-            // Nút Reset giờ đây kiêm luôn chức năng định vị lại
             document.getElementById('resetBtn').addEventListener('click', () => {
                 document.getElementById('searchInput').value = '';
                 document.getElementById('statusFilter').value = 'ALL';
                 renderMarkers(allPoolsData);
                 locateUser(); 
             });
-        });
+
+            // --- BẮT ĐẦU: Xử lý hiệu ứng click chọn sao ---
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('star-btn')) {
+                    const rating = parseInt(e.target.getAttribute('data-value'));
+                    const parent = e.target.parentElement;
+                    
+                    // Lấy thẻ input ẩn ngay dưới khu vực chọn sao
+                    const hiddenInput = parent.nextElementSibling;
+                    hiddenInput.value = rating;
+                    
+                    // Đổi màu các ngôi sao
+                    const stars = parent.querySelectorAll('.star-btn');
+                    stars.forEach(s => {
+                        if (parseInt(s.getAttribute('data-value')) <= rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                }
+            });
+            // --- KẾT THÚC: Xử lý hiệu ứng click chọn sao ---
+
+        }); // Kết thúc block DOMContentLoaded
+
+        // --- BẮT ĐẦU: Hàm gửi dữ liệu về Django ---
+        // Đặt ngoài DOMContentLoaded để html nội tuyến onclick="window.submitReview()" có thể gọi được
+        window.submitReview = function(poolId) {
+            const rating = document.getElementById(`rating-value-${poolId}`).value;
+            const comment = document.getElementById(`comment-${poolId}`).value;
+
+            if (rating === "0") {
+                alert("Vui lòng chọn số sao (1-5) trước khi gửi!");
+                return;
+            }
+
+            // Lấy CSRF token của Django từ cookie
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            fetch('/submit-review/', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    pool_id: poolId,
+                    rating: parseInt(rating),
+                    comment: comment
+                })
+            })
+            .then(response => {
+                if (response.status === 403) {
+                    alert("Bạn cần đăng nhập để thực hiện chức năng này!");
+                    throw new Error("Chưa đăng nhập");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.status === 'success') {
+                    alert("Đánh giá của bạn đã được ghi nhận. Xin cảm ơn!");
+                    // Reset lại giá trị
+                    document.getElementById(`rating-value-${poolId}`).value = 0;
+                    document.getElementById(`comment-${poolId}`).value = "";
+                    const parent = document.getElementById(`rating-value-${poolId}`).previousElementSibling;
+                    const stars = parent.querySelectorAll('.star-btn');
+                    stars.forEach(s => s.classList.remove('active'));
+                    
+                    // Có thể tự động đóng popup bản đồ (tùy chọn)
+                    // map.closePopup(); 
+                } else if (data) {
+                    alert("Đã xảy ra lỗi: " + (data.message || "Lỗi không xác định"));
+                }
+            })
+            .catch(error => console.log('Lỗi gửi đánh giá:', error));
+        };
+        // --- KẾT THÚC: Hàm gửi dữ liệu ---
+
     </script>
 
     <footer class="bg-gray-800 text-white py-4">
