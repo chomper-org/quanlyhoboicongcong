@@ -1,5 +1,6 @@
 ﻿from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal # <--- 1. Import thêm cái này
 from typing import Any      # <--- 2. Import thêm cái này
 
@@ -84,3 +85,38 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Thanh toán #{self.id} - {self.dat_ve} - {self.trang_thai}"
+
+class Pool(models.Model):
+    STATUS_CHOICES = (
+        ('MO', 'Đang mở cửa'),
+        ('DONG', 'Đóng cửa'),
+    )
+    
+    name = models.CharField(max_length=255, verbose_name="Tên hồ bơi")
+    address = models.CharField(max_length=255, verbose_name="Địa chỉ")
+    image = models.URLField(blank=True, null=True, verbose_name="Link ảnh minh họa")
+    price_adult = models.IntegerField(default=0, verbose_name="Giá vé người lớn")
+    status_code = models.CharField(max_length=10, choices=STATUS_CHOICES, default='MO')
+    
+    # Tọa độ GIS cơ bản (Nếu dùng PostGIS thì có thể thay bằng PointField)
+    latitude = models.FloatField(verbose_name="Vĩ độ")
+    longitude = models.FloatField(verbose_name="Kinh độ")
+
+    def __str__(self):
+        return self.name
+
+class Review(models.Model):
+    # Liên kết với Pool. related_name='reviews' giúp gọi ngược lại từ Pool rất tiện
+    pool = models.ForeignKey(Pool, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Người dùng")
+    
+    # Điểm đánh giá giới hạn từ 1 đến 5 sao
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], 
+        verbose_name="Điểm số (1-5)"
+    )
+    comment = models.TextField(blank=True, null=True, verbose_name="Nội dung bình luận")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày đánh giá")
+
+    def __str__(self):
+        return f"{self.user.username} đánh giá {self.pool.name} ({self.rating} sao)"

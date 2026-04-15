@@ -35,6 +35,7 @@ urlpatterns = [
     path('admin-panel/dat-ve/<int:datve_id>/sua/', views.chinh_sua_dat_ve, name='chinh_sua_dat_ve'),
     path('admin-panel/dat-ve/<int:datve_id>/xoa/', views.xoa_dat_ve, name='xoa_dat_ve'),
     path('test-404/', views.page_not_found_view, name='test_404'),
+    path('danh-sach/', views.pool_list, name='pool_list'),
 ]
 
 handler404 = 'quan_ly_ho_boi.views.page_not_found_view'

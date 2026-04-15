@@ -13,6 +13,9 @@ from .models import HoBoi, DatVe, Payment
 from .forms import HoBoiForm, DatVeForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
+from .models import Pool
+from django.db.models import Avg, Count
 
 # 1. Trang chủ (Hiển thị danh sách đẹp cho người dùng)
 def trang_chu(request: HttpRequest):
@@ -408,3 +411,33 @@ def get_pools(request):
             }
         })
     return JsonResponse({"type": "FeatureCollection", "features": data})
+
+def pool_list(request):
+    # Lấy danh sách hồ bơi, TỰ ĐỘNG đính kèm Điểm trung bình và Tổng số đánh giá
+    pools = Pool.objects.annotate(
+        avg_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    ).order_by('-avg_rating') # Mặc định sắp xếp ưu tiên hồ bơi điểm cao
+
+    context = {
+        'pools': pools
+    }
+    return render(request, 'quan_ly_ho_boi/pool_list.html')
+def submit_review(request):
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'status': 'error', 'message': 'Bạn cần đăng nhập!'}, status=403)
+            
+        data = json.loads(request.body)
+        try:
+            pool = Pool.objects.get(id=data['pool_id'])
+            Review.objects.create(
+                pool=pool,
+                user=request.user,
+                rating=data['rating'],
+                comment=data['comment']
+            )
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    return JsonResponse({'status': 'error', 'message': 'Yêu cầu không hợp lệ'}, status=400)
