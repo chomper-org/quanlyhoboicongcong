@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-slate-50">
+<body class="bg-slate-50 flex flex-col min-h-screen">
     <nav class="sticky top-0 z-50 bg-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -22,60 +22,133 @@
                 <a href="{% url 'map' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Bản đồ GIS</a>
                 <a href="{% url 'pool_list' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Danh sách</a>
             </div>
-            <div>
-                <a href="{% url 'home' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Bắt đầu</a>
-            </div>
+                <div class="flex items-center gap-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition font-medium"><i class="fas fa-user mr-2"></i>{{ user.username }}</a>
+                        <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng xuất</a>
+                    {% else %}
+                        <a href="{% url 'login_user' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Đăng nhập</a>
+                        <a href="{% url 'register_user' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">Đăng ký</a>
+                    {% endif %}
+                </div>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto py-16 px-4">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-600 to-blue-500 py-12 text-center text-white">
-                <h1 class="text-3xl font-bold uppercase tracking-wider">Về Hệ Thống Pool Manager</h1>
-            </div>
-            
-            <div class="p-8 md:p-12">
-                <p class="text-lg text-gray-600 leading-relaxed mb-10 text-center italic">
-                    "Giải pháp hiện đại ứng dụng công nghệ WebGIS trong việc quản lý và tìm kiếm hồ bơi công cộng."
+    <main class="flex-grow">
+        <div class="bg-gradient-to-r from-blue-700 to-blue-500 py-20 text-center text-white">
+            <div class="max-w-4xl mx-auto px-4">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">CÔNG TY TNHH CÔNG NGHỆ POOLFINDER</h1>
+                <p class="text-xl text-blue-100 font-light">
+                    Tiên phong ứng dụng WebGIS vào quản lý và số hóa tiện ích cộng đồng tại Việt Nam.
                 </p>
+            </div>
+        </div>
 
-                <div class="grid md:grid-cols-2 gap-12">
+        <div class="max-w-7xl mx-auto px-4 py-16">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 mb-12">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <h3 class="text-xl font-bold text-blue-600 flex items-center mb-4">
-                            <i class="fas fa-bullseye mr-3"></i> Sứ mệnh
-                        </h3>
-                        <p class="text-gray-500 leading-relaxed">
-                            Kết nối người dân với các địa điểm bơi lội an toàn, giúp mọi người dễ dàng tra cứu thông tin và đặt vé trực tuyến nhanh chóng.
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-l-4 border-blue-600 pl-4">Câu Chuyện Của Chúng Tôi</h2>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            Được ấp ủ và phát triển từ phòng lab của <strong>Khu công nghệ cao TP. Thủ Đức</strong>, PoolFinder bắt đầu từ một bài toán thực tế: Làm sao để người dân có thể dễ dàng tìm kiếm, đánh giá và đặt vé các hồ bơi công cộng đạt chuẩn ngay trên điện thoại của mình?
+                        </p>
+                        <p class="text-gray-600 leading-relaxed">
+                            Với sự kết hợp giữa đội ngũ kỹ sư phần mềm và các chuyên gia về Hệ thống Thông tin Địa lý (GIS), chúng tôi đã xây dựng nên nền tảng PoolFinder. Không chỉ dừng lại ở việc đặt vé, chúng tôi mang đến một tấm bản đồ số trực quan, giúp phân tích không gian và tối ưu hóa trải nghiệm bơi lội cho cộng đồng.
                         </p>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-blue-600 flex items-center mb-4">
-                            <i class="fas fa-star mr-3"></i> Tính năng chính
-                        </h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-center text-gray-500"><i class="fas fa-check text-green-500 mr-3"></i> Tìm kiếm trên bản đồ trực quan</li>
-                            <li class="flex items-center text-gray-500"><i class="fas fa-check text-green-500 mr-3"></i> Đặt vé trực tuyến tiện lợi</li>
-                            <li class="flex items-center text-gray-500"><i class="fas fa-check text-green-500 mr-3"></i> Quản lý doanh thu & dữ liệu</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="mt-16">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6 text-center">Công nghệ sử dụng</h3>
-                    <div class="flex flex-wrap justify-center gap-3">
-                        <span class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-semibold">Django Framework</span>
-                        <span class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-semibold">Leaflet.js (GIS)</span>
-                        <span class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-semibold">Tailwind CSS</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-6 rounded-xl text-center">
+                            <i class="fas fa-map-marked-alt text-4xl text-blue-600 mb-4"></i>
+                            <h4 class="font-bold text-gray-800 text-xl">100+</h4>
+                            <p class="text-sm text-gray-500">Hồ bơi được số hóa</p>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-xl text-center">
+                            <i class="fas fa-ticket-alt text-4xl text-blue-600 mb-4"></i>
+                            <h4 class="font-bold text-gray-800 text-xl">50,000+</h4>
+                            <p class="text-sm text-gray-500">Lượt đặt vé</p>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-xl text-center">
+                            <i class="fas fa-users text-4xl text-blue-600 mb-4"></i>
+                            <h4 class="font-bold text-gray-800 text-xl">10,000+</h4>
+                            <p class="text-sm text-gray-500">Người dùng Active</p>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-xl text-center">
+                            <i class="fas fa-star text-4xl text-blue-600 mb-4"></i>
+                            <h4 class="font-bold text-gray-800 text-xl">4.8/5</h4>
+                            <p class="text-sm text-gray-500">Đánh giá hệ thống</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-gray-50 p-8 text-center border-t border-gray-100">
-                <a href="{% url 'home' %}" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:shadow-lg hover:bg-blue-700 transition">
-                    Trải nghiệm ngay
-                </a>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-eye text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Tầm Nhìn</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Trở thành nền tảng số 1 tại Đông Nam Á trong việc cung cấp giải pháp bản đồ số và quản lý cơ sở hạ tầng thể thao công cộng.
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-bullseye text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Sứ Mệnh</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Số hóa mọi điểm đến. Giúp người dùng tiết kiệm thời gian, nâng cao sức khỏe và có trải nghiệm bơi lội an toàn, minh bạch.
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Công Nghệ Cốt Lõi</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Làm chủ công nghệ WebGIS mã nguồn mở (Leaflet, PostGIS) kết hợp cùng Framework Django mạnh mẽ để đảm bảo bảo mật và hiệu suất.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-3xl overflow-hidden shadow-2xl">
+                <div class="grid md:grid-cols-2">
+                    <div class="p-10 md:p-16 text-white">
+                        <h2 class="text-3xl font-bold mb-8">Ban Quản Trị Dự Án</h2>
+                        <div class="flex items-center gap-6 mb-8">
+                            <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-3xl font-bold border-4 border-gray-700">
+                                TĐ
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-blue-400">Tuấn Đạt</h3>
+                                <p class="text-gray-400">Founder & Chịu trách nhiệm kỹ thuật</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 italic mb-8">
+                            "Chúng tôi tin rằng công nghệ bản đồ không chỉ dùng để dẫn đường, mà còn để kết nối con người với những tiện ích nâng cao chất lượng cuộc sống."
+                        </p>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4 text-gray-300">
+                                <i class="fas fa-envelope text-blue-500"></i>
+                                <span>hotro@poolfinder.vn | tuandat@poolfinder.vn</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-gray-300">
+                                <i class="fas fa-phone-alt text-blue-500"></i>
+                                <span>0909 123 456</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-gray-300">
+                                <i class="fas fa-map-marker-alt text-blue-500"></i>
+                                <span>Khu công nghệ cao, TP. Thủ Đức, TP. Hồ Chí Minh</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-cover bg-center hidden md:block" style="background-image: url('https://images.unsplash.com/photo-1576013551627-11971f36615b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); min-height: 400px;">
+                        <div class="w-full h-full bg-blue-900/30"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+
 </body>
 </html>

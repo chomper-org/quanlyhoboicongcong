@@ -175,9 +175,69 @@
         </div>
     </section>
 
-    <footer class="bg-gray-800 text-white py-4">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-400">
-            <p>"Hệ thống được phát triển phục vụ nghiên cứu và ứng dụng công nghệ GIS trong quản lý cơ sở hạ tầng công cộng."</p>
+    <footer class="bg-white border-t border-gray-200 pt-12 pb-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-8">
+                
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fas fa-swimming-pool text-2xl text-blue-600"></i>
+                        <span class="text-xl font-bold text-gray-900">PoolFinder</span>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Hệ thống quản lý và đặt vé trực tuyến giúp trải nghiệm bơi lội của bạn trở nên thuận tiện và nhanh chóng hơn bao giờ hết.
+                    </p>
+                    <div class="flex gap-4 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fas fa-globe"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-gray-900 font-bold mb-4 uppercase tracking-wider text-xs">Thông tin liên hệ</h4>
+                    <ul class="text-gray-600 text-sm space-y-3">
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-map-marker-alt mt-1 text-blue-500"></i>
+                            <span>Khu công nghệ cao, TP. Thủ Đức, TP. Hồ Chí Minh.</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-phone-alt text-blue-500"></i>
+                            <span>0909 123 456</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-envelope text-blue-500"></i>
+                            <a href="mailto:hotro@poolfinder.vn" class="hover:text-blue-600 transition">hotro@poolfinder.vn</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-gray-900 font-bold mb-4 uppercase tracking-wider text-xs">Ban quản trị</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-gray-500 text-xs italic">Chịu trách nhiệm dự án</p>
+                            <p class="text-gray-900 font-semibold text-sm">Tuấn Đạt</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-xs italic">Hỗ trợ kỹ thuật & Giải đáp thắc mắc</p>
+                            <p class="text-gray-900 font-semibold text-sm">Tuấn Đạt</p>
+                            <a href="mailto:tuandat@poolfinder.vn" class="text-blue-600 text-sm hover:underline">tuandat@poolfinder.vn</a>
+                        </div>
+    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-400 text-xs text-center md:text-left">
+                    © 2026. Bản quyền thuộc về Hệ thống Quản lý Hồ bơi PoolFinder.
+                </p>
+                <div class="flex items-center gap-6">
+                    <a href="{% url 'login_admin' %}" class="text-gray-400 hover:text-gray-600 text-xs transition flex items-center gap-2">
+                        <i class="fas fa-user-shield"></i> Quản trị viên
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
 

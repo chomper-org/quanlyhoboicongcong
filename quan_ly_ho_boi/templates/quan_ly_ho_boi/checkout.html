@@ -1,52 +1,148 @@
-{% extends 'quan_ly_ho_boi/base.html' %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-sm mb-8">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-center">
+            <span class="text-xl font-bold text-gray-800">Thanh Toán An Toàn <i class="fas fa-lock text-green-500 ml-2"></i></span>
+        </div>
+    </nav>
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h2 class="card-title mb-3">Thanh toán đặt vé</h2>
-
-                <div class="mb-4 p-3 bg-light rounded">
-                    <h5 class="mb-2">{{ dat_ve.ho_boi.ten_ho }}</h5>
-                    <p class="mb-1"><strong>Ngày sử dụng:</strong> {{ dat_ve.ngay_su_dung }}</p>
-                    <p class="mb-1"><strong>Số người lớn:</strong> {{ dat_ve.so_luong_nguoi_lon }}</p>
-                    <p class="mb-1"><strong>Số trẻ em:</strong> {{ dat_ve.so_luong_tre_em }}</p>
-                    <p class="mb-1"><strong>Tổng tiền:</strong> {{ dat_ve.tong_tien }} VND</p>
-                    <p class="mb-0"><strong>Mã đặt vé:</strong> #{{ dat_ve.id }}</p>
+    <div class="max-w-2xl mx-auto px-4 pb-16">
+        {% if payment_message %}
+            <div class="bg-white p-10 rounded-2xl shadow-lg text-center">
+                <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Thanh toán thành công!</h2>
+                <p class="text-gray-600 mb-8 leading-relaxed">{{ payment_message }}</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'profile' %}" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition">Xem vé của tôi</a>
+                    <a href="{% url 'home' %}" class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition">Về trang chủ</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-gray-50">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Chi tiết đơn hàng #{{ dat_ve.id }}</h2>
+                    <div class="flex justify-between text-gray-600 mb-2">
+                        <span>Hồ bơi:</span> <span class="font-bold">{{ dat_ve.ho_boi.ten_ho }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 mb-2">
+                        <span>Ngày sử dụng:</span> <span>{{ dat_ve.ngay_su_dung|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 mb-2">
+                        <span>Số lượng:</span> <span>{{ dat_ve.so_luong_nguoi_lon }} người lớn, {{ dat_ve.so_luong_tre_em }} trẻ em</span>
+                    </div>
+                    <hr class="my-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-bold text-gray-800">Tổng cộng:</span>
+                        <span class="text-2xl font-bold text-blue-600">{{ dat_ve.tong_tien }} VNĐ</span>
+                    </div>
                 </div>
 
-                {% if payment_message %}
-                    <div class="alert alert-success">
-                        {{ payment_message }}
-                    </div>
-                {% endif %}
+                <<div class="p-8">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Chọn phương thức thanh toán</h3>
+                    
+                    <form method="POST" id="payment-form">
+                        {% csrf_token %}
+                        <div class="space-y-3 mb-6">
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-blue-50 transition">
+                                <input type="radio" name="payment_method" value="cash" checked class="w-5 h-5 text-blue-600" onchange="toggleCardInput(false)">
+                                <span class="ml-3 font-medium flex-1">Thanh toán tại quầy (Tiền mặt)</span>
+                                <i class="fas fa-money-bill-wave text-green-500 text-xl"></i>
+                            </label>
+                            
+                            <label class="flex items-center p-4 border border-blue-500 bg-blue-50 rounded-xl cursor-pointer transition">
+                                <input type="radio" name="payment_method" value="card" class="w-5 h-5 text-blue-600" onchange="toggleCardInput(true)">
+                                <span class="ml-3 font-medium flex-1">Thanh toán qua Thẻ ngân hàng (Test API)</span>
+                                <i class="fas fa-credit-card text-blue-600 text-xl"></i>
+                            </label>
+                        </div>
 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Chọn phương thức thanh toán</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="payCash" value="cash" {% if payment_method == 'Tiền mặt' %}checked{% endif %}>
-                            <label class="form-check-label" for="payCash">Tiền mặt khi đến</label>
+                        <div id="card-details" class="hidden mb-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                            <label class="block text-sm text-gray-600 font-bold mb-2">Nhập số thẻ ảo (Nhập đuôi 9999 để test thành công)</label>
+                            <input type="text" id="fake_card_number" placeholder="Ví dụ: 1234 5678 9999" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <p id="api-error-msg" class="text-red-500 text-sm mt-2 hidden"></p>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="payCard" value="card" {% if payment_method == 'Thẻ ngân hàng' %}checked{% endif %}>
-                            <label class="form-check-label" for="payCard">Thẻ ngân hàng / ATM</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="payMobile" value="mobile" {% if payment_method == 'Thanh toán di động' %}checked{% endif %}>
-                            <label class="form-check-label" for="payMobile">Thanh toán di động (Momo/ZaloPay)</label>
-                        </div>
-                    </div>
 
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-success">Xác nhận thanh toán</button>
-                        <a href="{% url 'home' %}" class="btn btn-outline-secondary ms-2">Về trang chủ</a>
-                    </div>
-                </form>
+                        <button type="submit" id="submit-btn" class="w-full py-4 bg-blue-600 text-white text-lg font-bold rounded-xl hover:bg-blue-700 shadow-lg transition">
+                            Xác nhận thanh toán
+                        </button>
+                    </form>
+                </div>
+
+                <script>
+                    function toggleCardInput(show) {
+                        const cardDiv = document.getElementById('card-details');
+                        if(show) {
+                            cardDiv.classList.remove('hidden');
+                        } else {
+                            cardDiv.classList.add('hidden');
+                            document.getElementById('api-error-msg').classList.add('hidden');
+                        }
+                    }
+
+                    document.getElementById('payment-form').addEventListener('submit', function(e) {
+                        const method = document.querySelector('input[name="payment_method"]:checked').value;
+                        
+                        // Nếu chọn thẻ, chặn form submit bình thường và gọi API
+                        if (method === 'card') {
+                            e.preventDefault(); // Chặn load lại trang
+                            const btn = document.getElementById('submit-btn');
+                            btn.innerText = 'Đang kết nối ngân hàng...';
+                            btn.disabled = true;
+
+                            const cardNumber = document.getElementById('fake_card_number').value;
+
+                            // Bắn API bằng Fetch
+                            fetch("{% url 'test_payment_api' %}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                },
+                                body: JSON.stringify({ card_number: cardNumber })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    alert("API Phản hồi: " + data.message + "\nMã GD: " + data.transaction_id);
+                                    // Submit form thật (hoặc redirect tùy logic của bạn)
+                                    // Gắn thêm input ẩn chứa transaction_id để lưu vào DB
+                                    const hiddenInput = document.createElement('input');
+                                    hiddenInput.type = 'hidden';
+                                    hiddenInput.name = 'transaction_id';
+                                    hiddenInput.value = data.transaction_id;
+                                    this.appendChild(hiddenInput);
+                                    
+                                    // Bỏ chặn và submit bình thường để view xử lý lưu database
+                                    this.submit();
+                                } else {
+                                    // Lỗi thẻ
+                                    const errorP = document.getElementById('api-error-msg');
+                                    errorP.innerText = "API báo lỗi: " + data.message;
+                                    errorP.classList.remove('hidden');
+                                    btn.innerText = 'Thử lại';
+                                    btn.disabled = false;
+                                }
+                            })
+                            .catch(error => {
+                                alert("Lỗi kết nối API");
+                                btn.innerText = 'Xác nhận thanh toán';
+                                btn.disabled = false;
+                            });
+                        }
+                    });
+                </script>
             </div>
-        </div>
+        {% endif %}
     </div>
-</div>
-{% endblock %}
+</body>
+</html>
