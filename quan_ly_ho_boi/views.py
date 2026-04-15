@@ -9,12 +9,11 @@ from django.utils.dateparse import parse_date
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.db.models import Sum
-from .models import HoBoi, DatVe, Payment
+from .models import HoBoi, DatVe, Payment, Review
 from .forms import HoBoiForm, DatVeForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from .models import Pool
 from django.db.models import Avg, Count
 
 
@@ -406,16 +405,44 @@ def pool_list(request):
         'pools': pools
     }
     return render(request, 'quan_ly_ho_boi/pool_list.html')
+def pool_list(request):
+    # Lấy tất cả HoBoi, tính điểm trung bình (avg_rating) 
+    # và số lượng đánh giá (review_count) cho mỗi hồ
+    pools = HoBoi.objects.annotate(
+        avg_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    ).all()
+    
+    return render(request, 'quan_ly_ho_boi/pool_list.html', {'pools': pools})
+
+@login_required
+def add_review(request, ho_boi_id):
+    if request.method == 'POST':
+        ho_boi = get_object_or_404(HoBoi, id=ho_boi_id)
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+        
+        Review.objects.create(
+            ho_boi=ho_boi,
+            user=request.user,
+            rating=rating,
+            comment=comment
+        )
+        messages.success(request, "Cảm ơn bạn đã đánh giá!")
+    return redirect('pool_list')
 def submit_review(request):
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return JsonResponse({'status': 'error', 'message': 'Bạn cần đăng nhập!'}, status=403)
             
-        data = json.loads(request.body)
         try:
-            pool = Pool.objects.get(id=data['pool_id'])
+            data = json.loads(request.body)
+            # Tìm hồ bơi theo ID
+            ho_boi = HoBoi.objects.get(id=data['pool_id'])
+            
+            # Tạo đánh giá liên kết với HoBoi
             Review.objects.create(
-                pool=pool,
+                ho_boi=ho_boi,
                 user=request.user,
                 rating=data['rating'],
                 comment=data['comment']
@@ -423,4 +450,5 @@ def submit_review(request):
             return JsonResponse({'status': 'success'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
+            
     return JsonResponse({'status': 'error', 'message': 'Yêu cầu không hợp lệ'}, status=400)
