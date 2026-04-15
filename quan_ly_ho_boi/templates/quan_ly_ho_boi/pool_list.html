@@ -18,6 +18,7 @@
                 </div>
                 <div class="hidden md:flex items-center gap-6">
                     <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 font-medium transition">Trang chủ</a>
+                    <a href="{% url 'gioi_thieu' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Giới thiệu</a>
                     <a href="{% url 'map' %}" class="text-gray-600 hover:text-blue-600 font-medium transition">Bản đồ GIS</a>
                     <a href="{% url 'pool_list' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition">Danh sách</a>
                 </div>
@@ -38,18 +39,27 @@
         {% if messages %}
         <div class="mb-8 space-y-4">
             {% for message in messages %}
-            <div class="flex items-center p-4 rounded-xl border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-700{% else %}bg-green-50 border-green-200 text-green-700{% endif %} shadow-sm">
-                <div class="flex-shrink-0">
-                    {% if message.tags == 'error' %}
-                    <i class="fas fa-exclamation-circle text-xl"></i>
-                    {% else %}
-                    <i class="fas fa-check-circle text-xl"></i>
-                    {% endif %}
-                </div>
-                <div class="ml-3 font-medium text-sm">
-                    {{ message }}
-                </div>
-            </div>
+                
+                {% if message.tags == 'error' %}
+                    <div class="flex items-center p-4 rounded-xl border bg-red-50 border-red-200 text-red-700 shadow-sm">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-xl"></i>
+                        </div>
+                        <div class="ml-3 font-medium text-sm">
+                            {{ message }}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="flex items-center p-4 rounded-xl border bg-green-50 border-green-200 text-green-700 shadow-sm">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                        <div class="ml-3 font-medium text-sm">
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endif %}
+
             {% endfor %}
         </div>
         {% endif %}

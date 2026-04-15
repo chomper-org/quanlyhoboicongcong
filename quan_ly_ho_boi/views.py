@@ -15,9 +15,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.db.models import Avg, Count
+from django.http import JsonResponse
 
 
-
+def gioi_thieu(request):
+    return render(request, 'quan_ly_ho_boi/gioi_thieu.html')
 
 
 # 3. Bản đồ GIS (Trang trống chờ code tool của bạn)
@@ -463,6 +465,32 @@ def submit_review(request):
                 comment=data['comment']
             )
             return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+            
+    return JsonResponse({'status': 'error', 'message': 'Yêu cầu không hợp lệ'}, status=400)
+
+def test_payment_api(request):
+    """API giả lập cổng thanh toán ngân hàng"""
+    if request.method == 'POST':
+        try:
+            # Lấy dữ liệu từ Frontend gửi lên
+            data = json.loads(request.body)
+            so_the = data.get('card_number')
+            
+            # GIẢ LẬP LOGIC NGÂN HÀNG:
+            # Quy ước: Chỉ thẻ có đuôi "9999" mới thanh toán thành công, còn lại báo lỗi (để test cả 2 trường hợp)
+            if so_the and so_the.endswith('9999'):
+                return JsonResponse({
+                    'status': 'success', 
+                    'transaction_id': 'TEST_' + str(request.user.id) + '_8888',
+                    'message': 'Thanh toán qua thẻ thành công!'
+                })
+            else:
+                return JsonResponse({
+                    'status': 'error', 
+                    'message': 'Thẻ không hợp lệ hoặc số dư không đủ. (Gợi ý: Dùng thẻ đuôi 9999)'
+                })
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
             

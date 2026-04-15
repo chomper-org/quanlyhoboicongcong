@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from quan_ly_ho_boi import views
-from quan_ly_ho_boi.views import ban_do, xoa_ho_boi, admin_home, login_admin, logout_admin, home_page, user_profile, login_user, logout_user, register_user, tao_ho_boi, chinh_sua_ho_boi
+from quan_ly_ho_boi.views import test_payment_api,ban_do, gioi_thieu, xoa_ho_boi, admin_home, login_admin, logout_admin, home_page, user_profile, login_user, logout_user, register_user, tao_ho_boi, chinh_sua_ho_boi
 
 # --- CẤU HÌNH GIAO DIỆN ADMIN TẠI ĐÂY ---
 admin.site.site_header = "HỆ THỐNG QUẢN LÝ "     # Tiêu đề lớn ở trên cùng
@@ -13,6 +13,9 @@ admin.site.index_title = "Bảng điều khiển quản trị"    # Tiêu đề 
 
 urlpatterns = [
     # path('admin/', admin.site.urls),  # Tắt admin Django
+# Nhớ import test_payment_api vào nhé
+    path('api/test-payment/', views.test_payment_api, name='test_payment_api'),
+    path('gioi-thieu/', views.gioi_thieu, name='gioi_thieu'),
     path('', home_page, name='home'),
     path('profile/', user_profile, name='profile'),
     path('map/', ban_do, name='map'),   

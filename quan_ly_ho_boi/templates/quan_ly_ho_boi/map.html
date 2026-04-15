@@ -30,6 +30,7 @@
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Trang chủ</a>
+                    <a href="{% url 'gioi_thieu' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Giới thiệu</a>
                     <a href="{% url 'map' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition">Bản đồ GIS</a>
                     <a href="{% url 'pool_list' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Danh sách</a>
                 </div>
@@ -389,12 +390,6 @@
 
     </script>
 
-    <footer class="bg-gray-800 text-white py-4">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-400 text-sm">
-                <a href="{% url 'login_admin' %}" class="hover:text-gray-300 transition">Dành cho Ban quản trị</a>
-            </p>
-        </div>
-    </footer>
+
 </body>
 </html>
