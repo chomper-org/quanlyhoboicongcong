@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from quan_ly_ho_boi import views
-from quan_ly_ho_boi.views import trang_chu, dashboard, ban_do, quan_ly_danh_sach, xoa_ho_boi, admin_home, login_admin, logout_admin, home_page, user_profile, login_user, logout_user, register_user, tao_ho_boi, chinh_sua_ho_boi
+from quan_ly_ho_boi.views import ban_do, xoa_ho_boi, admin_home, login_admin, logout_admin, home_page, user_profile, login_user, logout_user, register_user, tao_ho_boi, chinh_sua_ho_boi
 
 # --- CẤU HÌNH GIAO DIỆN ADMIN TẠI ĐÂY ---
 admin.site.site_header = "HỆ THỐNG QUẢN LÝ "     # Tiêu đề lớn ở trên cùng
@@ -15,9 +15,7 @@ urlpatterns = [
     # path('admin/', admin.site.urls),  # Tắt admin Django
     path('', home_page, name='home'),
     path('profile/', user_profile, name='profile'),
-    path('dashboard/', dashboard, name='dashboard'),
     path('map/', ban_do, name='map'),   
-    path('quan-ly/', quan_ly_danh_sach, name='quan_ly'),
     path('quan-ly/xoa/<int:ho_boi_id>/', xoa_ho_boi, name='xoa_ho_boi'),
     path('admin-panel/ho-boi/them/', tao_ho_boi, name='tao_ho_boi'),
     path('admin-panel/ho-boi/<int:ho_boi_id>/sua/', chinh_sua_ho_boi, name='chinh_sua_ho_boi'),
