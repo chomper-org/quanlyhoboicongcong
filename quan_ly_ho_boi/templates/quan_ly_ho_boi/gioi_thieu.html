@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới thiệu | PoolFinder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50">
+    <nav class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-swimming-pool text-white"></i>
+                </div>
+                <span class="text-2xl font-bold text-blue-600">PoolFinder</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Trang chủ</a>
+                <a href="{% url 'gioi_thieu' %}" class="text-blue-600 font-bold border-b-2 border-blue-600">Giới thiệu</a>
+                <a href="{% url 'map' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Bản đồ GIS</a>
+                <a href="{% url 'pool_list' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Danh sách</a>
+            </div>
+            <div>
+                <a href="{% url 'home' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Bắt đầu</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto py-16 px-4">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-500 py-12 text-center text-white">
+                <h1 class="text-3xl font-bold uppercase tracking-wider">Về Hệ Thống Pool Manager</h1>
+            </div>
+            
+            <div class="p-8 md:p-12">
+                <p class="text-lg text-gray-600 leading-relaxed mb-10 text-center italic">
+                    "Giải pháp hiện đại ứng dụng công nghệ WebGIS trong việc quản lý và tìm kiếm hồ bơi công cộng."
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-xl font-bold text-blue-600 flex items-center mb-4">
+                            <i class="fas fa-bullseye mr-3"></i> Sứ mệnh
+                        </h3>
+                        <p class="text-gray-500 leading-relaxed">
+                            Kết nối người dân với các địa điểm bơi lội an toàn, giúp mọi người dễ dàng tra cứu thông tin và đặt vé trực tuyến nhanh chóng.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-blue-600 flex items-center mb-4">
+                            <i class="fas fa-star mr-3"></i> Tính năng chính
+                        </h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center text-gray-500"><i class="fas fa-check text-green-500 mr-3"></i> Tìm kiếm trên bản đồ trực quan</li>
+                            <li class="flex items-center text-gray-500"><i class="fas fa-check text-green-500 mr-3"></i> Đặt vé trực tuyến tiện lợi</li>
+                            <li class="flex items-center text-gray-500"><i class="fas fa-check text-green-500 mr-3"></i> Quản lý doanh thu & dữ liệu</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-16">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 text-center">Công nghệ sử dụng</h3>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <span class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-semibold">Django Framework</span>
+                        <span class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-semibold">Leaflet.js (GIS)</span>
+                        <span class="px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-semibold">Tailwind CSS</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-8 text-center border-t border-gray-100">
+                <a href="{% url 'home' %}" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:shadow-lg hover:bg-blue-700 transition">
+                    Trải nghiệm ngay
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

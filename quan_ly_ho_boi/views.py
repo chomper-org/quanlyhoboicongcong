@@ -18,7 +18,8 @@ from .models import Pool
 from django.db.models import Avg, Count
 
 
-
+def gioi_thieu(request):
+    return render(request, 'quan_ly_ho_boi/gioi_thieu.html')
 
 
 # 3. Bản đồ GIS (Trang trống chờ code tool của bạn)
