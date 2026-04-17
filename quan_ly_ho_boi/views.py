@@ -105,6 +105,7 @@ def dat_ve(request: HttpRequest, ho_boi_id: int):
     })
 
 
+# Sửa lại hàm checkout trong views.py
 def checkout(request: HttpRequest, datve_id: int):
     dat_ve = get_object_or_404(DatVe, id=datve_id)
     payment_message = None
@@ -118,24 +119,29 @@ def checkout(request: HttpRequest, datve_id: int):
             'mobile': 'Thanh toán di động',
         }
         payment_method = labels.get(method, 'Tiền mặt')
+        
+        # LOGIC MỚI: Tùy chỉnh trạng thái dựa trên phương thức
+        trang_thai_thanh_toan = 'Đang chờ' if method == 'cash' else 'Hoàn thành'
+
         payment, created = Payment.objects.get_or_create(
             dat_ve=dat_ve,
             defaults={
                 'phuong_thuc': payment_method,
                 'so_tien': dat_ve.tong_tien,
-                'trang_thai': 'Hoàn thành',
+                'trang_thai': trang_thai_thanh_toan, # Áp dụng trạng thái mới
             }
         )
         if not created:
             payment.phuong_thuc = payment_method
             payment.so_tien = dat_ve.tong_tien
-            payment.trang_thai = 'Hoàn thành'
+            payment.trang_thai = trang_thai_thanh_toan
             payment.save()
 
-        payment_message = (
-            f"Thanh toán thành công bằng phương thức {payment_method}. "
-            f"Vé đặt mã #{dat_ve.id} cho hồ bơi '{dat_ve.ho_boi.ten_ho}' đã được xác nhận."
-        )
+        # Hiển thị câu thông báo khác nhau cho khách hàng
+        if trang_thai_thanh_toan == 'Đang chờ':
+            payment_message = f"Ghi nhận đặt vé #{dat_ve.id}. Vui lòng thanh toán Tiền mặt tại quầy để nhân viên xác nhận vào cổng!"
+        else:
+            payment_message = f"Thanh toán thành công bằng {payment_method}. Vé đặt mã #{dat_ve.id} đã được xác nhận."
 
     return render(request, 'quan_ly_ho_boi/checkout.html', {
         'dat_ve': dat_ve,
@@ -165,6 +171,7 @@ def admin_home(request: HttpRequest):
     tong_doanh_thu = Payment.objects.filter(trang_thai='Hoàn thành').aggregate(total=Sum('so_tien'))['total'] or 0
     ho_boi_gan_day = HoBoi.objects.order_by('-id')[:5]
     ve_dat_gan_day = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')[:10]
+    thanh_toan_cho = Payment.objects.filter(trang_thai='Đang chờ').select_related('dat_ve__khach_hang', 'dat_ve__ho_boi')
     
     # --- DỮ LIỆU CHO TAB QUẢN LÝ HỒ BƠI ---
     danh_sach_ho = HoBoi.objects.all()
@@ -177,6 +184,7 @@ def admin_home(request: HttpRequest):
         'ho_boi_gan_day': ho_boi_gan_day,
         've_dat_gan_day': ve_dat_gan_day,
         'danh_sach_ho': danh_sach_ho, # Đã thêm dữ liệu này
+        'thanh_toan_cho': thanh_toan_cho,
     }
     return render(request, 'quan_ly_ho_boi/admin_panel.html', context)
 
@@ -521,3 +529,16 @@ def user_edit_booking(request, datve_id):
         'form': form,
         'dat_ve': dat_ve
     })
+
+@login_required
+def xac_nhan_thanh_toan(request: HttpRequest, payment_id: int):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+        
+    payment = get_object_or_404(Payment, id=payment_id)
+    if request.method == 'POST':
+        payment.trang_thai = 'Hoàn thành'
+        payment.save()
+        messages.success(request, f'Đã thu tiền và xác nhận thành công cho vé #{payment.dat_ve.id}!')
+        
+    return redirect('admin_panel')

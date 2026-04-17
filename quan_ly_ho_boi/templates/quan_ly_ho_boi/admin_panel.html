@@ -25,7 +25,6 @@
                 <i class="fas fa-chart-pie mr-3 w-5"></i>
                 <span class="font-medium">Thống kê (Dashboard)</span>
             </button>
-            
             <button onclick="switchTab('tab-manage', this)" class="w-full flex items-center px-4 py-3 text-gray-400 hover:bg-[#0f172a] hover:text-white rounded-xl transition tab-btn">
                 <i class="fas fa-list mr-3 w-5"></i>
                 <span class="font-medium">Quản lý hồ bơi</span>
@@ -44,6 +43,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        
         <header class="h-16 bg-[#1e293b]/80 backdrop-blur border-b border-gray-800 flex items-center justify-between px-8 sticky top-0 z-10">
             <h2 class="text-xl font-semibold text-white" id="page-title">Thống kê tổng quan</h2>
             <div class="flex items-center gap-4">
@@ -58,6 +58,7 @@
         </header>
 
         <div class="p-8">
+            
             {% if messages %}
             <div class="mb-6 space-y-3">
                 {% for message in messages %}
@@ -67,7 +68,9 @@
                 {% endfor %}
             </div>
             {% endif %}
+
             <div id="tab-dashboard" class="tab-content active">
+                
                 <div class="grid grid-cols-4 gap-6 mb-8">
                     <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg">
                         <div class="text-gray-400 text-sm font-medium mb-2">Tổng doanh thu</div>
@@ -84,6 +87,58 @@
                     <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg">
                         <div class="text-gray-400 text-sm font-medium mb-2">Tổng vé đã đặt</div>
                         <div class="text-3xl font-bold text-blue-400">{{ tong_ve_dat }}</div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <div class="bg-[#1e293b] rounded-2xl border border-yellow-600 shadow-[0_0_15px_rgba(202,138,4,0.1)] overflow-hidden">
+                        <div class="p-5 border-b border-gray-800 bg-yellow-900/20 flex justify-between items-center">
+                            <h3 class="font-bold text-lg text-yellow-500 flex items-center gap-2">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                Vé chờ thu tiền mặt tại quầy
+                            </h3>
+                            <span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs font-bold px-3 py-1 rounded-full">
+                                Có {{ thanh_toan_cho|length }} yêu cầu
+                            </span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-[#0f172a] text-gray-400 border-b border-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-4 font-semibold">Mã vé</th>
+                                        <th class="px-6 py-4 font-semibold">Khách hàng</th>
+                                        <th class="px-6 py-4 font-semibold">Hồ bơi</th>
+                                        <th class="px-6 py-4 font-semibold">Số tiền cần thu</th>
+                                        <th class="px-6 py-4 font-semibold text-right">Xác nhận</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800">
+                                    {% for payment in thanh_toan_cho %}
+                                    <tr class="hover:bg-[#0f172a]/50 transition-colors">
+                                        <td class="px-6 py-4 font-bold text-blue-400">#{{ payment.dat_ve.id }}</td>
+                                        <td class="px-6 py-4 font-medium text-gray-200">{{ payment.dat_ve.khach_hang.username }}</td>
+                                        <td class="px-6 py-4 text-gray-400">{{ payment.dat_ve.ho_boi.ten_ho }}</td>
+                                        <td class="px-6 py-4 font-bold text-green-400">{{ payment.so_tien }}đ</td>
+                                        <td class="px-6 py-4 text-right">
+                                            <form action="{% url 'xac_nhan_thanh_toan' payment.id %}" method="POST" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md transition-all active:scale-95 flex items-center inline-flex gap-2 border border-blue-500">
+                                                    <i class="fas fa-check"></i> Đã thu tiền
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-10 text-center text-gray-500 italic">
+                                            <i class="fas fa-check-double text-3xl mb-3 text-gray-600 block"></i>
+                                            Hiện tại tất cả vé đều đã được thanh toán. Không có vé chờ thu tiền mặt.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -119,9 +174,9 @@
                                     <td class="p-4 font-semibold text-white">{{ ho.ten_ho }}</td>
                                     <td class="p-4">
                                         {% if ho.trang_thai == 'MO' %}
-                                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold">Đang mở</span>
+                                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">Đang mở</span>
                                         {% else %}
-                                            <span class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold">Đóng cửa</span>
+                                            <span class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-500/30">Đóng cửa</span>
                                         {% endif %}
                                     </td>
                                     <td class="p-4">{{ ho.gia_ve_nguoi_lon }} / {{ ho.gia_ve_tre_em }}</td>
@@ -140,81 +195,77 @@
                         </table>
                     </div>
                 </div>
-                </div>
-                <div id="tab-bookings" class="tab-content">
-                    <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden">
-                        <div class="p-6 border-b border-gray-800 flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-white">Danh sách vé đặt gần đây</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800">
-                                        <th class="p-4 font-medium">Mã vé</th>
-                                        <th class="p-4 font-medium">Khách hàng</th>
-                                        <th class="p-4 font-medium">Hồ bơi</th>
-                                        <th class="p-4 font-medium">Ngày đặt</th>
-                                        <th class="p-4 font-medium">Ngày sử dụng</th>
-                                        <th class="p-4 font-medium">Người lớn / Trẻ em</th>
-                                        <th class="p-4 font-medium">Tổng tiền</th>
-                                        <th class="p-4 font-medium text-right">Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for ve in ve_dat_gan_day %}
-                                    <tr class="border-b border-gray-800 hover:bg-[#0f172a] transition text-sm">
-                                        <td class="p-4">#{{ ve.id }}</td>
-                                        <td class="p-4 font-semibold text-white">{{ ve.khach_hang.username }}</td>
-                                        <td class="p-4">{{ ve.ho_boi.ten_ho }}</td>
-                                        <td class="p-4">{{ ve.ngay_dat|date:'d/m/Y H:i' }}</td>
-                                        <td class="p-4">{{ ve.ngay_su_dung|date:'d/m/Y' }}</td>
-                                        <td class="p-4">{{ ve.so_luong_nguoi_lon }} / {{ ve.so_luong_tre_em }}</td>
-                                        <td class="p-4">{{ ve.tong_tien }}đ</td>
-                                        <td class="p-4 text-right">
-                                            <a href="{% url 'chinh_sua_dat_ve' ve.id %}" class="text-blue-400 hover:text-blue-300 mr-3" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>
-                                            <form action="{% url 'xoa_dat_ve' ve.id %}" method="POST" class="inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="text-red-400 hover:text-red-300" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa vé đặt này không?');">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="8" class="p-4 text-center text-gray-400">Chưa có vé đặt nào.</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+            </div>
+
+            <div id="tab-bookings" class="tab-content">
+                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden">
+                    <div class="p-6 border-b border-gray-800 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Danh sách vé đặt gần đây</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800">
+                                    <th class="p-4 font-medium">Mã vé</th>
+                                    <th class="p-4 font-medium">Khách hàng</th>
+                                    <th class="p-4 font-medium">Hồ bơi</th>
+                                    <th class="p-4 font-medium">Ngày đặt</th>
+                                    <th class="p-4 font-medium">Ngày sử dụng</th>
+                                    <th class="p-4 font-medium">Người lớn / Trẻ em</th>
+                                    <th class="p-4 font-medium">Tổng tiền</th>
+                                    <th class="p-4 font-medium text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ve in ve_dat_gan_day %}
+                                <tr class="border-b border-gray-800 hover:bg-[#0f172a] transition text-sm">
+                                    <td class="p-4">#{{ ve.id }}</td>
+                                    <td class="p-4 font-semibold text-white">{{ ve.khach_hang.username }}</td>
+                                    <td class="p-4">{{ ve.ho_boi.ten_ho }}</td>
+                                    <td class="p-4 text-gray-400">{{ ve.ngay_dat|date:'d/m/Y H:i' }}</td>
+                                    <td class="p-4 font-medium">{{ ve.ngay_su_dung|date:'d/m/Y' }}</td>
+                                    <td class="p-4">{{ ve.so_luong_nguoi_lon }} / {{ ve.so_luong_tre_em }}</td>
+                                    <td class="p-4 font-bold text-green-400">{{ ve.tong_tien }}đ</td>
+                                    <td class="p-4 text-right">
+                                        <a href="{% url 'chinh_sua_dat_ve' ve.id %}" class="text-blue-400 hover:text-blue-300 mr-3" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>
+                                        <form action="{% url 'xoa_dat_ve' ve.id %}" method="POST" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="text-red-400 hover:text-red-300" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa vé đặt này không?');">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="p-4 text-center text-gray-500 italic">Chưa có vé đặt nào.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
 
         </div>
     </main>
 
     <script>
+        // Javascript đổi Tab (Giữ nguyên của bạn)
         function switchTab(tabId, btnElement) {
-            // 1. Ẩn tất cả các tab
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
-            // 2. Hiện tab được chọn
             document.getElementById(tabId).classList.add('active');
 
-            // 3. Xóa màu xanh ở tất cả các nút menu
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-blue-600', 'text-white');
                 btn.classList.add('text-gray-400');
             });
 
-            // 4. Tô màu xanh cho nút menu vừa được bấm
             btnElement.classList.remove('text-gray-400');
             btnElement.classList.add('bg-blue-600', 'text-white');
 
-            // 5. Đổi tiêu đề trang ở Topbar
             const titleMap = {
                 'tab-dashboard': 'Thống kê tổng quan',
                 'tab-manage': 'Quản lý danh sách hồ bơi',
