@@ -7,36 +7,152 @@
     <title>Bản đồ GIS | WebGIS Quản lý Hồ bơi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
     <style>
         .leaflet-popup-content { margin: 12px; width: 280px !important; }
+        .leaflet-popup-content .book-ticket { color: #ffffff !important; }
+        .leaflet-popup-content .book-ticket:hover { color: #ffffff !important; }
         .leaflet-control-layers { border-radius: 8px !important; border: none !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important; }
-        .suggestion-item { padding: 8px 16px; cursor: pointer; border-bottom: 1px solid #e5e7eb; }
+        .suggestion-item { padding: 8px 16px; cursor: pointer; transition: background-color 0.2s; }
         .suggestion-item:hover { background-color: #f3f4f6; }
-        .suggestion-item:last-child { border-bottom: none; }
-        /* CSS cho ngôi sao đánh giá */
-        .rating-stars .fa-star.active {color: #fbbf24; }
-        .rating-stars .fa-star:hover {color: #f59e0b; }
+        .rating-stars .active { color: #fbbf24; }
+
+        /* ================= CSS LÀM ĐẸP CHO SIDEBAR CHỈ ĐƯỜNG ================= */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Khử style mặc định của bảng Routing để ép nó lọt thỏm vào Sidebar */
+        #directions-container .leaflet-routing-container {
+            width: 100% !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            margin: 0 !important;
+        }
+        
+        /* Chỉnh lại font chữ và màu sắc cho các bước rẽ */
+        #directions-container .leaflet-routing-alt h2 { display: none !important; } /* Ẩn chữ Route 1 */
+        #directions-container .leaflet-routing-alt h3 {
+            font-size: 20px !important;
+            color: #1e40af !important;
+            padding: 10px 10px 20px 10px !important;
+            font-weight: 800 !important;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        #directions-container .leaflet-routing-alt table { width: 100%; border-collapse: collapse; }
+        #directions-container .leaflet-routing-alt tr:hover { background: #f0fdf4; cursor: pointer; }
+        #directions-container .leaflet-routing-alt td { 
+            padding: 12px 10px; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 14px; 
+            color: #475569;
+        }
+        #directions-container .leaflet-routing-icon {
+            filter: brightness(0) saturate(100%) invert(34%) sepia(87%) saturate(2220%) hue-rotate(209deg) brightness(101%) contrast(96%);
+        }
+        /* Sidebar tổng thể */
+        #directions-sidebar {
+            background-color: #ffffff;
+        }
+
+        /* 1. "Tô" lại các ô và bảng để không bị hòa vào nền */
+        #directions-container .leaflet-routing-container {
+            background-color: #f8fafc !important; /* Màu xám xanh nhạt rất sang */
+            border-radius: 12px;
+            margin-top: 10px !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        /* Từng bước chỉ đường */
+        #directions-container .leaflet-routing-alt tr {
+            border-bottom: 1px solid #edf2f7 !important;
+        }
+        #directions-container .leaflet-routing-alt tr:hover {
+            background-color: #ffffff !important;
+            box-shadow: inset 4px 0 0 #2563eb; /* Vạch xanh bên cạnh khi di chuột */
+        }
+
+        /* 2. Định dạng lại chữ Khoảng cách & Thời gian */
+        .routing-summary-custom {
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2563eb;
+        }
+        /* Làm nổi bật khung chứa thông tin lộ trình */
+        #directions-container .leaflet-routing-container {
+            background-color: #f1f5f9 !important; /* Màu nền xám nhạt để tách biệt với Sidebar */
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            margin-top: 15px !important;
+            padding: 10px !important;
+        }
+
+        /* Định dạng các dòng hướng dẫn rẽ */
+        #directions-container .leaflet-routing-alt tr {
+            border-bottom: 1px solid #e2e8f0 !important;
+            transition: background 0.2s;
+        }
+        #directions-container .leaflet-routing-alt tr:hover {
+            background-color: #ffffff !important;
+        }
+
+        /* Khung tóm tắt quãng đường & thời gian */
+        .summary-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        /* Ẩn các ô nhập địa điểm mặc định của thư viện Routing */
+        #directions-container .leaflet-routing-geocoders {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
     
-    <nav class="bg-white shadow-md z-50 relative">
+<nav class="bg-white shadow-md z-50 relative shrink-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <span class="text-xl font-bold text-blue-600"><i class="fas fa-swimming-pool mr-2"></i>PoolFinder</span>
+                <div class="flex items-center gap-3 cursor-pointer">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-swimming-pool text-white text-lg"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-blue-600">PoolFinder</span>
                 </div>
+                
                 <div class="flex items-center gap-6">
-                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Trang chủ</a>
-                    <a href="{% url 'gioi_thieu' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Giới thiệu</a>
-                    <a href="{% url 'map' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition">Bản đồ GIS</a>
-                    <a href="{% url 'pool_list' %}" class="text-gray-600 hover:text-blue-600 transition font-medium">Danh sách</a>
+                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Trang chủ</a>
+                    <a href="{% url 'gioi_thieu' %}" class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Giới thiệu</a>
+                    <a href="{% url 'map' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition py-1">Bản đồ GIS</a>
+                    <a href="{% url 'pool_list' %}" class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Danh sách</a>
                 </div>
+                
                 <div class="flex items-center gap-4">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'profile' %}" class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition font-medium"><i class="fas fa-user mr-2"></i>{{ user.username }}</a>
+                        {% if user.is_staff and user.is_superuser %}
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">{{ user.username }}</span>
+                            </div>
+                        {% else %}
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                                <a href="{% url 'profile' %}" class="text-blue-600 hover:text-blue-800 transition font-medium">{{ user.username }}</a>
+                            </div>
+                        {% endif %}
                         <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng xuất</a>
                     {% else %}
                         <a href="{% url 'login_user' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Đăng nhập</a>
@@ -47,25 +163,100 @@
         </div>
     </nav>
 
-    <main class="flex-1 relative z-0">
-        <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] flex gap-2 w-full max-w-2xl px-4">
-            <div class="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 relative">
-                <div class="flex items-center px-4 py-2">
+    <main class="flex-1 relative z-0 overflow-hidden">
+        
+        <div id="directions-sidebar" class="absolute top-0 left-0 h-full w-full sm:w-[400px] bg-white z-[2000] shadow-[10px_0_30px_rgba(0,0,0,0.15)] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+            <div class="p-5 border-b bg-blue-600 text-white shrink-0">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg"><i class="fas fa-route mr-2"></i>Chỉ dẫn đường đi</h3>
+                        <button onclick="window.closeDirections()" class="bg-blue-700 hover:bg-red-500 w-9 h-9 rounded-full transition flex items-center justify-center shadow-inner">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-blue-800/40 p-3 rounded-xl mb-4 relative shadow-inner">
+                        <div class="absolute left-[21px] top-7 bottom-7 w-0.5 border-l-2 border-dashed border-blue-400/50"></div>
+                        
+                        <div class="flex items-center gap-3 mb-3 relative z-10">
+                            <div class="w-4 h-4 rounded-full border-[3px] border-white bg-blue-400 shrink-0 shadow-sm"></div>
+                            <div class="bg-blue-900/50 text-blue-100 text-sm px-3 py-2 rounded-lg flex-1 font-medium">
+                                Vị trí của bạn
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 relative z-10 w-full">
+                                <div class="w-4 h-4 rounded-full border-[3px] border-white bg-red-500 shrink-0 shadow-sm"></div>
+                                    <div class="relative flex-1">
+                                    <select id="dest-select" class="w-full bg-white text-blue-900 text-sm pl-3 pr-8 py-2 rounded-lg font-bold shadow outline-none cursor-pointer appearance-none border-2 border-transparent focus:border-blue-400 transition truncate">
+                                        <option value="">-- Chọn hồ bơi đích đến --</option>
+                                        </select>
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-around bg-blue-700/40 p-1.5 rounded-2xl">
+                        <button onclick="updateMode('moto')" id="btn-moto" class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full bg-white/20 ring-2 ring-white">
+                            <i class="fas fa-motorcycle text-lg"></i>
+                            <span class="text-[10px] font-bold">Xe máy</span>
+                        </button>
+                        <button onclick="updateMode('car')" id="btn-car" class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full">
+                            <i class="fas fa-car text-lg"></i>
+                            <span class="text-[10px] font-bold">Ô tô</span>
+                        </button>
+                        <button onclick="updateMode('walk')" id="btn-walk" class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full">
+                            <i class="fas fa-walking text-lg"></i>
+                            <span class="text-[10px] font-bold">Đi bộ</span>
+                        </button>
+                    </div>
+                </div>
+            
+            <div id="directions-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50">
+                <div id="route-summary" class="hidden summary-card p-4 rounded-xl mb-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Khoảng cách</span>
+                            <span id="summary-distance" class="text-xl font-black text-blue-900">0 km</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Thời gian đi</span>
+                            <span id="summary-time" class="text-lg font-bold text-gray-800">0 phút</span>
+                        </div>
+                    </div>
+                    <button onclick="window.closeDirections()" class="w-full mt-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-50 transition">
+                        <i class="fas fa-stop-circle mr-1"></i> Tắt chỉ đường
+                    </button>
+                </div>
+                <div id="routing-details"></div>
+            </div>
+
+            <div class="p-4 border-t bg-white">
+                <a id="sidebar-booking-btn" href="#" class="block w-full text-center bg-blue-600 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">
+                    <i class="fas fa-ticket-alt mr-2"></i> Đặt vé ngay
+                </a>
+            </div>
+        </div>
+                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] flex flex-col gap-2 w-full max-w-2xl px-4">
+            <div class="flex gap-2">
+                <div class="flex-1 bg-white rounded-lg shadow-lg flex items-center px-4 py-2 border border-gray-200 relative">
                     <i class="fas fa-search text-gray-400 mr-2"></i>
                     <input type="text" id="searchInput" placeholder="Tìm tên hoặc địa chỉ..." class="w-full outline-none text-sm text-gray-700" autocomplete="off">
+                    
+                    <div id="suggestionsBox" class="absolute top-full left-0 w-full bg-white mt-1 rounded-lg shadow-xl border border-gray-100 hidden flex-col max-h-60 overflow-y-auto z-50"></div>
                 </div>
-                <div id="suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg max-h-60 overflow-y-auto hidden z-10">
-                    </div>
+                
+                <select id="statusFilter" class="bg-white rounded-lg shadow-lg px-4 py-2 outline-none text-sm border border-gray-200 text-gray-700 font-medium">
+                    <option value="ALL">Tất cả trạng thái</option>
+                    <option value="MO">Đang mở cửa</option>
+                    <option value="DONG">Đóng cửa</option>
+                </select>
+                <button id="resetBtn" class="bg-white hover:bg-blue-50 text-blue-600 px-4 py-2 rounded-lg shadow-lg border border-gray-200 transition flex items-center gap-2">
+                    <i class="fas fa-sync-alt" id="resetIcon"></i>
+                    <span class="text-xs font-bold hidden sm:inline">Làm mới</span>
+                </button>
             </div>
-            <select id="statusFilter" class="bg-white rounded-lg shadow-lg px-4 py-2 outline-none text-sm border border-gray-200 text-gray-700 font-medium">
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="MO">Đang mở cửa</option>
-                <option value="DONG">Đóng cửa</option>
-            </select>
-            <button id="resetBtn" class="bg-white hover:bg-blue-50 text-blue-600 px-4 py-2 rounded-lg shadow-lg border border-gray-200 transition flex items-center gap-2" title="Làm mới & Định vị">
-                <i class="fas fa-sync-alt" id="resetIcon"></i>
-                <span class="text-xs font-bold hidden sm:inline">Làm mới</span>
-            </button>
         </div>
 
         <div class="absolute top-20 right-4 z-[1000]">
@@ -78,22 +269,28 @@
     </main>
 
     <script>
+        function formatMoney(amount) {
+            return parseFloat(amount).toLocaleString('vi-VN');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
             const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
             
-            const map = L.map('leaflet-map', {
+            // Ép map thành biến toàn cục (window.map) để Sidebar có thể truy cập
+            window.map = L.map('leaflet-map', {
                 center: [10.7769, 106.6964], 
                 zoom: 13,
                 layers: [osmLayer]
             });
 
-            L.control.layers({"Bản đồ chuẩn": osmLayer, "Vệ tinh": satelliteLayer}).addTo(map);
-            L.control.scale({metric: true, imperial: false}).addTo(map);
+            L.control.layers({"Bản đồ chuẩn": osmLayer, "Vệ tinh": satelliteLayer}).addTo(window.map);
+            L.control.scale({metric: true, imperial: false}).addTo(window.map);
 
             let allPoolsData = [];
-            let markerGroup = L.featureGroup().addTo(map);
-            let userMarker = null;
+            let markerGroup = L.featureGroup().addTo(window.map);
+            window.userMarker = null;
+            window.routingControl = null;
 
             function getCustomIcon(statusCode) {
                 let color = statusCode === 'MO' ? 'green' : 'red';
@@ -104,7 +301,115 @@
                 });
             }
 
-            // --- BẮT ĐẦU: Hàm Render Marker đã tích hợp Đánh Giá ---
+            // ================= LOGIC CHỈ ĐƯỜNG VÀ SIDEBAR =================
+            let currentRouteData = null;
+
+            // Hàm định dạng thời gian: X giờ Y phút
+            function formatDuration(seconds, mode = 'moto') {
+                // Hệ số tốc độ ước tính (Moto nhanh hơn xe hơi một chút ở phố đông, đi bộ chậm hơn)
+                const multipliers = { 'moto': 0.85, 'car': 1.0, 'walk': 10.0 }; 
+                let adjustedSeconds = seconds * (multipliers[mode] || 1);
+                
+                let hours = Math.floor(adjustedSeconds / 3600);
+                let minutes = Math.ceil((adjustedSeconds % 3600) / 60);
+                
+                if (hours > 0) return `${hours} giờ ${minutes} phút`;
+                return `${minutes} phút`;
+            }
+
+            // Cập nhật phương tiện và hiển thị lại tóm tắt
+            window.updateMode = function(mode) {
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.className = 'mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full');
+                document.getElementById(`btn-${mode}`).classList.add('bg-white/20', 'ring-2', 'ring-white');
+
+                if (currentRouteData) {
+                    const distKm = (currentRouteData.summary.totalDistance / 1000).toFixed(1);
+                    const timeStr = formatDuration(currentRouteData.summary.totalTime, mode);
+                    
+                    document.getElementById('summary-distance').innerText = `${distKm} km`;
+                    document.getElementById('summary-time').innerText = timeStr;
+                }
+            }
+
+            // --- HÀM VẼ ĐƯỜNG LÕI ---
+            window.drawRoute = function(lat, lng) {
+                if (window.routingControl) window.map.removeControl(window.routingControl);
+
+                document.getElementById('route-summary').classList.remove('hidden');
+                
+                window.routingControl = L.Routing.control({
+                    waypoints: [
+                        L.latLng(window.userMarker.getLatLng().lat, window.userMarker.getLatLng().lng),
+                        L.latLng(lat, lng)
+                    ],
+                    lineOptions: { styles: [{ color: '#2563eb', weight: 6, opacity: 0.85 }] },
+                    createMarker: function() { return null; },
+                    formatter: new L.Routing.Formatter({
+                        units: { kilometers: 'km', meters: 'm' }
+                    })
+                }).addTo(window.map);
+
+                window.routingControl.on('routesfound', function(e) {
+                    currentRouteData = e.routes[0];
+                    updateMode('moto'); // Mặc định là xe máy
+                    
+                    const routingBlock = document.querySelector('.leaflet-routing-container');
+                    if (routingBlock) {
+                        document.getElementById('routing-details').innerHTML = '';
+                        document.getElementById('routing-details').appendChild(routingBlock);
+                    }
+                });
+            };
+
+            // --- HÀM GỌI KHI BẤM NÚT TRÊN BẢN ĐỒ ---
+            window.getDirections = function(lat, lng, name, id) {
+                if (!window.userMarker) {
+                    alert("Vui lòng bật định vị để sử dụng tính năng này!");
+                    return;
+                }
+
+                // Cập nhật Select box và Nút đặt vé
+                const destSelect = document.getElementById('dest-select');
+                if(destSelect) destSelect.value = id;
+                document.getElementById('sidebar-booking-btn').href = `/dat-ve/${id}/`;
+
+                // Tiến hành vẽ đường
+                window.drawRoute(lat, lng);
+
+                // Mở Sidebar
+                document.getElementById('directions-sidebar').classList.remove('-translate-x-full');
+                window.map.closePopup();
+            };
+
+            // --- LẮNG NGHE SỰ KIỆN KHI NGƯỜI DÙNG CHỌN HỒ BƠI KHÁC TRONG DROPDOWN ---
+            document.getElementById('dest-select').addEventListener('change', function() {
+                if (!this.value || !window.userMarker) return;
+                
+                const selectedOpt = this.options[this.selectedIndex];
+                const lat = parseFloat(selectedOpt.dataset.lat);
+                const lng = parseFloat(selectedOpt.dataset.lng);
+                const id = this.value;
+
+                // Cập nhật lại nút đặt vé theo hồ bơi mới
+                document.getElementById('sidebar-booking-btn').href = `/dat-ve/${id}/`;
+                
+                // Vẽ lại đường tới điểm mới
+                window.drawRoute(lat, lng);
+            });
+
+            // Hàm tắt chỉ đường hoàn toàn
+            window.closeDirections = function() {
+                document.getElementById('directions-sidebar').classList.add('-translate-x-full');
+                if (window.routingControl) {
+                    window.map.removeControl(window.routingControl);
+                    window.routingControl = null;
+                    currentRouteData = null;
+                }
+            };
+            // ================= KẾT THÚC LOGIC SIDEBAR =================
+
+
+            // Hàm gắn popup cho các điểm hồ bơi (Giữ nguyên của bạn)
             function renderMarkers(pools) {
                 markerGroup.clearLayers();
                 pools.forEach(feature => {
@@ -134,25 +439,67 @@
                         </div>
                     `;
 
+                    // Giao diện Popup
                     const popupContent = `
                         <div class="popup-container -m-3">
                             ${imgHtml}
                             <div class="px-3 pb-3">
-                                <h5 class="font-bold text-lg text-gray-900 leading-tight mb-1">${props.name}</h5>
+                                <div class="flex justify-between items-center mb-1">
+                                    <h5 class="font-bold text-lg text-gray-900 leading-tight mr-2">${props.name}</h5>
+                                    ${statusHtml}
+                                </div>
                                 <p class="text-xs text-gray-500 mb-2 truncate"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i>${props.address}</p>
-                                <div class="flex justify-between items-center mb-4">${statusHtml}<span class="text-sm font-bold text-blue-600">${props.price_adult}đ/vé</span></div>
-                                <a href="/dat-ve/${props.id}/" class="block w-full text-center bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700 transition font-medium text-sm">Đặt vé ngay</a>
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm text-gray-500">Giá người lớn</span>
+                                        <span class="text-sm font-bold text-blue-600">${formatMoney(props.price_adult)}đ</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Giá trẻ em</span>
+                                        <span class="text-sm font-bold text-blue-600">${formatMoney(props.price_child)}đ</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-2 mt-2">
+                                    <button onclick="window.getDirections(${coords[1]}, ${coords[0]}, '${props.name.replace(/'/g, "\\'")}', ${props.id})" class="flex items-center justify-center gap-1 bg-white border border-blue-600 text-blue-600 py-2 rounded shadow hover:bg-blue-50 transition font-medium text-sm">
+                                        <i class="fas fa-directions"></i> Chỉ đường
+                                    </button>
+                                    
+                                    <a href="/dat-ve/${props.id}/" class="flex items-center justify-center bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700 transition font-medium text-sm book-ticket">
+                                        Đặt vé ngay
+                                    </a>
+                                </div>
                                 ${ratingHtml}
                             </div>
                         </div>
                     `;
                     marker.bindPopup(popupContent);
+                    
+                    // Logic Ngôi sao khi mở Popup
+                    marker.on('popupopen', function() {
+                        const stars = document.querySelectorAll('.star-btn');
+                        const ratingInput = document.getElementById(`rating-value-${props.id}`);
+                        stars.forEach(star => {
+                            star.addEventListener('click', function() {
+                                const value = this.getAttribute('data-value');
+                                ratingInput.value = value;
+                                stars.forEach(s => {
+                                    if (s.getAttribute('data-value') <= value) {
+                                        s.classList.add('active');
+                                    } else {
+                                        s.classList.remove('active');
+                                    }
+                                });
+                            });
+                        });
+                    });
+
                     markerGroup.addLayer(marker);
                 });
                 document.getElementById('poolCounter').innerText = pools.length;
             }
-            // --- KẾT THÚC: Hàm Render Marker ---
 
+            // Hàm định vị người dùng
             function locateUser(isInitial = false) {
                 if ("geolocation" in navigator) {
                     const icon = document.getElementById('resetIcon');
@@ -162,7 +509,7 @@
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
                         
-                        if (userMarker) map.removeLayer(userMarker);
+                        if (window.userMarker) window.map.removeLayer(window.userMarker);
                         
                         const userIcon = new L.Icon({
                             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
@@ -170,8 +517,8 @@
                             iconSize: [25, 41], iconAnchor: [12, 41]
                         });
                         
-                        userMarker = L.marker([lat, lng], {icon: userIcon}).addTo(map).bindPopup('<b>Vị trí của bạn</b>');
-                        map.setView([lat, lng], 14);
+                        window.userMarker = L.marker([lat, lng], {icon: userIcon}).addTo(window.map).bindPopup('<b>Vị trí của bạn</b>');
+                        if (isInitial) window.map.setView([lat, lng], 14);
                         if (icon) icon.classList.remove('fa-spin');
                     }, error => {
                         if (!isInitial) alert("Không thể lấy vị trí. Vui lòng kiểm tra quyền truy cập vị trí.");
@@ -180,13 +527,72 @@
                 }
             }
 
+            // Khởi tạo Data
             fetch('{% url "get_pools" %}')
                 .then(response => response.json())
                 .then(data => {
                     allPoolsData = data.features;
                     renderMarkers(allPoolsData);
                     locateUser(true); 
+
+                    // ĐOẠN MỚI THÊM: Đổ dữ liệu vào ô Dropdown (Điểm B)
+                    const destSelect = document.getElementById('dest-select');
+                    allPoolsData.forEach(pool => {
+                        let opt = document.createElement('option');
+                        opt.value = pool.properties.id;
+                        opt.textContent = pool.properties.name;
+                        // Gắn tọa độ ngầm vào thẻ option để lấy ra vẽ đường
+                        opt.dataset.lat = pool.geometry.coordinates[1];
+                        opt.dataset.lng = pool.geometry.coordinates[0];
+                        destSelect.appendChild(opt);
+                    });
                 });
+
+            // Các chức năng bộ lọc và tìm kiếm gợi ý (Đã giữ nguyên)
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsBox = document.getElementById('suggestionsBox');
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                suggestionsBox.innerHTML = '';
+                if (!query) { suggestionsBox.classList.add('hidden'); applyFilters(); return; }
+                
+                const matches = allPoolsData.filter(f => f.properties.name.toLowerCase().includes(query) || f.properties.address.toLowerCase().includes(query));
+                if (matches.length > 0) {
+                    suggestionsBox.classList.remove('hidden');
+                    matches.forEach(f => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item flex items-center border-b border-gray-50 last:border-0';
+                        div.innerHTML = `<i class="fas fa-map-marker-alt text-gray-400 mr-3"></i><div><p class="text-sm font-bold text-gray-800">${f.properties.name}</p><p class="text-xs text-gray-500 truncate">${f.properties.address}</p></div>`;
+                        div.addEventListener('click', () => {
+                            searchInput.value = f.properties.name;
+                            suggestionsBox.classList.add('hidden');
+                            applyFilters();
+                            window.map.setView([f.geometry.coordinates[1], f.geometry.coordinates[0]], 16);
+                        });
+                        suggestionsBox.appendChild(div);
+                    });
+                } else {
+                    suggestionsBox.classList.add('hidden');
+                }
+                applyFilters();
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                searchInput.value = '';
+                document.getElementById('statusFilter').value = 'ALL';
+                suggestionsBox.classList.add('hidden');
+                window.closeDirections(); // Ẩn sidebar nếu đang mở
+                renderMarkers(allPoolsData);
+                locateUser(); 
+            });
 
             function applyFilters() {
                 let searchText = document.getElementById('searchInput').value.toLowerCase();
@@ -198,158 +604,35 @@
                 });
                 renderMarkers(filtered);
             }
+        });
 
-            function showSuggestions(filteredPools) {
-                const suggestionsDiv = document.getElementById('suggestions');
-                suggestionsDiv.innerHTML = '';
-                if (filteredPools.length > 0 && document.getElementById('searchInput').value.trim() !== '') {
-                    filteredPools.slice(0, 5).forEach(pool => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.innerHTML = `<strong>${pool.properties.name}</strong><br><small class="text-gray-500">${pool.properties.address}</small>`;
-                        div.addEventListener('click', () => {
-                            selectSuggestion(pool);
-                        });
-                        suggestionsDiv.appendChild(div);
-                    });
-                    suggestionsDiv.classList.remove('hidden');
-                } else {
-                    suggestionsDiv.classList.add('hidden');
-                }
-            }
-
-            function hideSuggestions() {
-                document.getElementById('suggestions').classList.add('hidden');
-            }
-
-            function selectSuggestion(pool) {
-                document.getElementById('searchInput').value = pool.properties.name;
-                hideSuggestions();
-                zoomToPool(pool);
-            }
-
-            function zoomToPool(pool) {
-                const coords = pool.geometry.coordinates;
-                map.flyTo([coords[1], coords[0]], 16, {
-                    duration: 1.5, 
-                    easeLinearity: 0.25 
-                });
-                setTimeout(() => {
-                    markerGroup.eachLayer(layer => {
-                        if (layer.getLatLng().lat === coords[1] && layer.getLatLng().lng === coords[0]) {
-                            layer.openPopup();
-                        }
-                    });
-                }, 1500);
-            }
-
-            document.getElementById('searchInput').addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                if (query === '') {
-                    hideSuggestions();
-                    applyFilters();
-                    return;
-                }
-                const filtered = allPoolsData.filter(pool =>
-                    pool.properties.name.toLowerCase().includes(query) ||
-                    pool.properties.address.toLowerCase().includes(query)
-                );
-                showSuggestions(filtered);
-                applyFilters();
-            });
-
-            document.getElementById('searchInput').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const query = this.value.toLowerCase().trim();
-                    if (query !== '') {
-                        const exactMatch = allPoolsData.find(pool =>
-                            pool.properties.name.toLowerCase() === query
-                        );
-                        if (exactMatch) {
-                            zoomToPool(exactMatch);
-                        } else {
-                            const firstMatch = allPoolsData.find(pool =>
-                                pool.properties.name.toLowerCase().includes(query) ||
-                                pool.properties.address.toLowerCase().includes(query)
-                            );
-                            if (firstMatch) {
-                                zoomToPool(firstMatch);
-                            }
-                        }
+        // Hàm lấy Cookie CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
-                    hideSuggestions();
                 }
-            });
+            }
+            return cookieValue;
+        }
 
-            document.addEventListener('click', function(e) {
-                const searchContainer = document.querySelector('.flex-1.bg-white');
-                if (!searchContainer.contains(e.target)) {
-                    hideSuggestions();
-                }
-            });
-
-            document.getElementById('statusFilter').addEventListener('change', applyFilters);
-
-            document.getElementById('resetBtn').addEventListener('click', () => {
-                document.getElementById('searchInput').value = '';
-                document.getElementById('statusFilter').value = 'ALL';
-                renderMarkers(allPoolsData);
-                locateUser(); 
-            });
-
-            // --- BẮT ĐẦU: Xử lý hiệu ứng click chọn sao ---
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('star-btn')) {
-                    const rating = parseInt(e.target.getAttribute('data-value'));
-                    const parent = e.target.parentElement;
-                    
-                    // Lấy thẻ input ẩn ngay dưới khu vực chọn sao
-                    const hiddenInput = parent.nextElementSibling;
-                    hiddenInput.value = rating;
-                    
-                    // Đổi màu các ngôi sao
-                    const stars = parent.querySelectorAll('.star-btn');
-                    stars.forEach(s => {
-                        if (parseInt(s.getAttribute('data-value')) <= rating) {
-                            s.classList.add('active');
-                        } else {
-                            s.classList.remove('active');
-                        }
-                    });
-                }
-            });
-            // --- KẾT THÚC: Xử lý hiệu ứng click chọn sao ---
-
-        }); // Kết thúc block DOMContentLoaded
-
-        // --- BẮT ĐẦU: Hàm gửi dữ liệu về Django ---
-        // Đặt ngoài DOMContentLoaded để html nội tuyến onclick="window.submitReview()" có thể gọi được
+        // Hàm Submit Đánh giá (Giữ nguyên gốc)
         window.submitReview = function(poolId) {
             const rating = document.getElementById(`rating-value-${poolId}`).value;
             const comment = document.getElementById(`comment-${poolId}`).value;
 
-            if (rating === "0") {
-                alert("Vui lòng chọn số sao (1-5) trước khi gửi!");
+            if (rating == 0) {
+                alert("Vui lòng chọn số sao trước khi đánh giá!");
                 return;
             }
 
-            // Lấy CSRF token của Django từ cookie
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            fetch('/submit-review/', { 
+            fetch('/submit-review/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -371,25 +654,17 @@
             .then(data => {
                 if (data && data.status === 'success') {
                     alert("Đánh giá của bạn đã được ghi nhận. Xin cảm ơn!");
-                    // Reset lại giá trị
                     document.getElementById(`rating-value-${poolId}`).value = 0;
                     document.getElementById(`comment-${poolId}`).value = "";
                     const parent = document.getElementById(`rating-value-${poolId}`).previousElementSibling;
                     const stars = parent.querySelectorAll('.star-btn');
                     stars.forEach(s => s.classList.remove('active'));
-                    
-                    // Có thể tự động đóng popup bản đồ (tùy chọn)
-                    // map.closePopup(); 
                 } else if (data) {
                     alert("Đã xảy ra lỗi: " + (data.message || "Lỗi không xác định"));
                 }
             })
             .catch(error => console.log('Lỗi gửi đánh giá:', error));
         };
-        // --- KẾT THÚC: Hàm gửi dữ liệu ---
-
     </script>
-
-
 </body>
 </html>
