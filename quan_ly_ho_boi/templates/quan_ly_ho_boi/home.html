@@ -7,9 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Ẩn thanh cuộn ngang nhưng vẫn cho phép lướt */
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Làm đẹp thanh cuộn ngang để lướt mượt hơn trên PC thay vì ẩn hoàn toàn */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-gradient-to-b from-blue-50 via-white to-blue-50">
@@ -151,9 +153,9 @@
                 <p class="text-gray-500 italic">Lướt ngang để xem thêm <i class="fas fa-arrow-right"></i></p>
             </div>
             
-            <div class="flex overflow-x-auto gap-6 pb-8 snap-x hide-scroll">
+            <div class="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory custom-scrollbar pt-2">
                 {% for ho in danh_sach_ho %}
-                <div class="flex-none w-80 md:w-96 snap-center bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden border border-gray-100">
+                <div class="flex-none w-[85vw] sm:w-80 md:w-96 snap-start bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden border border-gray-100 flex flex-col">
                     <div class="h-48 bg-gray-200 relative">
                         {% if ho.hinh_anh %}
                             <img src="{{ ho.hinh_anh.url }}" alt="{{ ho.ten_ho }}" class="w-full h-full object-cover">
@@ -164,10 +166,12 @@
                             {{ ho.get_trang_thai_display }}
                         </span>
                     </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">{{ ho.ten_ho }}</h3>
-                        <p class="text-sm text-gray-600 mb-4 truncate"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>{{ ho.dia_chi }}</p>
-                        <a href="{% url 'dat_ve' ho.id %}" class="block w-full text-center py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition font-medium border border-blue-200">Đặt vé ngay</a>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">{{ ho.ten_ho }}</h3>
+                            <p class="text-sm text-gray-600 mb-4 truncate"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>{{ ho.dia_chi }}</p>
+                        </div>
+                        <a href="{% url 'dat_ve' ho.id %}" class="block w-full text-center py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition font-medium border border-blue-200 mt-auto">Đặt vé ngay</a>
                     </div>
                 </div>
                 {% endfor %}
