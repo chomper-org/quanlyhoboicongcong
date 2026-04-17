@@ -16,6 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.db.models import Avg, Count
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 
 def gioi_thieu(request):
@@ -161,31 +162,53 @@ def lich_su_thanh_toan(request: HttpRequest):
 # 8. Trang admin tùy chỉnh (Tổng hợp quản lý)
 @login_required
 def admin_home(request: HttpRequest):
+    # Kiểm tra quyền truy cập Admin
     if not request.user.is_staff:
-        return render(request, 'quan_ly_ho_boi/403.html', status=403)  # Chỉ cho phép staff truy cập
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
     
-    # --- DỮ LIỆU CHO TAB THỐNG KÊ (DASHBOARD) ---
+    # --- 1. DỮ LIỆU THỐNG KÊ TỔNG QUAN (DASHBOARD) ---
     tong_ho_boi = HoBoi.objects.count()
     tong_ve_dat = DatVe.objects.count()
     ho_dang_mo = HoBoi.objects.filter(trang_thai='MO').count()
     tong_doanh_thu = Payment.objects.filter(trang_thai='Hoàn thành').aggregate(total=Sum('so_tien'))['total'] or 0
+    
+    # Lấy 5 hồ bơi mới nhất hiện nhanh ở Dashboard
     ho_boi_gan_day = HoBoi.objects.order_by('-id')[:5]
-    ve_dat_gan_day = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')[:10]
+    
+    # Danh sách chờ thu tiền mặt (thường để ít nên không cần phân trang)
     thanh_toan_cho = Payment.objects.filter(trang_thai='Đang chờ').select_related('dat_ve__khach_hang', 'dat_ve__ho_boi')
-    
-    # --- DỮ LIỆU CHO TAB QUẢN LÝ HỒ BƠI ---
-    danh_sach_ho = HoBoi.objects.all()
-    
+
+    # --- 2. PHÂN TRANG DANH SÁCH HỒ BƠI (TAB QUẢN LÝ HỒ BƠI) ---
+    danh_sach_ho_full = HoBoi.objects.all().order_by('-id')
+    paginator_ho = Paginator(danh_sach_ho_full, 10) # 10 hồ bơi mỗi trang
+    page_ho_number = request.GET.get('page_ho')
+    danh_sach_ho = paginator_ho.get_page(page_ho_number)
+
+    # --- 3. PHÂN TRANG TẤT CẢ VÉ ĐẶT (TAB QUẢN LÝ VÉ ĐẶT) ---
+    tat_ca_ve_dat_full = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')
+    paginator_ve = Paginator(tat_ca_ve_dat_full, 10) # 10 vé mỗi trang
+    page_ve_number = request.GET.get('page_ve')
+    ve_dat_gan_day = paginator_ve.get_page(page_ve_number)
+
+    # --- 4. ĐÓNG GÓI CONTEXT ---
     context = {
+        # Thống kê Dashboard
         'tong_ho_boi': tong_ho_boi,
         'tong_ve_dat': tong_ve_dat,
         'ho_dang_mo': ho_dang_mo,
         'tong_doanh_thu': tong_doanh_thu,
         'ho_boi_gan_day': ho_boi_gan_day,
-        've_dat_gan_day': ve_dat_gan_day,
-        'danh_sach_ho': danh_sach_ho, # Đã thêm dữ liệu này
         'thanh_toan_cho': thanh_toan_cho,
+        
+        # Dữ liệu phân trang (Object Page)
+        'danh_sach_ho': danh_sach_ho,
+        've_dat_gan_day': ve_dat_gan_day,
+        
+        # Biến đếm tổng để hiện trên Badge (Huy hiệu)
+        'tong_ho_count': paginator_ho.count,
+        'tong_ve_count': paginator_ve.count,
     }
+    
     return render(request, 'quan_ly_ho_boi/admin_panel.html', context)
 
 # 8.1. Login cho admin panel
