@@ -27,7 +27,7 @@
                         <a href="{% url 'profile' %}" class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition font-medium"><i class="fas fa-user mr-2"></i>{{ user.username }}</a>
                         <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng xuất</a>
                     {% else %}
-                        <a href="{% url 'login_user' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Đăng nhập</a>
+                        <a href="{% url 'login_user' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng nhập</a>
                         <a href="{% url 'register_user' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">Đăng ký</a>
                     {% endif %}
                 </div>
@@ -40,7 +40,6 @@
         {% if messages %}
         <div class="mb-8 space-y-4">
             {% for message in messages %}
-                
                 {% if message.tags == 'error' %}
                     <div class="flex items-center p-4 rounded-xl border bg-red-50 border-red-200 text-red-700 shadow-sm">
                         <div class="flex-shrink-0">
@@ -60,7 +59,6 @@
                         </div>
                     </div>
                 {% endif %}
-
             {% endfor %}
         </div>
         {% endif %}
@@ -97,7 +95,7 @@
                             <span class="text-xs text-gray-400 uppercase font-bold">Giá vé người lớn</span>
                             <p class="text-blue-600 font-bold text-lg">{{ pool.gia_ve_nguoi_lon|default:"0" }}đ</p>
                         </div>
-                        <a href="{% url 'dat_ve' pool.id %}" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 transition">Đặt vé ngay</a>
+                        <a href="{% url 'dat_ve' pool.id %}" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 transition shadow-sm border border-blue-100">Đặt vé ngay</a>
                     </div>
 
                     <div class="space-y-3 mt-4 border-t border-gray-100 pt-4 max-h-48 overflow-y-auto custom-scrollbar pr-2">
@@ -120,7 +118,7 @@
                     {% if user.is_authenticated %}
                         <form method="POST" action="{% url 'add_review' pool.id %}" class="flex gap-2">
                             {% csrf_token %}
-                            <select name="rating" class="w-20 p-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <select name="rating" class="w-20 p-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer">
                                 <option value="5">5 ★</option>
                                 <option value="4">4 ★</option>
                                 <option value="3">3 ★</option>
@@ -128,7 +126,7 @@
                                 <option value="1">1 ★</option>
                             </select>
                             <input type="text" name="comment" placeholder="Nhận xét của bạn..." class="flex-1 p-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" required>
-                            <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition" title="Gửi đánh giá">
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition" title="Gửi đánh giá">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </form>
@@ -141,26 +139,86 @@
             </div>
             {% endfor %}
         </div>
+
+        <div class="flex justify-center mt-12 mb-4">
+            <nav class="flex items-center gap-2" aria-label="Pagination">
+                
+                {% if pools.has_previous %}
+                    <a href="?page={{ pools.previous_page_number }}" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition font-medium">
+                        <i class="fas fa-chevron-left mr-1"></i> Trước
+                    </a>
+                {% else %}
+                    <span class="px-4 py-2 rounded-lg border border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed font-medium shadow-inner">
+                        <i class="fas fa-chevron-left mr-1"></i> Trước
+                    </span>
+                {% endif %}
+
+                <div class="flex items-center gap-1">
+                    {% if pools.paginator.num_pages <= 1 %}
+                        <span class="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold shadow-md ring-2 ring-blue-300">1</span>
+                    {% else %}
+                        {% for num in pools.paginator.page_range %}
+                            {% if pools.number == num %}
+                                <span class="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold shadow-md ring-2 ring-blue-300">{{ num }}</span>
+                            {% elif num > pools.number|add:'-3' and num < pools.number|add:'3' %}
+                                <a href="?page={{ num }}" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition font-medium">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                {% if pools.has_next %}
+                    <a href="?page={{ pools.next_page_number }}" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition font-medium">
+                        Sau <i class="fas fa-chevron-right ml-1"></i>
+                    </a>
+                {% else %}
+                    <span class="px-4 py-2 rounded-lg border border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed font-medium shadow-inner">
+                        Sau <i class="fas fa-chevron-right ml-1"></i>
+                    </span>
+                {% endif %}
+
+            </nav>
+        </div>
+
     </main>
 
     <footer class="bg-white border-t border-gray-200 pt-12 pb-8 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-8">
+                
                 <div>
                     <div class="flex items-center gap-2 mb-4">
                         <i class="fas fa-swimming-pool text-2xl text-blue-600"></i>
                         <span class="text-xl font-bold text-gray-900">PoolFinder</span>
                     </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">Hệ thống quản lý và đặt vé trực tuyến giúp trải nghiệm bơi lội của bạn trở nên thuận tiện.</p>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Hệ thống quản lý và đặt vé trực tuyến giúp trải nghiệm bơi lội của bạn trở nên thuận tiện và nhanh chóng hơn bao giờ hết.
+                    </p>
+                    <div class="flex gap-4 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fas fa-globe"></i></a>
+                    </div>
                 </div>
+
                 <div>
                     <h4 class="text-gray-900 font-bold mb-4 uppercase tracking-wider text-xs">Thông tin liên hệ</h4>
                     <ul class="text-gray-600 text-sm space-y-3">
-                        <li class="flex items-start gap-3"><i class="fas fa-map-marker-alt mt-1 text-blue-500"></i><span>Khu công nghệ cao, TP. Thủ Đức, TP. HCM.</span></li>
-                        <li class="flex items-center gap-3"><i class="fas fa-phone-alt text-blue-500"></i><span>0909 123 456</span></li>
-                        <li class="flex items-center gap-3"><i class="fas fa-envelope text-blue-500"></i><a href="mailto:hotro@poolfinder.vn" class="hover:text-blue-600 transition">hotro@poolfinder.vn</a></li>
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-map-marker-alt mt-1 text-blue-500"></i>
+                            <span>Khu công nghệ cao, TP. Thủ Đức, TP. Hồ Chí Minh.</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-phone-alt text-blue-500"></i>
+                            <span>0909 123 456</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-envelope text-blue-500"></i>
+                            <a href="mailto:hotro@poolfinder.vn" class="hover:text-blue-600 transition">hotro@poolfinder.vn</a>
+                        </li>
                     </ul>
                 </div>
+
                 <div>
                     <h4 class="text-gray-900 font-bold mb-4 uppercase tracking-wider text-xs">Ban quản trị</h4>
                     <div class="space-y-4">
@@ -168,15 +226,27 @@
                             <p class="text-gray-500 text-xs italic">Chịu trách nhiệm dự án</p>
                             <p class="text-gray-900 font-semibold text-sm">Tuấn Đạt</p>
                         </div>
+                        <div>
+                            <p class="text-gray-500 text-xs italic">Hỗ trợ kỹ thuật & Giải đáp thắc mắc</p>
+                            <p class="text-gray-900 font-semibold text-sm">Tuấn Đạt</p>
+                            <a href="mailto:tuandat@poolfinder.vn" class="text-blue-600 text-sm hover:underline">tuandat@poolfinder.vn</a>
+                        </div>
                     </div>
                 </div>
             </div>
+
             <div class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-gray-400 text-xs">© 2026. Bản quyền thuộc về Hệ thống Quản lý Hồ bơi PoolFinder.</p>
-                <a href="{% url 'login_admin' %}" class="text-gray-400 hover:text-gray-600 text-xs transition flex items-center gap-2"><i class="fas fa-user-shield"></i> Quản trị viên</a>
+                <p class="text-gray-400 text-xs text-center md:text-left">
+                    © 2026. Bản quyền thuộc về Hệ thống Quản lý Hồ bơi PoolFinder.
+                </p>
+                <div class="flex items-center gap-6">
+                    <a href="{% url 'login_admin' %}" class="text-gray-400 hover:text-gray-600 text-xs transition flex items-center gap-2">
+                        <i class="fas fa-user-shield"></i> Quản trị viên
+                    </a>
+                </div>
             </div>
-         </div>
-    </footer> 
+        </div>
+    </footer>
 
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }

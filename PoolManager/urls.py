@@ -39,6 +39,7 @@ urlpatterns = [
     path('danh-sach/', views.pool_list, name='pool_list'),
     path('pool/<int:ho_boi_id>/review/', views.add_review, name='add_review'),
     path('submit-review/', views.submit_review, name='submit_review'),
+    path('profile/dat-ve/<int:datve_id>/sua/', views.user_edit_booking, name='user_edit_booking'),
 ]
 
 handler404 = 'quan_ly_ho_boi.views.page_not_found_view'

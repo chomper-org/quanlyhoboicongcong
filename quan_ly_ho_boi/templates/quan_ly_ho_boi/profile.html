@@ -120,18 +120,23 @@
                     {% if lich_su_ve %}
                         <div class="space-y-4">
                             {% for ve in lich_su_ve %}
-                            <div class="border-l-4 border-blue-500 pl-4 py-3 hover:bg-blue-50 transition rounded-r-lg">
-                                <div class="flex justify-between items-start mb-2">
+                            <div class="flex justify-between items-start mb-2">
                                     <div>
                                         <h3 class="font-bold text-gray-900">{{ ve.ho_boi.ten_ho }}</h3>
                                         <p class="text-sm text-gray-600">
                                             <i class="fas fa-map-marker-alt mr-1"></i>{{ ve.ho_boi.dia_chi }}
                                         </p>
                                     </div>
-                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
-                                        Mã #{{ ve.id }}
-                                    </span>
-                                </div>
+                                    
+                                    <div class="flex flex-col items-end gap-2">
+                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                            Mã #{{ ve.id }}
+                                        </span>
+                                        <a href="{% url 'user_edit_booking' ve.id %}" class="inline-block px-3 py-1 rounded-lg text-xs font-semibold bg-yellow-500 text-white hover:bg-yellow-600 transition shadow-sm border border-yellow-600">
+                                            <i class="fa-solid fa-pen-to-square"></i> Sửa vé
+                                        </a>
+                                    </div>
+                                    </div>
                                 <div class="grid grid-cols-3 gap-4 text-sm">
                                     <div>
                                         <p class="text-gray-500">Ngày đặt</p>
