@@ -423,6 +423,7 @@ def get_pools(request):
                 "price_adult": str(p.gia_ve_nguoi_lon),
                 "price_child": str(p.gia_ve_tre_em),
                 "image": p.hinh_anh.url if p.hinh_anh else '',
+                'gallery': [anh.hinh_anh.url for anh in ho_boi.danh_sach_hinh_anh.all()] if hasattr(HoBoi, 'danh_sach_hinh_anh') else []
             }
         })
     return JsonResponse({"type": "FeatureCollection", "features": data})

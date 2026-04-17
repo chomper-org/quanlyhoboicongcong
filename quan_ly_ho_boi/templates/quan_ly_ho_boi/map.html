@@ -23,98 +23,42 @@
         .suggestion-item:hover { background-color: #f3f4f6; }
         .rating-stars .active { color: #fbbf24; }
 
-        /* ================= CSS LÀM ĐẸP CHO SIDEBAR CHỈ ĐƯỜNG ================= */
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        /* ================= CSS LÀM ĐẸP ================= */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Khử style mặc định của bảng Routing để ép nó lọt thỏm vào Sidebar */
         #directions-container .leaflet-routing-container {
-            width: 100% !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            background: transparent !important;
-            margin: 0 !important;
+            width: 100% !important; padding: 0 !important; box-shadow: none !important;
+            border: none !important; background: transparent !important; margin: 0 !important;
         }
-        
-        /* Chỉnh lại font chữ và màu sắc cho các bước rẽ */
-        #directions-container .leaflet-routing-alt h2 { display: none !important; } /* Ẩn chữ Route 1 */
+        #directions-container .leaflet-routing-alt h2 { display: none !important; }
         #directions-container .leaflet-routing-alt h3 {
-            font-size: 20px !important;
-            color: #1e40af !important;
-            padding: 10px 10px 20px 10px !important;
-            font-weight: 800 !important;
-            border-bottom: 1px solid #e2e8f0;
+            font-size: 20px !important; color: #1e40af !important; padding: 10px 10px 20px 10px !important;
+            font-weight: 800 !important; border-bottom: 1px solid #e2e8f0;
         }
         #directions-container .leaflet-routing-alt table { width: 100%; border-collapse: collapse; }
         #directions-container .leaflet-routing-alt tr:hover { background: #f0fdf4; cursor: pointer; }
         #directions-container .leaflet-routing-alt td { 
-            padding: 12px 10px; 
-            border-bottom: 1px solid #f1f5f9; 
-            font-size: 14px; 
-            color: #475569;
+            padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #475569;
         }
         #directions-container .leaflet-routing-icon {
             filter: brightness(0) saturate(100%) invert(34%) sepia(87%) saturate(2220%) hue-rotate(209deg) brightness(101%) contrast(96%);
         }
-        /* Sidebar tổng thể */
-        #directions-sidebar {
-            background-color: #ffffff;
-        }
+        #directions-sidebar { background-color: #ffffff; }
 
-        /* 1. "Tô" lại các ô và bảng để không bị hòa vào nền */
         #directions-container .leaflet-routing-container {
-            background-color: #f8fafc !important; /* Màu xám xanh nhạt rất sang */
-            border-radius: 12px;
-            margin-top: 10px !important;
-            border: 1px solid #e2e8f0 !important;
+            background-color: #f8fafc !important; border-radius: 12px; margin-top: 10px !important; border: 1px solid #e2e8f0 !important;
         }
+        #directions-container .leaflet-routing-alt tr { border-bottom: 1px solid #edf2f7 !important; transition: background 0.2s; }
+        #directions-container .leaflet-routing-alt tr:hover { background-color: #ffffff !important; box-shadow: inset 4px 0 0 #2563eb; }
 
-        /* Từng bước chỉ đường */
-        #directions-container .leaflet-routing-alt tr {
-            border-bottom: 1px solid #edf2f7 !important;
-        }
-        #directions-container .leaflet-routing-alt tr:hover {
-            background-color: #ffffff !important;
-            box-shadow: inset 4px 0 0 #2563eb; /* Vạch xanh bên cạnh khi di chuột */
-        }
+        .routing-summary-custom { padding: 15px; background: #eff6ff; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #2563eb; }
+        #directions-container .leaflet-routing-container { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px !important; margin-top: 15px !important; padding: 10px !important; }
+        #directions-container .leaflet-routing-alt tr { border-bottom: 1px solid #e2e8f0 !important; transition: background 0.2s; }
+        #directions-container .leaflet-routing-alt tr:hover { background-color: #ffffff !important; }
 
-        /* 2. Định dạng lại chữ Khoảng cách & Thời gian */
-        .routing-summary-custom {
-            padding: 15px;
-            background: #eff6ff;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid #2563eb;
-        }
-        /* Làm nổi bật khung chứa thông tin lộ trình */
-        #directions-container .leaflet-routing-container {
-            background-color: #f1f5f9 !important; /* Màu nền xám nhạt để tách biệt với Sidebar */
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 12px !important;
-            margin-top: 15px !important;
-            padding: 10px !important;
-        }
-
-        /* Định dạng các dòng hướng dẫn rẽ */
-        #directions-container .leaflet-routing-alt tr {
-            border-bottom: 1px solid #e2e8f0 !important;
-            transition: background 0.2s;
-        }
-        #directions-container .leaflet-routing-alt tr:hover {
-            background-color: #ffffff !important;
-        }
-
-        /* Khung tóm tắt quãng đường & thời gian */
-        .summary-card {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border-left: 5px solid #2563eb;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        /* Ẩn các ô nhập địa điểm mặc định của thư viện Routing */
-        #directions-container .leaflet-routing-geocoders {
-            display: none !important;
-        }
+        .summary-card { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #2563eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        #directions-container .leaflet-routing-geocoders { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
@@ -277,7 +221,6 @@
             const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
             const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
             
-            // Ép map thành biến toàn cục (window.map) để Sidebar có thể truy cập
             window.map = L.map('leaflet-map', {
                 center: [10.7769, 106.6964], 
                 zoom: 13,
@@ -301,12 +244,9 @@
                 });
             }
 
-            // ================= LOGIC CHỈ ĐƯỜNG VÀ SIDEBAR =================
             let currentRouteData = null;
 
-            // Hàm định dạng thời gian: X giờ Y phút
             function formatDuration(seconds, mode = 'moto') {
-                // Hệ số tốc độ ước tính (Moto nhanh hơn xe hơi một chút ở phố đông, đi bộ chậm hơn)
                 const multipliers = { 'moto': 0.85, 'car': 1.0, 'walk': 10.0 }; 
                 let adjustedSeconds = seconds * (multipliers[mode] || 1);
                 
@@ -317,7 +257,6 @@
                 return `${minutes} phút`;
             }
 
-            // Cập nhật phương tiện và hiển thị lại tóm tắt
             window.updateMode = function(mode) {
                 document.querySelectorAll('.mode-btn').forEach(btn => btn.className = 'mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full');
                 document.getElementById(`btn-${mode}`).classList.add('bg-white/20', 'ring-2', 'ring-white');
@@ -331,7 +270,6 @@
                 }
             }
 
-            // --- HÀM VẼ ĐƯỜNG LÕI ---
             window.drawRoute = function(lat, lng) {
                 if (window.routingControl) window.map.removeControl(window.routingControl);
 
@@ -351,7 +289,7 @@
 
                 window.routingControl.on('routesfound', function(e) {
                     currentRouteData = e.routes[0];
-                    updateMode('moto'); // Mặc định là xe máy
+                    updateMode('moto'); 
                     
                     const routingBlock = document.querySelector('.leaflet-routing-container');
                     if (routingBlock) {
@@ -361,27 +299,21 @@
                 });
             };
 
-            // --- HÀM GỌI KHI BẤM NÚT TRÊN BẢN ĐỒ ---
             window.getDirections = function(lat, lng, name, id) {
                 if (!window.userMarker) {
                     alert("Vui lòng bật định vị để sử dụng tính năng này!");
                     return;
                 }
 
-                // Cập nhật Select box và Nút đặt vé
                 const destSelect = document.getElementById('dest-select');
                 if(destSelect) destSelect.value = id;
                 document.getElementById('sidebar-booking-btn').href = `/dat-ve/${id}/`;
 
-                // Tiến hành vẽ đường
                 window.drawRoute(lat, lng);
-
-                // Mở Sidebar
                 document.getElementById('directions-sidebar').classList.remove('-translate-x-full');
                 window.map.closePopup();
             };
 
-            // --- LẮNG NGHE SỰ KIỆN KHI NGƯỜI DÙNG CHỌN HỒ BƠI KHÁC TRONG DROPDOWN ---
             document.getElementById('dest-select').addEventListener('change', function() {
                 if (!this.value || !window.userMarker) return;
                 
@@ -390,14 +322,10 @@
                 const lng = parseFloat(selectedOpt.dataset.lng);
                 const id = this.value;
 
-                // Cập nhật lại nút đặt vé theo hồ bơi mới
                 document.getElementById('sidebar-booking-btn').href = `/dat-ve/${id}/`;
-                
-                // Vẽ lại đường tới điểm mới
                 window.drawRoute(lat, lng);
             });
 
-            // Hàm tắt chỉ đường hoàn toàn
             window.closeDirections = function() {
                 document.getElementById('directions-sidebar').classList.add('-translate-x-full');
                 if (window.routingControl) {
@@ -406,10 +334,7 @@
                     currentRouteData = null;
                 }
             };
-            // ================= KẾT THÚC LOGIC SIDEBAR =================
 
-
-            // Hàm gắn popup cho các điểm hồ bơi (Giữ nguyên của bạn)
             function renderMarkers(pools) {
                 markerGroup.clearLayers();
                 pools.forEach(feature => {
@@ -417,10 +342,17 @@
                     const props = feature.properties;
                     const marker = L.marker([coords[1], coords[0]], {icon: getCustomIcon(props.status_code)});
                     
-                    let imgHtml = props.image ? `<img src="${props.image}" class="w-full h-32 object-cover rounded-t-lg mb-2">` : `<div class="w-full h-32 bg-blue-100 flex items-center justify-center rounded-t-lg mb-2 text-blue-300"><i class="fas fa-image text-3xl"></i></div>`;
+                    let imgHtml = props.image ? `<img src="${props.image}" class="w-full h-32 object-cover rounded-t-lg mb-1">` : `<div class="w-full h-32 bg-blue-100 flex items-center justify-center rounded-t-lg mb-1 text-blue-300"><i class="fas fa-image text-3xl"></i></div>`;
                     let statusHtml = props.status_code === 'MO' ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Đang mở</span>` : `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Đóng cửa</span>`;
                     
-                    // Form đánh giá
+                    // --- ĐOẠN JS MỚI HIỂN THỊ DẢI ẢNH GALLERY TRONG POPUP ---
+                    let galleryHtml = '';
+                    if (props.gallery && props.gallery.length > 0) {
+                        let extraImages = props.gallery.map(url => `<img src="${url}" class="w-12 h-12 object-cover rounded-md shadow-sm border border-gray-200 shrink-0">`).join('');
+                        galleryHtml = `<div class="flex gap-1.5 overflow-x-auto mt-1 mb-2 pb-1 custom-scrollbar">${extraImages}</div>`;
+                    }
+                    // --------------------------------------------------------
+
                     let ratingHtml = `
                         <div class="mt-4 pt-3 border-t border-gray-100">
                             <p class="text-xs font-bold text-gray-700 mb-2">Đánh giá hồ bơi này:</p>
@@ -439,12 +371,11 @@
                         </div>
                     `;
 
-                    // Giao diện Popup
                     const popupContent = `
                         <div class="popup-container -m-3">
                             ${imgHtml}
                             <div class="px-3 pb-3">
-                                <div class="flex justify-between items-center mb-1">
+                                ${galleryHtml} <div class="flex justify-between items-center mb-1 mt-1">
                                     <h5 class="font-bold text-lg text-gray-900 leading-tight mr-2">${props.name}</h5>
                                     ${statusHtml}
                                 </div>
@@ -475,7 +406,6 @@
                     `;
                     marker.bindPopup(popupContent);
                     
-                    // Logic Ngôi sao khi mở Popup
                     marker.on('popupopen', function() {
                         const stars = document.querySelectorAll('.star-btn');
                         const ratingInput = document.getElementById(`rating-value-${props.id}`);
@@ -499,7 +429,6 @@
                 document.getElementById('poolCounter').innerText = pools.length;
             }
 
-            // Hàm định vị người dùng
             function locateUser(isInitial = false) {
                 if ("geolocation" in navigator) {
                     const icon = document.getElementById('resetIcon');
@@ -527,7 +456,6 @@
                 }
             }
 
-            // Khởi tạo Data
             fetch('{% url "get_pools" %}')
                 .then(response => response.json())
                 .then(data => {
@@ -535,20 +463,17 @@
                     renderMarkers(allPoolsData);
                     locateUser(true); 
 
-                    // ĐOẠN MỚI THÊM: Đổ dữ liệu vào ô Dropdown (Điểm B)
                     const destSelect = document.getElementById('dest-select');
                     allPoolsData.forEach(pool => {
                         let opt = document.createElement('option');
                         opt.value = pool.properties.id;
                         opt.textContent = pool.properties.name;
-                        // Gắn tọa độ ngầm vào thẻ option để lấy ra vẽ đường
                         opt.dataset.lat = pool.geometry.coordinates[1];
                         opt.dataset.lng = pool.geometry.coordinates[0];
                         destSelect.appendChild(opt);
                     });
                 });
 
-            // Các chức năng bộ lọc và tìm kiếm gợi ý (Đã giữ nguyên)
             const searchInput = document.getElementById('searchInput');
             const suggestionsBox = document.getElementById('suggestionsBox');
 
@@ -589,7 +514,7 @@
                 searchInput.value = '';
                 document.getElementById('statusFilter').value = 'ALL';
                 suggestionsBox.classList.add('hidden');
-                window.closeDirections(); // Ẩn sidebar nếu đang mở
+                window.closeDirections(); 
                 renderMarkers(allPoolsData);
                 locateUser(); 
             });
@@ -606,7 +531,6 @@
             }
         });
 
-        // Hàm lấy Cookie CSRF
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -622,7 +546,6 @@
             return cookieValue;
         }
 
-        // Hàm Submit Đánh giá (Giữ nguyên gốc)
         window.submitReview = function(poolId) {
             const rating = document.getElementById(`rating-value-${poolId}`).value;
             const comment = document.getElementById(`comment-${poolId}`).value;

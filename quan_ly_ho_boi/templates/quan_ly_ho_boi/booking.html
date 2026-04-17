@@ -6,6 +6,12 @@
     <title>Đặt vé - {{ ho_boi.ten_ho }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Tùy chỉnh thanh cuộn ngang cho mượt mà */
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
 </head>
 <body class="bg-gray-50">
     <nav class="bg-white shadow-sm mb-8">
@@ -25,6 +31,28 @@
                 <h1 class="text-2xl font-bold mb-1">Xác Nhận Đặt Vé</h1>
                 <p class="text-blue-100">Hồ bơi: {{ ho_boi.ten_ho }}</p>
             </div>
+
+            {% if ho_boi.hinh_anh or ho_boi.danh_sach_hinh_anh.all %}
+            <div class="bg-blue-50/30 border-b border-gray-100 p-5">
+                <p class="text-sm font-bold text-gray-700 mb-3"><i class="fas fa-images text-blue-500 mr-2"></i>Không gian hồ bơi</p>
+                <div class="flex gap-3 overflow-x-auto pb-3 custom-scrollbar">
+                    {% if ho_boi.hinh_anh %}
+                    <a href="{{ ho_boi.hinh_anh.url }}" target="_blank" class="shrink-0 relative group block">
+                        <img src="{{ ho_boi.hinh_anh.url }}" class="h-32 w-48 object-cover rounded-xl shadow-sm border-2 border-blue-400 group-hover:opacity-90 transition">
+                        <div class="absolute inset-0 bg-black/20 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition"><i class="fas fa-search-plus text-white text-xl"></i></div>
+                        <span class="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">Ảnh chính</span>
+                    </a>
+                    {% endif %}
+                    
+                    {% for anh in ho_boi.danh_sach_hinh_anh.all %}
+                    <a href="{{ anh.hinh_anh.url }}" target="_blank" class="shrink-0 relative group block">
+                        <img src="{{ anh.hinh_anh.url }}" class="h-32 w-48 object-cover rounded-xl shadow-sm border border-gray-200 group-hover:border-blue-400 transition">
+                        <div class="absolute inset-0 bg-black/20 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition"><i class="fas fa-search-plus text-white text-xl"></i></div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
 
             <div class="p-8">
                 {% if errors %}
@@ -85,10 +113,8 @@
             let slTe = parseInt(document.getElementById('sl_tre_em').value) || 0;
             
             let tong = (giaNl * slNl) + (giaTe * slTe);
-            // Định dạng tiền tệ VNĐ
             document.getElementById('hien_thi_tong_tien').innerText = new Intl.NumberFormat('vi-VN').format(tong) + ' VNĐ';
         }
-        // Tính tiền ngay khi vừa load trang
         window.onload = tinhTongTien;
     </script>
 </body>

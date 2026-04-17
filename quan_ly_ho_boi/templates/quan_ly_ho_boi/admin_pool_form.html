@@ -57,8 +57,9 @@
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Địa chỉ</label>
                         {{ form.dia_chi }}
                     </div>
+                    
                     <div>
-                        <label class="block text-sm font-semibold text-gray-300 mb-2">Hình ảnh</label>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Hình đại diện (Ảnh chính)</label>
                         {{ form.hinh_anh }}
                         
                         <div id="imagePreviewContainer" class="mt-4 {% if not form.instance.hinh_anh %}hidden{% endif %}">
@@ -70,7 +71,31 @@
                         </div>
                         
                         <input type="hidden" id="existingImageUrl" value="{% if form.instance.hinh_anh %}{{ form.instance.hinh_anh.url }}{% endif %}">
+                        
+                        <div class="mt-6 bg-[#0f172a] p-4 rounded-xl border border-gray-700">
+                            <label class="block text-gray-300 text-sm font-bold mb-2 flex items-center gap-2">
+                                <i class="fas fa-images text-blue-500"></i> Ảnh bộ sưu tập
+                            </label>
+                            <p class="text-xs text-gray-500 mb-3">Bạn có thể bôi đen hoặc giữ Ctrl để chọn nhiều ảnh cùng lúc.</p>
+                            
+                            <input type="file" name="danh_sach_anh_phu" multiple accept="image/*" 
+                                   class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition cursor-pointer bg-slate-900 border border-gray-700 p-2 rounded-lg outline-none">
+                            
+                            {% if form.instance.pk and form.instance.danh_sach_hinh_anh.all %}
+                            <div class="mt-4">
+                                <p class="text-xs font-semibold text-gray-400 uppercase mb-2 border-t border-gray-800 pt-3">Ảnh phụ hiện có:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for anh in form.instance.danh_sach_hinh_anh.all %}
+                                    <div class="relative w-16 h-16 rounded-md overflow-hidden border border-gray-600 shadow-sm">
+                                        <img src="{{ anh.hinh_anh.url }}" class="w-full h-full object-cover">
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Độ sâu (m)</label>
                         {{ form.do_sau }}
@@ -264,6 +289,6 @@
             updatePreview(false);
             setTimeout(() => { map.invalidateSize(); }, 500);
         });
-    </script>x
+    </script>
 </body>
 </html>
