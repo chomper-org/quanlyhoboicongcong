@@ -186,7 +186,7 @@ def admin_home(request: HttpRequest):
 
     # --- 3. PHÂN TRANG TẤT CẢ VÉ ĐẶT (TAB QUẢN LÝ VÉ ĐẶT) ---
     tat_ca_ve_dat_full = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')
-    paginator_ve = Paginator(tat_ca_ve_dat_full, 10) # 10 vé mỗi trang
+    paginator_ve = Paginator(tat_ca_ve_dat_full, 7) # 10 vé mỗi trang
     page_ve_number = request.GET.get('page_ve')
     ve_dat_gan_day = paginator_ve.get_page(page_ve_number)
 
@@ -565,3 +565,17 @@ def xac_nhan_thanh_toan(request: HttpRequest, payment_id: int):
         messages.success(request, f'Đã thu tiền và xác nhận thành công cho vé #{payment.dat_ve.id}!')
         
     return redirect('admin_panel')
+
+# Thêm vào cuối file views.py
+@login_required
+def in_hoa_don(request: HttpRequest, datve_id: int):
+    # Lấy vé đặt
+    dat_ve = get_object_or_404(DatVe, id=datve_id)
+    
+    # Bảo mật: Chỉ Admin hoặc chính người mua vé đó mới được xem/in hóa đơn
+    if not request.user.is_staff and request.user != dat_ve.khach_hang:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+        
+    return render(request, 'quan_ly_ho_boi/invoice.html', {
+        'dat_ve': dat_ve,
+    })

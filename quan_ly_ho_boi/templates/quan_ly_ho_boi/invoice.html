@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa Đơn Vé #{{ dat_ve.id }} - PoolManager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Ẩn các nút bấm khi in ra giấy thật */
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white !important; }
+            .print-border { border: 1px solid #000 !important; }
+        }
+        body { font-family: 'Courier New', Courier, monospace; background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-10">
+
+    <div class="bg-white w-full max-w-lg p-8 shadow-2xl print-border border border-gray-200">
+        
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold uppercase mb-1"><i class="fas fa-swimming-pool"></i> PoolFinder</h1>
+            <p class="text-sm text-gray-600">Hệ thống quản lý vé bơi công cộng</p>
+            <div class="border-b-2 border-dashed border-gray-400 my-4"></div>
+            <h2 class="text-2xl font-bold tracking-widest">BIÊN LAI VÀO CỔNG</h2>
+        </div>
+
+        <div class="mb-6 text-sm leading-relaxed">
+            <p><strong>Mã vé:</strong> #{{ dat_ve.id }}</p>
+            <p><strong>Khách hàng:</strong> {{ dat_ve.khach_hang.username|upper }}</p>
+            <p><strong>Hồ bơi:</strong> {{ dat_ve.ho_boi.ten_ho }}</p>
+            <p><strong>Ngày sử dụng:</strong> {{ dat_ve.ngay_su_dung|date:"d/m/Y" }}</p>
+            <p><strong>Ngày in:</strong> {% now "d/m/Y H:i" %}</p>
+        </div>
+
+        <div class="border-b-2 border-dashed border-gray-400 my-4"></div>
+
+        <table class="w-full text-sm mb-4">
+            <thead>
+                <tr class="text-left border-b border-gray-300">
+                    <th class="py-2">Loại vé</th>
+                    <th class="py-2 text-center">SL</th>
+                    <th class="py-2 text-right">Đơn giá</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if dat_ve.so_luong_nguoi_lon > 0 %}
+                <tr>
+                    <td class="py-2">Người lớn</td>
+                    <td class="py-2 text-center">{{ dat_ve.so_luong_nguoi_lon }}</td>
+                    <td class="py-2 text-right">{{ dat_ve.ho_boi.gia_ve_nguoi_lon }}đ</td>
+                </tr>
+                {% endif %}
+                {% if dat_ve.so_luong_tre_em > 0 %}
+                <tr>
+                    <td class="py-2">Trẻ em</td>
+                    <td class="py-2 text-center">{{ dat_ve.so_luong_tre_em }}</td>
+                    <td class="py-2 text-right">{{ dat_ve.ho_boi.gia_ve_tre_em }}đ</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <div class="border-b-2 border-dashed border-gray-400 my-4"></div>
+
+        <div class="flex justify-between items-center text-lg font-bold mb-6">
+            <span>TỔNG CỘNG:</span>
+            <span>{{ dat_ve.tong_tien }}đ</span>
+        </div>
+        
+        <div class="text-sm mb-6 flex justify-between">
+            <span>Trạng thái: 
+                <strong class="uppercase {% if dat_ve.payment.trang_thai == 'Hoàn thành' %}text-green-600{% else %}text-red-600{% endif %}">
+                    {{ dat_ve.payment.trang_thai|default:"Chưa TT" }}
+                </strong>
+            </span>
+            <span>PT: {{ dat_ve.payment.phuong_thuc|default:"Tiền mặt" }}</span>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 italic mt-8">
+            <p>Cảm ơn quý khách đã sử dụng dịch vụ!</p>
+            <p>Vui lòng giữ lại biên lai để kiểm tra khi qua cổng.</p>
+        </div>
+
+        <div class="mt-8 flex justify-center gap-4 no-print">
+            <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-700 transition">
+                <i class="fas fa-print mr-2"></i> In Hóa Đơn
+            </button>
+            <button onclick="window.close()" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-bold shadow-md hover:bg-gray-300 transition">
+                Đóng
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500); // Đợi nửa giây cho font chữ tải xong rồi mới in
+        }
+    </script>
+</body>
+</html>

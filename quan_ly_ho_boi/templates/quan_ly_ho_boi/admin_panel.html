@@ -195,6 +195,7 @@
                                         {% endif %}
                                     </td>
                                     <td class="p-4 text-gray-400">{{ ho.gia_ve_nguoi_lon }}đ / {{ ho.gia_ve_tre_em }}đ</td>
+                                    
                                     <td class="p-4 text-right">
                                         <a href="{% url 'chinh_sua_ho_boi' ho.id %}" class="text-blue-400 hover:text-blue-300 mr-4" title="Chỉnh sửa"><i class="fas fa-edit text-lg"></i></a>
                                         <form action="{% url 'xoa_ho_boi' ho.id %}" method="POST" class="inline">
@@ -267,6 +268,9 @@
                                     
                                     <td class="p-4 font-bold text-green-400">{{ ve.tong_tien }}đ</td>
                                     <td class="p-4 text-right">
+                                        <a href="{% url 'in_hoa_don' ve.id %}" target="_blank" class="text-purple-400 hover:text-purple-300 mr-4" title="In Hóa Đơn">
+                                            <i class="fas fa-print text-lg"></i>
+                                        </a>
                                         <a href="{% url 'chinh_sua_dat_ve' ve.id %}" class="text-blue-400 hover:text-blue-300 mr-4" title="Chỉnh sửa"><i class="fas fa-edit text-lg"></i></a>
                                         <form action="{% url 'xoa_dat_ve' ve.id %}" method="POST" class="inline">
                                             {% csrf_token %}
