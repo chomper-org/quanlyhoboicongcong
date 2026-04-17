@@ -3,192 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang cá nhân | WebGIS Quản lý Hồ bơi</title>
+    <title>Trang cá nhân | PoolFinder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html {
-            scroll-behavior: smooth;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        /* Làm đẹp thanh cuộn cho danh sách vé và thanh toán */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-white shadow-lg">
+<body class="bg-gray-50 min-h-screen">
+    <nav class="sticky top-0 z-50 bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <a href="{% url 'home' %}" class="flex items-center gap-3 cursor-pointer group">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-swimming-pool text-white text-lg"></i>
-                    </div>
-                    <span class="text-2xl font-bold text-blue-600">PoolFinder</span>
+                <a href="{% url 'home' %}" class="flex items-center gap-2 cursor-pointer">
+                    <i class="fas fa-swimming-pool text-2xl text-blue-600"></i>
+                    <span class="text-xl font-bold text-gray-800">PoolFinder</span>
                 </a>
-
-                <!-- Right Actions -->
                 <div class="flex items-center gap-4">
-                    <a href="{% url 'home' %}" class="px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-100 transition font-medium">
-                        <i class="fas fa-home mr-2"></i>Trang chủ
-                    </a>
-                    <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-medium">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
-                    </a>
+                    <a href="{% url 'home' %}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium transition">Trang chủ</a>
+                    <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-bold">Đăng xuất</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Header Section -->
-    <section class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <h1 class="text-4xl font-bold mb-2">
-                <i class="fas fa-user-circle mr-3"></i>Trang cá nhân
-            </h1>
-            <p class="text-blue-100">Quản lý thông tin và lịch sử giao dịch của bạn</p>
-        </div>
-    </section>
-
-    <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Sidebar - User Info -->
-            <div class="lg:col-span-1">
-                <!-- Profile Card -->
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="h-32 bg-gradient-to-r from-blue-400 to-purple-500"></div>
-                    <div class="px-6 py-4 text-center -mt-16 relative pb-6">
-                        <a href="{% url 'profile' %}" class="inline-block no-underline text-inherit">
-                        <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-5xl font-bold shadow-lg border-4 border-white">
+            
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="h-24 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    <div class="px-6 py-4 text-center -mt-12">
+                        <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white flex items-center justify-center text-blue-600 text-3xl font-bold shadow-md border-4 border-white">
                             {{ user.username|first|upper }}
                         </div>
-                        <h2 class="text-2xl font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h2>
-                        <p class="text-gray-500 text-sm mb-4">@{{ user.username }}</p>
-                    </a>
+                        <h2 class="text-xl font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h2>
+                        <p class="text-gray-500 text-sm italic">@{{ user.username }}</p>
                         
-                        <div class="space-y-3 text-left bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="mt-6 space-y-3 text-left bg-blue-50/50 rounded-xl p-4">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-envelope text-blue-500 w-5"></i>
-                                <div>
-                                    <p class="text-xs text-gray-500">Email</p>
-                                    <p class="text-sm font-semibold text-gray-900">{{ user.email|default:"Chưa cập nhật" }}</p>
-                                </div>
+                                <span class="text-sm text-gray-700">{{ user.email|default:"Chưa cập nhật" }}</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <i class="fas fa-calendar text-blue-500 w-5"></i>
-                                <div>
-                                    <p class="text-xs text-gray-500">Thành viên từ</p>
-                                    <p class="text-sm font-semibold text-gray-900">{{ user.date_joined|date:"d/m/Y" }}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-ticket-alt text-blue-500 w-5"></i>
-                                <div>
-                                    <p class="text-xs text-gray-500">Tổng vé đặt</p>
-                                    <p class="text-sm font-semibold text-gray-900">{{ tong_ve_da_dat }} vé</p>
-                                </div>
+                                <i class="fas fa-calendar-check text-blue-500 w-5"></i>
+                                <span class="text-sm text-gray-700">Gia nhập: {{ user.date_joined|date:"d/m/Y" }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
-                    <h3 class="font-bold text-gray-900 mb-4">
-                        <i class="fas fa-bolt text-amber-500 mr-2"></i>Hành động
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-bolt text-yellow-500"></i> Phím tắt
                     </h3>
-                    <div class="space-y-3">
-                        <a href="{% url 'map' %}" class="block w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-center">
-                            <i class="fas fa-search mr-2"></i>Tìm hồ bơi
-                        </a>
-                    </div>
+                    <a href="{% url 'map' %}" class="block w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-bold text-center shadow-sm">
+                        <i class="fas fa-search mr-2"></i>Tìm hồ bơi & Đặt vé
+                    </a>
                 </div>
             </div>
 
-            <!-- Right Content - History -->
-            <div class="lg:col-span-2">
-                <!-- Booking History -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                        <i class="fas fa-history text-blue-500 mr-2"></i>Lịch sử đặt vé
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-history text-blue-500"></i> Lịch sử đặt vé
                     </h2>
                     
                     {% if lich_su_ve %}
-                        <div class="space-y-4">
+                        <div class="space-y-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
                             {% for ve in lich_su_ve %}
-                            <div class="flex justify-between items-start mb-2">
+                            <div class="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition relative group">
+                                <div class="flex justify-between items-start mb-3">
                                     <div>
-                                        <h3 class="font-bold text-gray-900">{{ ve.ho_boi.ten_ho }}</h3>
-                                        <p class="text-sm text-gray-600">
-                                            <i class="fas fa-map-marker-alt mr-1"></i>{{ ve.ho_boi.dia_chi }}
-                                        </p>
+                                        <h3 class="font-bold text-blue-700">{{ ve.ho_boi.ten_ho }}</h3>
+                                        <p class="text-xs text-gray-500"><i class="fas fa-calendar-day mr-1"></i>Ngày bơi: {{ ve.ngay_su_dung|date:"d/m/Y" }}</p>
                                     </div>
-                                    
                                     <div class="flex flex-col items-end gap-2">
-                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
-                                            Mã #{{ ve.id }}
-                                        </span>
-                                        <a href="{% url 'user_edit_booking' ve.id %}" class="inline-block px-3 py-1 rounded-lg text-xs font-semibold bg-yellow-500 text-white hover:bg-yellow-600 transition shadow-sm border border-yellow-600">
-                                            <i class="fa-solid fa-pen-to-square"></i> Sửa vé
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-[10px] font-bold">MÃ #{{ ve.id }}</span>
+                                        <a href="{% url 'user_edit_booking' ve.id %}" class="px-3 py-1 bg-yellow-500 text-white text-xs rounded-lg hover:bg-yellow-600 transition shadow-sm font-bold">
+                                            <i class="fas fa-edit mr-1"></i>Sửa vé
                                         </a>
                                     </div>
-                                    </div>
-                                <div class="grid grid-cols-3 gap-4 text-sm">
-                                    <div>
-                                        <p class="text-gray-500">Ngày đặt</p>
-                                        <p class="font-semibold text-gray-900">{{ ve.ngay_dat|date:"d/m/Y" }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500">Số người</p>
-                                        <p class="font-semibold text-gray-900">{{ ve.so_luong_nguoi_lon }}+{{ ve.so_luong_tre_em }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500">Tổng tiền</p>
-                                        <p class="font-semibold text-green-600">{{ ve.tong_tien }} VND</p>
-                                    </div>
+                                </div>
+                                <div class="flex gap-6 text-sm">
+                                    <div class="text-gray-600">Người lớn: <span class="font-bold text-gray-900">{{ ve.so_luong_nguoi_lon }}</span></div>
+                                    <div class="text-gray-600">Trẻ em: <span class="font-bold text-gray-900">{{ ve.so_luong_tre_em }}</span></div>
+                                    <div class="ml-auto font-bold text-green-600">{{ ve.tong_tien }}đ</div>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-inbox text-4xl mb-4 block opacity-30"></i>
-                            <p>Chưa có vé đặt nào. <a href="{% url 'home' %}" class="text-blue-600 hover:underline">Đặt vé ngay</a></p>
-                        </div>
+                        <p class="text-gray-400 text-sm italic text-center py-4">Bạn chưa có đơn đặt vé nào.</p>
                     {% endif %}
                 </div>
 
-                <!-- Payment History -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                        <i class="fas fa-credit-card text-green-500 mr-2"></i>Lịch sử thanh toán
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-credit-card text-green-500"></i> Lịch sử thanh toán
                     </h2>
 
                     {% if lich_su_thanh_toan %}
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
-                                <thead>
-                                    <tr class="border-b-2 border-gray-200">
-                                        <th class="text-left py-3 px-4 text-gray-600 font-semibold">Hồ bơi</th>
-                                        <th class="text-left py-3 px-4 text-gray-600 font-semibold">Phương thức</th>
-                                        <th class="text-left py-3 px-4 text-gray-600 font-semibold">Số tiền</th>
-                                        <th class="text-left py-3 px-4 text-gray-600 font-semibold">Ngày TT</th>
-                                        <th class="text-left py-3 px-4 text-gray-600 font-semibold">Trạng thái</th>
+                        <div class="overflow-x-auto max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] sticky top-0">
+                                    <tr>
+                                        <th class="py-3 px-4">Hồ bơi</th>
+                                        <th class="py-3 px-4">Phương thức</th>
+                                        <th class="py-3 px-4 text-right">Số tiền</th>
+                                        <th class="py-3 px-4 text-center">Trạng thái</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="divide-y divide-gray-100">
                                     {% for payment in lich_su_thanh_toan %}
-                                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                                        <td class="py-3 px-4 font-semibold text-gray-900">{{ payment.dat_ve.ho_boi.ten_ho }}</td>
-                                        <td class="py-3 px-4 text-gray-600">{{ payment.phuong_thuc }}</td>
-                                        <td class="py-3 px-4 font-bold text-green-600">{{ payment.so_tien }} VND</td>
-                                        <td class="py-3 px-4 text-gray-600">{{ payment.ngay_thanh_toan|date:"d/m/Y H:i" }}</td>
-                                        <td class="py-3 px-4">
-                                            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold {% if payment.trang_thai == 'Hoàn thành' %}bg-green-100 text-green-700{% elif payment.trang_thai == 'Đang chờ' %}bg-yellow-100 text-yellow-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="py-4 px-4 font-bold text-gray-800">{{ payment.dat_ve.ho_boi.ten_ho }}</td>
+                                        <td class="py-4 px-4 text-gray-600 text-xs">{{ payment.phuong_thuc }}</td>
+                                        <td class="py-4 px-4 text-right font-bold text-blue-600">{{ payment.so_tien }}đ</td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="px-2 py-1 rounded-full text-[10px] font-bold 
+                                                {% if payment.trang_thai == 'Hoàn thành' %}bg-green-100 text-green-700
+                                                {% elif payment.trang_thai == 'Đang chờ' %}bg-yellow-100 text-yellow-700
+                                                {% else %}bg-red-100 text-red-700{% endif %}">
                                                 {{ payment.trang_thai }}
                                             </span>
                                         </td>
@@ -198,21 +141,78 @@
                             </table>
                         </div>
                     {% else %}
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-inbox text-4xl mb-4 block opacity-30"></i>
-                            <p>Chưa có lịch sử thanh toán nào</p>
-                        </div>
+                        <p class="text-gray-400 text-sm italic text-center py-4">Chưa có dữ liệu thanh toán.</p>
                     {% endif %}
                 </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-8 px-4 sm:px-6 lg:px-8 mt-12">
-        <div class="max-w-7xl mx-auto text-center">
-            <p class="text-gray-400">&copy; 2026 PoolFinder. Tất cả quyền được bảo lưu.</p>
+   <footer class="bg-white border-t border-gray-200 pt-12 pb-8 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-8">
+            
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fas fa-swimming-pool text-2xl text-blue-600"></i>
+                    <span class="text-xl font-bold text-gray-900">PoolFinder</span>
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    Hệ thống quản lý và đặt vé trực tuyến giúp trải nghiệm bơi lội của bạn trở nên thuận tiện và nhanh chóng hơn bao giờ hết.
+                </p>
+                <div class="flex gap-4 mt-6">
+                    <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-blue-600 transition"><i class="fas fa-globe"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-gray-900 font-bold mb-4 uppercase tracking-wider text-xs">Thông tin liên hệ</h4>
+                <ul class="text-gray-600 text-sm space-y-3">
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-map-marker-alt mt-1 text-blue-500"></i>
+                        <span>Khu công nghệ cao, TP. Thủ Đức, TP. Hồ Chí Minh.</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-phone-alt text-blue-500"></i>
+                        <span>0909 123 456</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i class="fas fa-envelope text-blue-500"></i>
+                        <a href="mailto:hotro@poolfinder.vn" class="hover:text-blue-600 transition">hotro@poolfinder.vn</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-gray-900 font-bold mb-4 uppercase tracking-wider text-xs">Ban quản trị</h4>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-gray-500 text-xs italic">Chịu trách nhiệm dự án</p>
+                        <p class="text-gray-900 font-semibold text-sm">Tuấn Đạt</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs italic">Hỗ trợ kỹ thuật & Giải đáp thắc mắc</p>
+                        <p class="text-gray-900 font-semibold text-sm">Tuấn Đạt</p>
+                        <a href="mailto:tuandat@poolfinder.vn" class="text-blue-600 text-sm hover:underline">tuandat@poolfinder.vn</a>
+                    </div>
+</div>
+            </div>
         </div>
-    </footer>
+
+        <div class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-gray-400 text-xs text-center md:text-left">
+                © 2026. Bản quyền thuộc về Hệ thống Quản lý Hồ bơi PoolFinder.
+            </p>
+            <div class="flex items-center gap-6">
+                <a href="{% url 'login_admin' %}" class="text-gray-400 hover:text-gray-600 text-xs transition flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i> Quản trị viên
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
 </body>
 </html>
