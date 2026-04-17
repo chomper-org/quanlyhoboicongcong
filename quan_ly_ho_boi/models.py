@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 from typing import Any
+from datetime import time
 
 # 1. Model Hồ Bơi (Chính - Đã xóa phần trùng lặp ở dưới)
 class HoBoi(models.Model):
@@ -12,6 +13,10 @@ class HoBoi(models.Model):
         ('DONG', 'Đóng cửa'),
     ]
     
+
+    gio_mo_cua = models.TimeField(default=time(6, 0), verbose_name="Giờ mở cửa")
+    gio_dong_cua = models.TimeField(default=time(20, 0), verbose_name="Giờ đóng cửa")
+
     ten_ho = models.CharField(max_length=200, verbose_name="Tên hồ bơi")
     dia_chi = models.TextField(verbose_name="Địa chỉ")
     do_sau = models.FloatField(help_text="Độ sâu tính bằng mét", verbose_name="Độ sâu (m)")
@@ -41,6 +46,7 @@ class DatVe(models.Model):
     so_luong_nguoi_lon = models.IntegerField(default=1, verbose_name="Số người lớn")
     so_luong_tre_em = models.IntegerField(default=0, verbose_name="Số trẻ em")
     tong_tien = models.DecimalField(max_digits=12, decimal_places=0, editable=False, verbose_name="Tổng tiền")
+    gio_su_dung = models.TimeField(default=time(8, 0), verbose_name="Giờ bơi")
 
     def save(self, *args: Any, **kwargs: Any):
         gia_nl = self.ho_boi.gia_ve_nguoi_lon

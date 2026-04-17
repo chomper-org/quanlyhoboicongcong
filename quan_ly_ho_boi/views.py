@@ -17,7 +17,10 @@ from django.shortcuts import render
 from django.db.models import Avg, Count
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-
+from datetime import datetime
+import openpyxl
+from openpyxl.styles import Font, Alignment
+from django.http import HttpResponse
 
 def gioi_thieu(request):
     return render(request, 'quan_ly_ho_boi/gioi_thieu.html')
@@ -35,6 +38,7 @@ def dat_ve(request: HttpRequest, ho_boi_id: int):
     errors = []
     form_data = {
         'ngay_su_dung': '',
+        'gio_su_dung': '',
         'so_luong_nguoi_lon': '1',
         'so_luong_tre_em': '0',
     }
@@ -43,31 +47,43 @@ def dat_ve(request: HttpRequest, ho_boi_id: int):
 
     if request.method == 'POST':
         form_data['ngay_su_dung'] = request.POST.get('ngay_su_dung', '')
+        form_data['gio_su_dung'] = request.POST.get('gio_su_dung', '') # Lấy giờ bơi
         form_data['so_luong_nguoi_lon'] = request.POST.get('so_luong_nguoi_lon', '1')
         form_data['so_luong_tre_em'] = request.POST.get('so_luong_tre_em', '0')
 
+        # 1. Validate Ngày
         if not form_data['ngay_su_dung']:
             errors.append('Vui lòng chọn ngày sử dụng.')
-
         try:
             ngay_su_dung = parse_date(form_data['ngay_su_dung'])
-            if ngay_su_dung is None:
-                raise ValueError('Ngày không hợp lệ.')
+            if ngay_su_dung is None: raise ValueError()
         except ValueError:
             errors.append('Ngày sử dụng không hợp lệ.')
             ngay_su_dung = None
 
+        # 2. Validate Giờ & So sánh với giờ mở cửa
+        gio_su_dung_obj = None
+        if not form_data['gio_su_dung']:
+            errors.append('Vui lòng chọn giờ bơi.')
+        else:
+            try:
+                gio_su_dung_obj = datetime.strptime(form_data['gio_su_dung'], '%H:%M').time()
+                # Kiểm tra giờ bơi với khung giờ của hồ bơi
+                if gio_su_dung_obj < ho_boi.gio_mo_cua or gio_su_dung_obj > ho_boi.gio_dong_cua:
+                    errors.append(f'Thất bại: Hồ bơi chỉ mở cửa từ {ho_boi.gio_mo_cua.strftime("%H:%M")} đến {ho_boi.gio_dong_cua.strftime("%H:%M")}.')
+            except ValueError:
+                errors.append('Giờ sử dụng không hợp lệ.')
+
+        # 3. Validate Số lượng
         try:
             so_luong_nguoi_lon = int(form_data['so_luong_nguoi_lon'])
             so_luong_tre_em = int(form_data['so_luong_tre_em'])
-            if so_luong_nguoi_lon < 0 or so_luong_tre_em < 0:
-                raise ValueError()
+            if so_luong_nguoi_lon < 0 or so_luong_tre_em < 0: raise ValueError()
         except ValueError:
-            errors.append('Số lượng trẻ em và người lớn phải là số nguyên không âm.')
-            so_luong_nguoi_lon = 1
-            so_luong_tre_em = 0
+            errors.append('Số lượng không hợp lệ.')
 
-        if not errors and ngay_su_dung:
+        # Nếu KHÔNG CÓ LỖI thì mới lưu
+        if not errors and ngay_su_dung and gio_su_dung_obj:
             current_user = request.user if request.user.is_authenticated else None
             if current_user is None:
                 current_user, _ = User.objects.get_or_create(
@@ -190,6 +206,11 @@ def admin_home(request: HttpRequest):
     page_ve_number = request.GET.get('page_ve')
     ve_dat_gan_day = paginator_ve.get_page(page_ve_number)
 
+    danh_sach_danh_gia_full = Review.objects.select_related('ho_boi', 'user').order_by('-created_at')
+    paginator_danh_gia = Paginator(danh_sach_danh_gia_full, 10) # 10 bình luận/trang
+    page_danh_gia_number = request.GET.get('page_danh_gia')
+    danh_sach_danh_gia = paginator_danh_gia.get_page(page_danh_gia_number)
+
     # --- 4. ĐÓNG GÓI CONTEXT ---
     context = {
         # Thống kê Dashboard
@@ -207,6 +228,9 @@ def admin_home(request: HttpRequest):
         # Biến đếm tổng để hiện trên Badge (Huy hiệu)
         'tong_ho_count': paginator_ho.count,
         'tong_ve_count': paginator_ve.count,
+
+        'danh_sach_danh_gia': danh_sach_danh_gia,
+        'tong_danh_gia_count': paginator_danh_gia.count,
     }
     
     return render(request, 'quan_ly_ho_boi/admin_panel.html', context)
@@ -580,3 +604,90 @@ def in_hoa_don(request: HttpRequest, datve_id: int):
     return render(request, 'quan_ly_ho_boi/invoice.html', {
         'dat_ve': dat_ve,
     })
+
+@login_required
+def xoa_danh_gia(request: HttpRequest, review_id: int):
+    # Kiểm tra quyền Admin
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+
+    review = get_object_or_404(Review, id=review_id)
+    if request.method == 'POST':
+        review.delete()
+        messages.success(request, 'Đã xóa bình luận thành công.')
+        return redirect('admin_panel')
+    return redirect('admin_panel')
+
+@login_required
+def xuat_excel_ve_dat(request: HttpRequest):
+    # Kiểm tra quyền Admin
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+
+    # Khởi tạo file Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Danh Sách Vé Đặt"
+
+    # 1. Tạo Dòng Tiêu Đề
+    columns = ['Mã vé', 'Khách hàng', 'Hồ bơi', 'Ngày đặt', 'Ngày sử dụng', 'Trạng thái TT', 'Thành tiền (VNĐ)']
+    ws.append(columns)
+
+    # Định dạng in đậm và căn giữa cho Tiêu đề
+    for cell in ws[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.alignment = Alignment(horizontal='center')
+        cell.fill = openpyxl.styles.PatternFill(start_color="1E293B", end_color="1E293B", fill_type="solid")
+
+    # Tùy chỉnh độ rộng cột cho đẹp
+    ws.column_dimensions['B'].width = 20
+    ws.column_dimensions['C'].width = 30
+    ws.column_dimensions['D'].width = 20
+    ws.column_dimensions['E'].width = 15
+    ws.column_dimensions['F'].width = 18
+    ws.column_dimensions['G'].width = 20
+
+    # 2. Lấy dữ liệu từ Database
+    ve_dat_list = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')
+    
+    tong_doanh_thu_thuc_thu = 0
+
+    for ve in ve_dat_list:
+        # Xử lý trạng thái an toàn (tránh lỗi nếu vé chưa có payment)
+        if hasattr(ve, 'payment'):
+            trang_thai = ve.payment.trang_thai
+        else:
+            trang_thai = 'Chưa Thanh Toán'
+
+        # Chỉ cộng vào tổng doanh thu nếu vé đã 'Hoàn thành'
+        if trang_thai == 'Hoàn thành':
+            tong_doanh_thu_thuc_thu += float(ve.tong_tien)
+
+        # Thêm từng dòng dữ liệu
+        ws.append([
+            f"#{ve.id}",
+            ve.khach_hang.username,
+            ve.ho_boi.ten_ho,
+            ve.ngay_dat.strftime("%d/%m/%Y %H:%M"),
+            ve.ngay_su_dung.strftime("%d/%m/%Y"),
+            trang_thai,
+            float(ve.tong_tien)
+        ])
+
+    # 3. Thêm dòng Tổng Doanh Thu ở cuối
+    ws.append([]) # Thêm 1 dòng trống cho dễ nhìn
+    
+    # Dòng tính tổng
+    ws.append(["", "", "", "", "", "TỔNG THỰC THU:", tong_doanh_thu_thuc_thu])
+    last_row = ws.max_row
+    
+    # Định dạng in đậm và tô màu đỏ chữ cho dòng Tổng
+    ws.cell(row=last_row, column=6).font = Font(bold=True, color="FF0000")
+    ws.cell(row=last_row, column=7).font = Font(bold=True, color="FF0000")
+
+    # 4. Trả file về cho trình duyệt tải xuống
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Danh_Sach_Ve_Dat.xlsx"'
+    wb.save(response)
+
+    return response

@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from quan_ly_ho_boi import views
-from quan_ly_ho_boi.views import in_hoa_don,xac_nhan_thanh_toan,test_payment_api,ban_do, gioi_thieu, xoa_ho_boi, admin_home, login_admin, logout_admin, home_page, user_profile, login_user, logout_user, register_user, tao_ho_boi, chinh_sua_ho_boi
+from quan_ly_ho_boi.views import xuat_excel_ve_dat,xoa_dat_ve,xoa_danh_gia,in_hoa_don,xac_nhan_thanh_toan,test_payment_api,ban_do, gioi_thieu, xoa_ho_boi, admin_home, login_admin, logout_admin, home_page, user_profile, login_user, logout_user, register_user, tao_ho_boi, chinh_sua_ho_boi
 
 # --- CẤU HÌNH GIAO DIỆN ADMIN TẠI ĐÂY ---
 admin.site.site_header = "HỆ THỐNG QUẢN LÝ "     # Tiêu đề lớn ở trên cùng
@@ -12,6 +12,8 @@ admin.site.index_title = "Bảng điều khiển quản trị"    # Tiêu đề 
 # ---------------------------------------
 
 urlpatterns = [
+    path('admin-panel/export/ve-dat/', views.xuat_excel_ve_dat, name='xuat_excel_ve_dat'),
+    path('admin-panel/review/delete/<int:review_id>/', views.xoa_danh_gia, name='xoa_danh_gia'),
     path('in-hoa-don/<int:datve_id>/', views.in_hoa_don, name='in_hoa_don'),
     path('admin-panel/xac-nhan-thanh-toan/<int:payment_id>/', views.xac_nhan_thanh_toan, name='xac_nhan_thanh_toan'),
     path('api/test-payment/', views.test_payment_api, name='test_payment_api'),

@@ -53,9 +53,18 @@
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Trạng thái</label>
                         {{ form.trang_thai }}
                     </div>
-                    <div>
+                    <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Địa chỉ</label>
                         {{ form.dia_chi }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2"><i class="far fa-clock text-blue-400 mr-1"></i> Giờ mở cửa</label>
+                        {{ form.gio_mo_cua }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2"><i class="far fa-clock text-red-400 mr-1"></i> Giờ đóng cửa</label>
+                        {{ form.gio_dong_cua }}
                     </div>
                     
                     <div>
@@ -96,28 +105,32 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-300 mb-2">Độ sâu (m)</label>
-                        {{ form.do_sau }}
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Độ sâu (m)</label>
+                            {{ form.do_sau }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Sức chứa</label>
+                            {{ form.suc_chua }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Vĩ độ</label>
+                            {{ form.vi_do }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Kinh độ</label>
+                            {{ form.kinh_do }}
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-300 mb-2">Sức chứa</label>
-                        {{ form.suc_chua }}
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-300 mb-2">Vĩ độ</label>
-                        {{ form.vi_do }}
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-300 mb-2">Kinh độ</label>
-                        {{ form.kinh_do }}
-                    </div>
+
                     <div class="md:col-span-2">
                         <div class="rounded-3xl border border-gray-700 bg-slate-950/70 p-5">
                             <h2 class="text-lg font-semibold text-white mb-4">Bản đồ vị trí hồ bơi</h2>
                             <div id="mapPreview" class="h-96 rounded-3xl border border-gray-700"></div>
                         </div>
                     </div>
+
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Giá vé người lớn</label>
                         {{ form.gia_ve_nguoi_lon }}
@@ -128,7 +141,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3 pt-2">
+                <div class="flex flex-wrap items-center gap-3 pt-2 mt-8">
                     <button type="submit" class="px-8 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-500 transition">
                         {% if form.instance.pk %}Cập nhật hồ bơi{% else %}Tạo hồ bơi mới{% endif %}
                     </button>
@@ -149,6 +162,8 @@
             sucChua: document.getElementById('id_suc_chua'),
             giaNguoiLon: document.getElementById('id_gia_ve_nguoi_lon'),
             giaTreEm: document.getElementById('id_gia_ve_tre_em'),
+            gioMoCua: document.getElementById('id_gio_mo_cua'), // Biến JS cho giờ mở
+            gioDongCua: document.getElementById('id_gio_dong_cua') // Biến JS cho giờ đóng
         };
 
         let initialLat = parseFloat(fields.viDo?.value) || 10.8231;
@@ -175,6 +190,10 @@
             const depth = fields.doSau?.value ? `${fields.doSau.value} m` : 'Chưa nhập độ sâu';
             const capacity = fields.sucChua?.value ? `${fields.sucChua.value}` : 'Chưa nhập sức chứa';
             
+            // Xử lý giờ hiển thị
+            const openTime = fields.gioMoCua?.value || '--:--';
+            const closeTime = fields.gioDongCua?.value || '--:--';
+
             // Xử lý hiển thị giá vé người lớn và trẻ em
             const adultPrice = fields.giaNguoiLon?.value 
                 ? `${parseFloat(fields.giaNguoiLon.value).toLocaleString('vi-VN')} đ` 
@@ -196,6 +215,7 @@
                     
                     <div style="background: #f8fafc; padding: 8px; rounded: 8px; font-size: 0.9rem; border-radius: 8px;">
                         <div style="margin-bottom: 4px;"><strong>Trạng thái:</strong> ${status}</div>
+                        <div style="margin-bottom: 4px;"><strong>Hoạt động:</strong> ${openTime} - ${closeTime}</div>
                         <div style="margin-bottom: 4px;"><strong>Thông số:</strong> sâu ${depth} · sức chứa ${capacity}</div>
                         <div style="color: #2563eb;"><strong>Vé người lớn:</strong> ${adultPrice}</div>
                         <div style="color: #059669;"><strong>Vé trẻ em:</strong> ${childPrice}</div>
@@ -281,7 +301,7 @@
             fields[key]?.addEventListener('change', () => updatePreview(true));
         });
 
-        ['tenHo', 'diaChi', 'trangThai', 'doSau', 'sucChua', 'giaNguoiLon', 'giaTreEm'].forEach(key => {
+        ['tenHo', 'diaChi', 'trangThai', 'doSau', 'sucChua', 'giaNguoiLon', 'giaTreEm', 'gioMoCua', 'gioDongCua'].forEach(key => {
             fields[key]?.addEventListener('input', refreshPopupOnly);
         });
 

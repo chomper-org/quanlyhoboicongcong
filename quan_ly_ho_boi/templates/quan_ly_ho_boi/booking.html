@@ -70,6 +70,11 @@
                         <input type="hidden" id="gia_nguoi_lon" value="{{ ho_boi.gia_ve_nguoi_lon }}">
                         <input type="hidden" id="gia_tre_em" value="{{ ho_boi.gia_ve_tre_em }}">
 
+                    <div class="mb-4">
+                        <label>Giờ bơi dự kiến:</label>
+                        <input type="time" name="gio_su_dung" value="{{ form_data.gio_su_dung }}" class="w-full ...">
+                    </div>
+
                         <div class="col-span-1 md:col-span-2">
                             <label class="block text-gray-700 font-bold mb-2">Ngày sử dụng <span class="text-red-500">*</span></label>
                             <input type="date" name="ngay_su_dung" value="{{ form_data.ngay_su_dung }}" required min="{% now 'Y-m-d' %}"

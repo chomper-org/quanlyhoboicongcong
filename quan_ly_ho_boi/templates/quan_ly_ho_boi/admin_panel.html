@@ -26,18 +26,22 @@
             <i class="fas fa-swimming-pool text-blue-500 text-2xl mr-3"></i>
             <span class="text-xl font-bold text-white">Admin Panel</span>
         </div>
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
             <button onclick="switchTab('tab-dashboard', this)" class="w-full flex items-center px-4 py-3 bg-blue-600 text-white rounded-xl transition tab-btn">
                 <i class="fas fa-chart-pie mr-3 w-5"></i>
-                <span class="font-medium">Thống kê (Dashboard)</span>
+                <span class="font-medium">Thống kê</span>
             </button>
             <button onclick="switchTab('tab-manage', this)" class="w-full flex items-center px-4 py-3 text-gray-400 hover:bg-[#0f172a] hover:text-white rounded-xl transition tab-btn">
-                <i class="fas fa-list mr-3 w-5"></i>
+                <i class="fas fa-water mr-3 w-5"></i>
                 <span class="font-medium">Quản lý hồ bơi</span>
             </button>
             <button onclick="switchTab('tab-bookings', this)" class="w-full flex items-center px-4 py-3 text-gray-400 hover:bg-[#0f172a] hover:text-white rounded-xl transition tab-btn">
                 <i class="fas fa-ticket-alt mr-3 w-5"></i>
                 <span class="font-medium">Quản lý vé đặt</span>
+            </button>
+            <button onclick="switchTab('tab-reviews', this)" class="w-full flex items-center px-4 py-3 text-gray-400 hover:bg-[#0f172a] hover:text-white rounded-xl transition tab-btn">
+                <i class="fas fa-star mr-3 w-5"></i>
+                <span class="font-medium">Quản lý đánh giá</span>
             </button>
         </nav>
         <div class="p-4 border-t border-gray-800 shrink-0">
@@ -76,7 +80,6 @@
             {% endif %}
 
             <div id="tab-dashboard" class="tab-content active">
-                
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="bg-[#1e293b] p-6 rounded-2xl border border-gray-800 shadow-lg relative overflow-hidden">
                         <div class="absolute right-[-20px] top-[-20px] text-green-500/10"><i class="fas fa-coins text-8xl"></i></div>
@@ -101,7 +104,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    
                     <div class="bg-[#1e293b] rounded-2xl border border-yellow-600 shadow-[0_0_15px_rgba(202,138,4,0.1)] flex flex-col">
                         <div class="p-5 border-b border-gray-800 bg-yellow-900/20 flex justify-between items-center shrink-0">
                             <h3 class="font-bold text-lg text-yellow-500 flex items-center gap-2">
@@ -156,7 +158,6 @@
                         <h3 class="text-lg font-bold text-gray-300 mb-2">Thống kê nâng cao</h3>
                         <p class="text-gray-500 text-sm max-w-sm">Khu vực này có thể nhúng thêm biểu đồ Chart.js để theo dõi doanh thu theo tháng trong tương lai.</p>
                     </div>
-
                 </div>
             </div>
 
@@ -195,7 +196,6 @@
                                         {% endif %}
                                     </td>
                                     <td class="p-4 text-gray-400">{{ ho.gia_ve_nguoi_lon }}đ / {{ ho.gia_ve_tre_em }}đ</td>
-                                    
                                     <td class="p-4 text-right">
                                         <a href="{% url 'chinh_sua_ho_boi' ho.id %}" class="text-blue-400 hover:text-blue-300 mr-4" title="Chỉnh sửa"><i class="fas fa-edit text-lg"></i></a>
                                         <form action="{% url 'xoa_ho_boi' ho.id %}" method="POST" class="inline">
@@ -224,12 +224,18 @@
                     </div>
                 </div>
             </div>
-
+            
             <div id="tab-bookings" class="tab-content">
                 <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
+                    
                     <div class="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
-                        <h3 class="text-lg font-bold text-white border-l-4 border-blue-500 pl-3">Tất cả vé đã đặt</h3>
-                        <span class="text-sm font-medium text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Tổng cộng: {{ tong_ve_count }} vé</span>
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-white border-l-4 border-blue-500 pl-3">Tất cả vé đã đặt</h3>
+                            <span class="text-sm font-medium text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Tổng cộng: {{ tong_ve_count }} vé</span>
+                        </div>
+                        <a href="{% url 'xuat_excel_ve_dat' %}" class="inline-flex items-center bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-emerald-500/20">
+                            <i class="fas fa-file-excel mr-2"></i>Xuất Excel
+                        </a>
                     </div>
                     
                     <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
@@ -303,6 +309,67 @@
                 </div>
             </div>
 
+            <div id="tab-reviews" class="tab-content">
+                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
+                    <div class="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
+                        <h3 class="text-lg font-bold text-white border-l-4 border-yellow-500 pl-3">Danh sách đánh giá</h3>
+                        <span class="text-sm font-medium text-yellow-400 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">Tổng cộng: {{ tong_danh_gia_count }} bình luận</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800 sticky top-0 z-10">
+                                <tr>
+                                    <th class="p-4 font-medium">Khách hàng</th>
+                                    <th class="p-4 font-medium">Hồ bơi</th>
+                                    <th class="p-4 font-medium text-center">Điểm số</th>
+                                    <th class="p-4 font-medium">Nội dung bình luận</th>
+                                    <th class="p-4 font-medium">Ngày đăng</th>
+                                    <th class="p-4 font-medium text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for review in danh_sach_danh_gia %}
+                                <tr class="border-b border-gray-800 hover:bg-[#0f172a] transition text-sm">
+                                    <td class="p-4 font-bold text-blue-400">{{ review.user.username }}</td>
+                                    <td class="p-4 text-gray-200">{{ review.ho_boi.ten_ho }}</td>
+                                    <td class="p-4 text-center font-bold text-yellow-400">{{ review.rating }} ⭐</td>
+                                    <td class="p-4 text-gray-400 max-w-xs truncate" title="{{ review.comment }}">
+                                        {{ review.comment|default:"(Không có bình luận)" }}
+                                    </td>
+                                    <td class="p-4 text-gray-500">{{ review.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td class="p-4 text-right">
+                                        <form action="{% url 'xoa_danh_gia' review.id %}" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa bình luận này của {{ review.user.username }} không?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="text-red-400 hover:text-red-300" title="Xóa">
+                                                <i class="fas fa-trash-alt text-lg"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="p-10 text-center text-gray-500 italic">Chưa có đánh giá nào trên hệ thống.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-gray-800 bg-[#0f172a] flex justify-between items-center shrink-0">
+                        <span class="text-sm text-gray-400">Trang {{ danh_sach_danh_gia.number }} / {{ danh_sach_danh_gia.paginator.num_pages }}</span>
+                        <div class="flex gap-2">
+                            {% if danh_sach_danh_gia.has_previous %}
+                            <a href="?tab=tab-reviews&page_danh_gia={{ danh_sach_danh_gia.previous_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Trước</a>
+                            {% endif %}
+                            
+                            {% if danh_sach_danh_gia.has_next %}
+                            <a href="?tab=tab-reviews&page_danh_gia={{ danh_sach_danh_gia.next_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Sau</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -324,7 +391,8 @@
             const titleMap = {
                 'tab-dashboard': 'Thống kê tổng quan',
                 'tab-manage': 'Quản lý danh sách hồ bơi',
-                'tab-bookings': 'Quản lý tất cả vé đặt'
+                'tab-bookings': 'Quản lý tất cả vé đặt',
+                'tab-reviews': 'Quản lý đánh giá & bình luận'
             };
             document.getElementById('page-title').innerText = titleMap[tabId] || 'Admin Panel';
         }
