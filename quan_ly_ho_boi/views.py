@@ -156,7 +156,7 @@ def lich_su_thanh_toan(request: HttpRequest):
 @login_required
 def admin_home(request: HttpRequest):
     if not request.user.is_staff:
-        return redirect('home')  # Chỉ cho phép staff truy cập
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)  # Chỉ cho phép staff truy cập
     
     # --- DỮ LIỆU CHO TAB THỐNG KÊ (DASHBOARD) ---
     tong_ho_boi = HoBoi.objects.count()
@@ -213,7 +213,7 @@ def xoa_ho_boi(request: HttpRequest, ho_boi_id : int):
 @login_required
 def xoa_dat_ve(request: HttpRequest, datve_id: int):
     if not request.user.is_staff:
-        return redirect('home')
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
 
     dat_ve = get_object_or_404(DatVe, id=datve_id)
     if request.method == 'POST':
@@ -226,7 +226,7 @@ def xoa_dat_ve(request: HttpRequest, datve_id: int):
 @login_required
 def tao_ho_boi(request: HttpRequest):
     if not request.user.is_staff:
-        return redirect('home')
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
 
     if request.method == 'POST':
         form = HoBoiForm(request.POST, request.FILES)
@@ -245,7 +245,7 @@ def tao_ho_boi(request: HttpRequest):
 @login_required
 def chinh_sua_ho_boi(request: HttpRequest, ho_boi_id: int):
     if not request.user.is_staff:
-        return redirect('home')
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
 
     ho_boi = get_object_or_404(HoBoi, id=ho_boi_id)
     if request.method == 'POST':
@@ -264,7 +264,7 @@ def chinh_sua_ho_boi(request: HttpRequest, ho_boi_id: int):
 @login_required
 def chinh_sua_dat_ve(request: HttpRequest, datve_id: int):
     if not request.user.is_staff:
-        return redirect('home')
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
 
     dat_ve = get_object_or_404(DatVe, id=datve_id)
     if request.method == 'POST':
