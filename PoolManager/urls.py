@@ -13,7 +13,7 @@ admin.site.index_title = "Bảng điều khiển quản trị"    # Tiêu đề 
 
 urlpatterns = [
     # path('admin/', admin.site.urls),  # Tắt admin Django
-# Nhớ import test_payment_api vào nhé
+    path('admin-panel/xac-nhan-thanh-toan/<int:payment_id>/', views.xac_nhan_thanh_toan, name='xac_nhan_thanh_toan'),
     path('api/test-payment/', views.test_payment_api, name='test_payment_api'),
     path('gioi-thieu/', views.gioi_thieu, name='gioi_thieu'),
     path('', home_page, name='home'),
