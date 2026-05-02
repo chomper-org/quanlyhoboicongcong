@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load humanize %}
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -78,18 +79,18 @@
                                 {% endif %}
                             </div>
                             <div class="font-semibold text-gray-700">
-                                {{ item.don_gia_thuc_te }}đ/món
+                                {{ item.don_gia_thuc_te |intcomma }}đ/món
                             </div>
                         </li>
                         {% endfor %}
                     </ul>
                     <div class="mt-5 pt-4 border-t border-gray-300 flex justify-between items-center text-sm">
-                        <span class="text-gray-600">Tiền vé bơi: <span class="font-semibold">{{ dat_ve.tong_tien }}đ</span></span>
-                        <span class="text-gray-600">Tiền dịch vụ: <span class="font-semibold">{{ dat_ve.tong_tien_dich_vu }}đ</span></span>
+                        <span class="text-gray-600">Tiền vé bơi: <span class="font-semibold">{{ dat_ve.tong_tien |intcomma }}đ</span></span>
+                        <span class="text-gray-600">Tiền dịch vụ: <span class="font-semibold">{{ dat_ve.tong_tien_dich_vu |intcomma }}đ</span></span>
                     </div>
                     <div class="mt-3 text-right">
                         <span class="text-gray-600 text-sm font-medium mr-2">Tổng thanh toán:</span>
-                        <span class="text-xl font-bold text-green-600">{{ dat_ve.tong_thanh_toan_cuoi }}đ</span>
+                        <span class="text-xl font-bold text-green-600">{{ dat_ve.tong_thanh_toan_cuoi |intcomma }}đ</span>
                     </div>
                 </div>
                 <p class="text-xs text-gray-500 mt-3 text-center italic"><i class="fas fa-info-circle mr-1"></i>Dịch vụ được cập nhật tự động bởi nhân viên tại quầy.</p>

@@ -67,8 +67,8 @@
                     {% csrf_token %}
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <input type="hidden" id="gia_nguoi_lon" value="{{ ho_boi.gia_ve_nguoi_lon }}">
-                        <input type="hidden" id="gia_tre_em" value="{{ ho_boi.gia_ve_tre_em }}">
+                        <input type="hidden" id="gia_nguoi_lon" value="{{ ho_boi.gia_ve_nguoi_lon|stringformat:"i" }}">
+                        <input type="hidden" id="gia_tre_em" value="{{ ho_boi.gia_ve_tre_em|stringformat:"i" }}">
 
                     <div class="mb-4">
                         <label>Giờ bơi dự kiến:</label>
@@ -111,7 +111,7 @@
                                     </p>
                                 </div>
                                 <div class="w-24">
-                                    <input type="number" name="dich_vu_{{ dv.id }}" class="dv-input w-full px-3 py-2 text-center rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none font-bold" min="0" max="{{ dv.so_luong_kho }}" value="0" data-price="{{ dv.don_gia }}" onchange="tinhTongTien()">
+                                    <input type="number" name="dich_vu_{{ dv.id }}" class="dv-input w-full px-3 py-2 text-center rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none font-bold" min="0" max="{{ dv.so_luong_kho }}" value="0" data-price="{{ dv.don_gia|stringformat:"i" }}" onchange="tinhTongTien()">
                                 </div>
                             </div>
                             {% endfor %}

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load humanize %}
 <html lang="vi" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -60,9 +61,9 @@
         <div class="bg-[#1e293b] rounded-3xl border border-gray-800 p-8 shadow-lg mt-8">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-white">Dịch vụ & Dụng cụ đi kèm</h2>
-                <a href="{% url 'add_chitiet_dichvu' dat_ve.id %}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition">
+                <button type="button" onclick="document.getElementById('addServiceModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition">
                     <i class="fas fa-plus"></i> Thêm dịch vụ
-                </a>
+                </button>
             </div>
             
             <div class="overflow-x-auto">
@@ -82,8 +83,8 @@
                         <tr class="border-b border-gray-700/50 hover:bg-slate-800/50 transition">
                             <td class="px-4 py-3 font-medium text-gray-200">{{ item.dich_vu.ten_dich_vu }}</td>
                             <td class="px-4 py-3 text-center">{{ item.so_luong }}</td>
-                            <td class="px-4 py-3 text-right">{{ item.don_gia_thuc_te }} đ</td>
-                            <td class="px-4 py-3 text-right text-emerald-400 font-bold">{% widthratio item.so_luong 1 item.don_gia_thuc_te %} đ</td>
+                            <td class="px-4 py-3 text-right">{{ item.don_gia_thuc_te |intcomma }} đ</td>
+                            <td class="px-4 py-3 text-right text-emerald-400 font-bold">{% widthratio item.so_luong 1 item.don_gia_thuc_te as subtotal %}{{ subtotal|intcomma }} đ</td>
                             <td class="px-4 py-3 text-center">
                                 {% if item.trang_thai == 'DANG_MUON' %}
                                     <span class="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-bold">Đang mượn</span>
@@ -122,12 +123,46 @@
             
             <div class="mt-6 pt-6 border-t border-gray-800 flex justify-end">
                 <div class="text-right bg-slate-900/50 p-4 rounded-2xl border border-gray-800">
-                    <p class="text-gray-400 text-sm mb-1">Tổng tiền vé: <span class="text-white font-medium">{{ dat_ve.tong_tien }} đ</span></p>
-                    <p class="text-gray-400 text-sm mb-2">Tổng dịch vụ: <span class="text-white font-medium">{{ dat_ve.tong_tien_dich_vu }} đ</span></p>
+                    <p class="text-gray-400 text-sm mb-1">Tổng tiền vé: <span class="text-white font-medium">{{ dat_ve.tong_tien |intcomma }} đ</span></p>
+                    <p class="text-gray-400 text-sm mb-2">Tổng dịch vụ: <span class="text-white font-medium">{{ dat_ve.tong_tien_dich_vu |intcomma }} đ</span></p>
                     <div class="h-px w-full bg-gray-700 my-2"></div>
-                    <p class="text-lg text-emerald-400 font-black">Tổng thanh toán: {{ dat_ve.tong_thanh_toan_cuoi }} đ</p>
+                    <p class="text-lg text-emerald-400 font-black">Tổng thanh toán: {{ dat_ve.tong_thanh_toan_cuoi |intcomma }} đ</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Dịch Vụ -->
+    <div id="addServiceModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center">
+        <div class="bg-[#1e293b] rounded-3xl border border-gray-700 w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Thêm dịch vụ vào vé</h3>
+                <button type="button" onclick="document.getElementById('addServiceModal').classList.add('hidden')" class="text-gray-400 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form action="{% url 'add_chitiet_dichvu' dat_ve.id %}" method="POST">
+                {% csrf_token %}
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Chọn dịch vụ/dụng cụ</label>
+                        <select name="dich_vu" class="w-full bg-[#0f172a] border border-gray-700 rounded-xl text-gray-200 px-4 py-3 outline-none focus:border-emerald-500 transition" required>
+                            <option value="">-- Chọn dịch vụ --</option>
+                            {% for dv in tat_ca_dich_vu %}
+                            <option value="{{ dv.id }}">{{ dv.ten_dich_vu }} (Còn: {{ dv.so_luong_kho }} | Giá: {{ dv.don_gia |intcomma }}đ)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Số lượng</label>
+                        <input type="number" name="so_luong" min="1" value="1" class="w-full bg-[#0f172a] border border-gray-700 rounded-xl text-gray-200 px-4 py-3 outline-none focus:border-emerald-500 transition" required>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 justify-end">
+                    <button type="button" onclick="document.getElementById('addServiceModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 transition font-medium">Hủy</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition font-medium">Thêm ngay</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>

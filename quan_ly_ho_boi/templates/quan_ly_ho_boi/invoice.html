@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load humanize %}
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -50,14 +51,14 @@
                 <tr>
                     <td class="py-2">Người lớn</td>
                     <td class="py-2 text-center">{{ dat_ve.so_luong_nguoi_lon }}</td>
-                    <td class="py-2 text-right">{{ dat_ve.ho_boi.gia_ve_nguoi_lon }}đ</td>
+                    <td class="py-2 text-right">{{ dat_ve.ho_boi.gia_ve_nguoi_lon |intcomma }}đ</td>
                 </tr>
                 {% endif %}
                 {% if dat_ve.so_luong_tre_em > 0 %}
                 <tr>
                     <td class="py-2">Trẻ em</td>
                     <td class="py-2 text-center">{{ dat_ve.so_luong_tre_em }}</td>
-                    <td class="py-2 text-right">{{ dat_ve.ho_boi.gia_ve_tre_em }}đ</td>
+                    <td class="py-2 text-right">{{ dat_ve.ho_boi.gia_ve_tre_em |intcomma }}đ</td>
                 </tr>
                 {% endif %}
             </tbody>
@@ -67,7 +68,7 @@
 
         <div class="flex justify-between items-center text-lg font-bold mb-6">
             <span>TỔNG CỘNG:</span>
-            <span>{{ dat_ve.tong_tien }}đ</span>
+            <span>{{ dat_ve.tong_tien |intcomma }}đ</span>
         </div>
         
         <div class="text-sm mb-6 flex justify-between">

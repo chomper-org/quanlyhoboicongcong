@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load humanize %}
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -41,7 +42,7 @@
                         <span>Số lượng:</span> <span>{{ dat_ve.so_luong_nguoi_lon }} người lớn, {{ dat_ve.so_luong_tre_em }} trẻ em</span>
                     </div>
                     <div class="flex justify-between text-gray-600 mb-2 font-bold">
-                        <span>Tiền vé bơi:</span> <span>{{ dat_ve.tong_tien }}đ</span>
+                        <span>Tiền vé bơi:</span> <span>{{ dat_ve.tong_tien |intcomma }}đ</span>
                     </div>
 
                     {% if dat_ve.chitietdichvu_set.exists %}
@@ -51,12 +52,12 @@
                             {% for item in dat_ve.chitietdichvu_set.all %}
                             <li class="flex justify-between text-sm text-gray-600">
                                 <span>{{ item.dich_vu.ten_dich_vu }} <span class="text-xs bg-gray-200 px-2 py-0.5 rounded-full ml-1">x{{ item.so_luong }}</span></span>
-                                <span class="font-medium">{{ item.don_gia_thuc_te }}đ/món</span>
+                                <span class="font-medium">{{ item.don_gia_thuc_te |intcomma }}đ/món</span>
                             </li>
                             {% endfor %}
                         </ul>
                         <div class="flex justify-between text-gray-600 font-bold">
-                            <span>Tổng tiền dịch vụ:</span> <span>{{ dat_ve.tong_tien_dich_vu }}đ</span>
+                            <span>Tổng tiền dịch vụ:</span> <span>{{ dat_ve.tong_tien_dich_vu |intcomma }}đ</span>
                         </div>
                     </div>
                     {% endif %}
@@ -64,7 +65,7 @@
                     <hr class="my-4 border-gray-200">
                     <div class="flex justify-between items-center">
                         <span class="text-lg font-bold text-gray-800">Tổng thanh toán:</span>
-                        <span class="text-2xl font-bold text-green-600">{{ dat_ve.tong_thanh_toan_cuoi }}đ</span>
+                        <span class="text-2xl font-bold text-green-600">{{ dat_ve.tong_thanh_toan_cuoi |intcomma }}đ</span>
                     </div>
                 </div>
 

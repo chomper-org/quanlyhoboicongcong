@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'quan_ly_ho_boi.apps.QuanLyHoBoiConfig', # App của bạn
 ]
 
@@ -94,6 +95,12 @@ LANGUAGE_CODE = 'vi' # Tiếng Việt
 TIME_ZONE = 'Asia/Ho_Chi_Minh' # Giờ VN
 USE_I18N = True
 USE_TZ = True
+
+# --- CẤU HÌNH ĐỊNH DẠNG SỐ (Tiền tệ VNĐ) ---
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = '.'
+DECIMAL_SEPARATOR = ','
+NUMBER_GROUPING = 3
 
 # Static files
 STATIC_URL = 'static/'

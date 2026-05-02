@@ -372,6 +372,7 @@ def chinh_sua_dat_ve(request: HttpRequest, datve_id: int):
     return render(request, 'quan_ly_ho_boi/admin_edit_booking.html', {
         'form': form,
         'dat_ve': dat_ve,
+        'tat_ca_dich_vu': DichVu.objects.all(),
     })
 
 # 12. Trang chủ công khai (Home Page)
@@ -491,32 +492,14 @@ def get_pools(request):
     return JsonResponse({"type": "FeatureCollection", "features": data})
 
 def pool_list(request):
-    # Lấy danh sách hồ bơi, TỰ ĐỘNG đính kèm Điểm trung bình và Tổng số đánh giá
-    pools = Pool.objects.annotate(
-        avg_rating=Avg('reviews__rating'),
-        review_count=Count('reviews')
-    ).order_by('-avg_rating') # Mặc định sắp xếp ưu tiên hồ bơi điểm cao
-
-    context = {
-        'pools': pools
-    }
-    pools = HoBoi.objects.annotate(
-        avg_rating=Avg('reviews__rating'),
-        review_count=Count('reviews')
-    ).distinct().all()
-    return render(request, 'quan_ly_ho_boi/pool_list.html')
-def pool_list(request):
     # Lấy tất cả HoBoi, tính điểm trung bình (avg_rating) 
     # và số lượng đánh giá (review_count) cho mỗi hồ
     pools = HoBoi.objects.annotate(
         avg_rating=Avg('reviews__rating'),
-        review_count=Count('reviews')
-    ).all()
-    pools = HoBoi.objects.annotate(
-        avg_rating=Avg('reviews__rating'),
         # Thêm distinct=True vào đây để đảm bảo đếm chính xác, không bị nhân bản dòng
         review_count=Count('reviews', distinct=True) 
-    ).distinct().all()
+    ).order_by('-avg_rating').distinct().all()
+    
     return render(request, 'quan_ly_ho_boi/pool_list.html', {'pools': pools})
 
 @login_required
@@ -785,22 +768,26 @@ def add_chitiet_dichvu(request: HttpRequest, datve_id: int):
     if not request.user.is_staff:
         return render(request, 'quan_ly_ho_boi/403.html', status=403)
     dat_ve = get_object_or_404(DatVe, pk=datve_id)
-    if request.method == 'POST':
-        form = ChiTietDichVuForm(request.POST)
-        if form.is_valid():
-            chitiet = form.save(commit=False)
-            chitiet.dat_ve = dat_ve
-            # Kiểm tra tồn kho trước khi lưu
-            if chitiet.dich_vu.so_luong_kho < chitiet.so_luong:
-                messages.error(request, f'Trong kho chỉ còn {chitiet.dich_vu.so_luong_kho} {chitiet.dich_vu.ten_dich_vu}.')
-            else:
-                chitiet.save()
-                messages.success(request, 'Đã thêm dịch vụ vào hóa đơn.')
-                return redirect('chinh_sua_dat_ve', datve_id=dat_ve.id)
-    else:
-        form = ChiTietDichVuForm()
     
-    return render(request, 'quan_ly_ho_boi/admin_add_chitiet_dichvu.html', {'form': form, 'dat_ve': dat_ve})
+    if request.method == 'POST':
+        dich_vu_id = request.POST.get('dich_vu')
+        so_luong = int(request.POST.get('so_luong', 1))
+        
+        if dich_vu_id:
+            dich_vu = get_object_or_404(DichVu, pk=dich_vu_id)
+            if dich_vu.so_luong_kho < so_luong:
+                messages.error(request, f'Trong kho chỉ còn {dich_vu.so_luong_kho} {dich_vu.ten_dich_vu}.')
+            else:
+                ChiTietDichVu.objects.create(
+                    dat_ve=dat_ve,
+                    dich_vu=dich_vu,
+                    so_luong=so_luong
+                )
+                messages.success(request, 'Đã thêm dịch vụ vào hóa đơn.')
+        else:
+            messages.error(request, 'Vui lòng chọn một dịch vụ.')
+            
+    return redirect('chinh_sua_dat_ve', datve_id=dat_ve.id)
 
 @login_required
 def update_chitiet_dichvu_status(request: HttpRequest, chitiet_id: int):
