@@ -573,32 +573,6 @@ def test_payment_api(request):
             
     return JsonResponse({'status': 'error', 'message': 'Yêu cầu không hợp lệ'}, status=400)
 
-@login_required(login_url='/login/')
-def user_edit_booking(request, datve_id):
-    # CHỈ lấy vé nếu vé đó thuộc về user đang đăng nhập
-    dat_ve = get_object_or_404(DatVe, id=datve_id, khach_hang=request.user)
-    
-    if request.method == 'POST':
-        form = DatVeForm(request.POST, instance=dat_ve)
-        if form.is_valid():
-            ve_da_luu = form.save()
-            
-            # Đồng bộ cập nhật lại số tiền trong lịch sử thanh toán nếu có
-            if hasattr(ve_da_luu, 'payment'):
-                payment = ve_da_luu.payment
-                payment.so_tien = ve_da_luu.tong_thanh_toan_cuoi
-                payment.save()
-                
-            messages.success(request, 'Cập nhật thông tin vé thành công!')
-            return redirect('profile')
-    else:
-        form = DatVeForm(instance=dat_ve)
-
-    return render(request, 'quan_ly_ho_boi/user_edit_booking.html', {
-        'form': form,
-        'dat_ve': dat_ve
-    })
-
 @login_required
 def xac_nhan_thanh_toan(request: HttpRequest, payment_id: int):
     if not request.user.is_staff:

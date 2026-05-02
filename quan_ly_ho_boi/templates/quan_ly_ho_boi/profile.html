@@ -118,21 +118,27 @@
                                     </div>
                                     <div class="flex flex-col items-end gap-2">
                                         <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-[10px] font-bold">MÃ #{{ ve.id }}</span>
-                                        <a href="{% url 'user_edit_booking' ve.id %}" class="px-3 py-1 bg-yellow-500 text-white text-xs rounded-lg hover:bg-yellow-600 transition shadow-sm font-bold">
-                                            <i class="fas fa-edit mr-1"></i>Sửa vé
-                                        </a>
                                     </div>
                                 </div>
-                                <div class="flex gap-6 text-sm">
-                                    <div class="text-gray-600">Người lớn: <span class="font-bold text-gray-900">{{ ve.so_luong_nguoi_lon }}</span></div>
-                                    <div class="text-gray-600">Trẻ em: <span class="font-bold text-gray-900">{{ ve.so_luong_tre_em }}</span></div>
-                                    <div class="flex flex-col items-end ml-auto">
-                                        <div class="font-bold text-green-600">{{ ve.tong_thanh_toan_cuoi |intcomma }}đ</div>
-                                        {% if ve.tong_tien_dich_vu > 0 %}
-                                        <div class="text-[10px] text-gray-500">(Đã gồm phí dịch vụ)</div>
-                                        {% endif %}
+                                <div class="flex items-end justify-between gap-4 text-sm mt-1">
+                                    <div class="flex gap-6">
+                                        <div class="text-gray-600">Người lớn: <span class="font-bold text-gray-900">{{ ve.so_luong_nguoi_lon }}</span></div>
+                                        <div class="text-gray-600">Trẻ em: <span class="font-bold text-gray-900">{{ ve.so_luong_tre_em }}</span></div>
+                                    </div>
+                                    <div class="font-bold text-green-600 text-lg whitespace-nowrap">{{ ve.tong_thanh_toan_cuoi |intcomma }}đ</div>
+                                </div>
+                                {% if ve.tong_tien_dich_vu > 0 %}
+                                <div class="mt-2 pt-2 border-t border-gray-100">
+                                    <div class="text-[10px] text-gray-500 font-bold mb-1">Dịch vụ đã chọn:</div>
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for ct in ve.chitietdichvu_set.all %}
+                                        <span class="text-[10px] text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                                            {{ ct.dich_vu.ten_dich_vu }} <span class="text-blue-500 font-bold">x{{ ct.so_luong }}</span>
+                                        </span>
+                                        {% endfor %}
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>
