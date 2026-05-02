@@ -96,7 +96,30 @@
                         </div>
                     </div>
 
-                    <div class="bg-blue-50 p-6 rounded-xl flex justify-between items-center mb-8 border border-blue-100">
+                    {% if dich_vu_list %}
+                    <div class="mb-8">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-box-open text-blue-500 mr-2"></i>Dịch vụ & Dụng cụ thêm</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for dv in dich_vu_list %}
+                            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                <div>
+                                    <p class="font-bold text-gray-800">{{ dv.ten_dich_vu }}</p>
+                                    <p class="text-xs text-blue-600 font-bold">{{ dv.don_gia }} đ/món</p>
+                                    <p class="text-[10px] text-gray-500 mt-1">
+                                        {% if dv.hinh_thuc == 'THUE' %}Cho thuê{% else %}Bán đứt{% endif %} 
+                                        · Còn lại: {{ dv.so_luong_kho }}
+                                    </p>
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" name="dich_vu_{{ dv.id }}" class="dv-input w-full px-3 py-2 text-center rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none font-bold" min="0" max="{{ dv.so_luong_kho }}" value="0" data-price="{{ dv.don_gia }}" onchange="tinhTongTien()">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="bg-blue-50 p-6 rounded-xl flex justify-between items-center mb-8 border border-blue-100 shadow-sm">
                         <span class="text-lg font-bold text-gray-700">Tổng tiền tạm tính:</span>
                         <span class="text-2xl font-bold text-blue-600" id="hien_thi_tong_tien">0 VNĐ</span>
                     </div>
@@ -118,6 +141,14 @@
             let slTe = parseInt(document.getElementById('sl_tre_em').value) || 0;
             
             let tong = (giaNl * slNl) + (giaTe * slTe);
+            
+            // Cộng thêm tiền dịch vụ
+            document.querySelectorAll('.dv-input').forEach(function(input) {
+                let sl_dv = parseInt(input.value) || 0;
+                let gia_dv = parseFloat(input.getAttribute('data-price')) || 0;
+                tong += (sl_dv * gia_dv);
+            });
+            
             document.getElementById('hien_thi_tong_tien').innerText = new Intl.NumberFormat('vi-VN').format(tong) + ' VNĐ';
         }
         window.onload = tinhTongTien;

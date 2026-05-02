@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
     <title>Bản đồ GIS | WebGIS Quản lý Hồ bơi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
@@ -15,92 +16,204 @@
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
     <style>
-        .leaflet-popup-content { margin: 12px; width: 280px !important; }
-        .leaflet-popup-content .book-ticket { color: #ffffff !important; }
-        .leaflet-popup-content .book-ticket:hover { color: #ffffff !important; }
-        .leaflet-control-layers { border-radius: 8px !important; border: none !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important; }
-        .suggestion-item { padding: 8px 16px; cursor: pointer; transition: background-color 0.2s; }
-        .suggestion-item:hover { background-color: #f3f4f6; }
-        .rating-stars .active { color: #fbbf24; }
+        .leaflet-popup-content {
+            margin: 12px;
+            width: 280px !important;
+        }
+
+        .leaflet-popup-content .book-ticket {
+            color: #ffffff !important;
+        }
+
+        .leaflet-popup-content .book-ticket:hover {
+            color: #ffffff !important;
+        }
+
+        .leaflet-control-layers {
+            border-radius: 8px !important;
+            border: none !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+        }
+
+        .suggestion-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .rating-stars .active {
+            color: #fbbf24;
+        }
 
         /* ================= CSS LÀM ĐẸP ================= */
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
 
         #directions-container .leaflet-routing-container {
-            width: 100% !important; padding: 0 !important; box-shadow: none !important;
-            border: none !important; background: transparent !important; margin: 0 !important;
+            width: 100% !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            margin: 0 !important;
         }
-        #directions-container .leaflet-routing-alt h2 { display: none !important; }
+
+        #directions-container .leaflet-routing-alt h2 {
+            display: none !important;
+        }
+
         #directions-container .leaflet-routing-alt h3 {
-            font-size: 20px !important; color: #1e40af !important; padding: 10px 10px 20px 10px !important;
-            font-weight: 800 !important; border-bottom: 1px solid #e2e8f0;
+            font-size: 20px !important;
+            color: #1e40af !important;
+            padding: 10px 10px 20px 10px !important;
+            font-weight: 800 !important;
+            border-bottom: 1px solid #e2e8f0;
         }
-        #directions-container .leaflet-routing-alt table { width: 100%; border-collapse: collapse; }
-        #directions-container .leaflet-routing-alt tr:hover { background: #f0fdf4; cursor: pointer; }
-        #directions-container .leaflet-routing-alt td { 
-            padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #475569;
+
+        #directions-container .leaflet-routing-alt table {
+            width: 100%;
+            border-collapse: collapse;
         }
+
+        #directions-container .leaflet-routing-alt tr:hover {
+            background: #f0fdf4;
+            cursor: pointer;
+        }
+
+        #directions-container .leaflet-routing-alt td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #475569;
+        }
+
         #directions-container .leaflet-routing-icon {
             filter: brightness(0) saturate(100%) invert(34%) sepia(87%) saturate(2220%) hue-rotate(209deg) brightness(101%) contrast(96%);
         }
-        #directions-sidebar { background-color: #ffffff; }
+
+        #directions-sidebar {
+            background-color: #ffffff;
+        }
 
         #directions-container .leaflet-routing-container {
-            background-color: #f8fafc !important; border-radius: 12px; margin-top: 10px !important; border: 1px solid #e2e8f0 !important;
+            background-color: #f8fafc !important;
+            border-radius: 12px;
+            margin-top: 10px !important;
+            border: 1px solid #e2e8f0 !important;
         }
-        #directions-container .leaflet-routing-alt tr { border-bottom: 1px solid #edf2f7 !important; transition: background 0.2s; }
-        #directions-container .leaflet-routing-alt tr:hover { background-color: #ffffff !important; box-shadow: inset 4px 0 0 #2563eb; }
 
-        .routing-summary-custom { padding: 15px; background: #eff6ff; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #2563eb; }
-        #directions-container .leaflet-routing-container { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px !important; margin-top: 15px !important; padding: 10px !important; }
-        #directions-container .leaflet-routing-alt tr { border-bottom: 1px solid #e2e8f0 !important; transition: background 0.2s; }
-        #directions-container .leaflet-routing-alt tr:hover { background-color: #ffffff !important; }
+        #directions-container .leaflet-routing-alt tr {
+            border-bottom: 1px solid #edf2f7 !important;
+            transition: background 0.2s;
+        }
 
-        .summary-card { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #2563eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        #directions-container .leaflet-routing-geocoders { display: none !important; }
+        #directions-container .leaflet-routing-alt tr:hover {
+            background-color: #ffffff !important;
+            box-shadow: inset 4px 0 0 #2563eb;
+        }
+
+        .routing-summary-custom {
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2563eb;
+        }
+
+        #directions-container .leaflet-routing-container {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            margin-top: 15px !important;
+            padding: 10px !important;
+        }
+
+        #directions-container .leaflet-routing-alt tr {
+            border-bottom: 1px solid #e2e8f0 !important;
+            transition: background 0.2s;
+        }
+
+        #directions-container .leaflet-routing-alt tr:hover {
+            background-color: #ffffff !important;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        #directions-container .leaflet-routing-geocoders {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
-    
-<nav class="bg-white shadow-md z-50 relative shrink-0">
+
+    <nav class="bg-white shadow-md z-50 relative shrink-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-3 cursor-pointer">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                         <i class="fas fa-swimming-pool text-white text-lg"></i>
                     </div>
                     <span class="text-2xl font-bold text-blue-600">PoolFinder</span>
                 </div>
-                
+
                 <div class="flex items-center gap-6">
-                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Trang chủ</a>
-                    <a href="{% url 'gioi_thieu' %}" class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Giới thiệu</a>
-                    <a href="{% url 'map' %}" class="text-blue-600 font-bold border-b-2 border-blue-600 transition py-1">Bản đồ GIS</a>
-                    <a href="{% url 'pool_list' %}" class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Danh sách</a>
+                    <a href="{% url 'home' %}"
+                        class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Trang chủ</a>
+                    <a href="{% url 'gioi_thieu' %}"
+                        class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Giới thiệu</a>
+                    <a href="{% url 'map' %}"
+                        class="text-blue-600 font-bold border-b-2 border-blue-600 transition py-1">Bản đồ GIS</a>
+                    <a href="{% url 'pool_list' %}"
+                        class="text-gray-600 hover:text-blue-600 transition font-medium py-1">Danh sách</a>
                 </div>
-                
+
                 <div class="flex items-center gap-4">
                     {% if user.is_authenticated %}
-                        {% if user.is_staff and user.is_superuser %}
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                                    {{ user.username|make_list|first|upper }}
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">{{ user.username }}</span>
-                            </div>
-                        {% else %}
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                                    {{ user.username|make_list|first|upper }}
-                                </div>
-                                <a href="{% url 'profile' %}" class="text-blue-600 hover:text-blue-800 transition font-medium">{{ user.username }}</a>
-                            </div>
-                        {% endif %}
-                        <a href="{% url 'logout_user' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng xuất</a>
+                    {% if user.is_staff and user.is_superuser %}
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ user.username }}</span>
+                    </div>
                     {% else %}
-                        <a href="{% url 'login_user' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Đăng nhập</a>
-                        <a href="{% url 'register_user' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">Đăng ký</a>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        <a href="{% url 'profile' %}"
+                            class="text-blue-600 hover:text-blue-800 transition font-medium">{{ user.username }}</a>
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'logout_user' %}"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">Đăng
+                        xuất</a>
+                    {% else %}
+                    <a href="{% url 'login_user' %}"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Đăng
+                        nhập</a>
+                    <a href="{% url 'register_user' %}"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">Đăng
+                        ký</a>
                     {% endif %}
                 </div>
             </div>
@@ -108,55 +221,63 @@
     </nav>
 
     <main class="flex-1 relative z-0 overflow-hidden">
-        
-        <div id="directions-sidebar" class="absolute top-0 left-0 h-full w-full sm:w-[400px] bg-white z-[2000] shadow-[10px_0_30px_rgba(0,0,0,0.15)] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+
+        <div id="directions-sidebar"
+            class="absolute top-0 left-0 h-full w-full sm:w-[400px] bg-white z-[2000] shadow-[10px_0_30px_rgba(0,0,0,0.15)] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
             <div class="p-5 border-b bg-blue-600 text-white shrink-0">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg"><i class="fas fa-route mr-2"></i>Chỉ dẫn đường đi</h3>
-                        <button onclick="window.closeDirections()" class="bg-blue-700 hover:bg-red-500 w-9 h-9 rounded-full transition flex items-center justify-center shadow-inner">
-                            <i class="fas fa-times"></i>
-                        </button>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg"><i class="fas fa-route mr-2"></i>Chỉ dẫn đường đi</h3>
+                    <button onclick="window.closeDirections()"
+                        class="bg-blue-700 hover:bg-red-500 w-9 h-9 rounded-full transition flex items-center justify-center shadow-inner">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="bg-blue-800/40 p-3 rounded-xl mb-4 relative shadow-inner">
+                    <div class="absolute left-[21px] top-7 bottom-7 w-0.5 border-l-2 border-dashed border-blue-400/50">
                     </div>
-                    
-                    <div class="bg-blue-800/40 p-3 rounded-xl mb-4 relative shadow-inner">
-                        <div class="absolute left-[21px] top-7 bottom-7 w-0.5 border-l-2 border-dashed border-blue-400/50"></div>
-                        
-                        <div class="flex items-center gap-3 mb-3 relative z-10">
-                            <div class="w-4 h-4 rounded-full border-[3px] border-white bg-blue-400 shrink-0 shadow-sm"></div>
-                            <div class="bg-blue-900/50 text-blue-100 text-sm px-3 py-2 rounded-lg flex-1 font-medium">
-                                Vị trí của bạn
-                            </div>
+
+                    <div class="flex items-center gap-3 mb-3 relative z-10">
+                        <div class="w-4 h-4 rounded-full border-[3px] border-white bg-blue-400 shrink-0 shadow-sm">
                         </div>
-                        
-                        <div class="flex items-center gap-3 relative z-10 w-full">
-                                <div class="w-4 h-4 rounded-full border-[3px] border-white bg-red-500 shrink-0 shadow-sm"></div>
-                                    <div class="relative flex-1">
-                                    <select id="dest-select" class="w-full bg-white text-blue-900 text-sm pl-3 pr-8 py-2 rounded-lg font-bold shadow outline-none cursor-pointer appearance-none border-2 border-transparent focus:border-blue-400 transition truncate">
-                                        <option value="">-- Chọn hồ bơi đích đến --</option>
-                                        </select>
-                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-500">
-                                        <i class="fas fa-chevron-down text-xs"></i>
-                                    </div>
-                                </div>
+                        <div class="bg-blue-900/50 text-blue-100 text-sm px-3 py-2 rounded-lg flex-1 font-medium">
+                            Vị trí của bạn
                         </div>
                     </div>
 
-                    <div class="flex justify-around bg-blue-700/40 p-1.5 rounded-2xl">
-                        <button onclick="updateMode('moto')" id="btn-moto" class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full bg-white/20 ring-2 ring-white">
-                            <i class="fas fa-motorcycle text-lg"></i>
-                            <span class="text-[10px] font-bold">Xe máy</span>
-                        </button>
-                        <button onclick="updateMode('car')" id="btn-car" class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full">
-                            <i class="fas fa-car text-lg"></i>
-                            <span class="text-[10px] font-bold">Ô tô</span>
-                        </button>
-                        <button onclick="updateMode('walk')" id="btn-walk" class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full">
-                            <i class="fas fa-walking text-lg"></i>
-                            <span class="text-[10px] font-bold">Đi bộ</span>
-                        </button>
+                    <div class="flex items-center gap-3 relative z-10 w-full">
+                        <div class="w-4 h-4 rounded-full border-[3px] border-white bg-red-500 shrink-0 shadow-sm"></div>
+                        <div class="relative flex-1">
+                            <select id="dest-select"
+                                class="w-full bg-white text-blue-900 text-sm pl-3 pr-8 py-2 rounded-lg font-bold shadow outline-none cursor-pointer appearance-none border-2 border-transparent focus:border-blue-400 transition truncate">
+                                <option value="">-- Chọn hồ bơi đích đến --</option>
+                            </select>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-500">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            
+
+                <div class="flex justify-around bg-blue-700/40 p-1.5 rounded-2xl">
+                    <button onclick="updateMode('moto')" id="btn-moto"
+                        class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full bg-white/20 ring-2 ring-white">
+                        <i class="fas fa-motorcycle text-lg"></i>
+                        <span class="text-[10px] font-bold">Xe máy</span>
+                    </button>
+                    <button onclick="updateMode('car')" id="btn-car"
+                        class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full">
+                        <i class="fas fa-car text-lg"></i>
+                        <span class="text-[10px] font-bold">Ô tô</span>
+                    </button>
+                    <button onclick="updateMode('walk')" id="btn-walk"
+                        class="mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full">
+                        <i class="fas fa-walking text-lg"></i>
+                        <span class="text-[10px] font-bold">Đi bộ</span>
+                    </button>
+                </div>
+            </div>
+
             <div id="directions-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50">
                 <div id="route-summary" class="hidden summary-card p-4 rounded-xl mb-4">
                     <div class="flex flex-col gap-1">
@@ -169,7 +290,8 @@
                             <span id="summary-time" class="text-lg font-bold text-gray-800">0 phút</span>
                         </div>
                     </div>
-                    <button onclick="window.closeDirections()" class="w-full mt-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-50 transition">
+                    <button onclick="window.closeDirections()"
+                        class="w-full mt-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-50 transition">
                         <i class="fas fa-stop-circle mr-1"></i> Tắt chỉ đường
                     </button>
                 </div>
@@ -177,26 +299,34 @@
             </div>
 
             <div class="p-4 border-t bg-white">
-                <a id="sidebar-booking-btn" href="#" class="block w-full text-center bg-blue-600 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">
+                <a id="sidebar-booking-btn" href="#"
+                    class="block w-full text-center bg-blue-600 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">
                     <i class="fas fa-ticket-alt mr-2"></i> Đặt vé ngay
                 </a>
             </div>
         </div>
-                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] flex flex-col gap-2 w-full max-w-2xl px-4">
+        <div
+            class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] flex flex-col gap-2 w-full max-w-2xl px-4">
             <div class="flex gap-2">
-                <div class="flex-1 bg-white rounded-lg shadow-lg flex items-center px-4 py-2 border border-gray-200 relative">
+                <div
+                    class="flex-1 bg-white rounded-lg shadow-lg flex items-center px-4 py-2 border border-gray-200 relative">
                     <i class="fas fa-search text-gray-400 mr-2"></i>
-                    <input type="text" id="searchInput" placeholder="Tìm tên hoặc địa chỉ..." class="w-full outline-none text-sm text-gray-700" autocomplete="off">
-                    
-                    <div id="suggestionsBox" class="absolute top-full left-0 w-full bg-white mt-1 rounded-lg shadow-xl border border-gray-100 hidden flex-col max-h-60 overflow-y-auto z-50"></div>
+                    <input type="text" id="searchInput" placeholder="Tìm tên hoặc địa chỉ..."
+                        class="w-full outline-none text-sm text-gray-700" autocomplete="off">
+
+                    <div id="suggestionsBox"
+                        class="absolute top-full left-0 w-full bg-white mt-1 rounded-lg shadow-xl border border-gray-100 hidden flex-col max-h-60 overflow-y-auto z-50">
+                    </div>
                 </div>
-                
-                <select id="statusFilter" class="bg-white rounded-lg shadow-lg px-4 py-2 outline-none text-sm border border-gray-200 text-gray-700 font-medium">
+
+                <select id="statusFilter"
+                    class="bg-white rounded-lg shadow-lg px-4 py-2 outline-none text-sm border border-gray-200 text-gray-700 font-medium">
                     <option value="ALL">Tất cả trạng thái</option>
                     <option value="MO">Đang mở cửa</option>
                     <option value="DONG">Đóng cửa</option>
                 </select>
-                <button id="resetBtn" class="bg-white hover:bg-blue-50 text-blue-600 px-4 py-2 rounded-lg shadow-lg border border-gray-200 transition flex items-center gap-2">
+                <button id="resetBtn"
+                    class="bg-white hover:bg-blue-50 text-blue-600 px-4 py-2 rounded-lg shadow-lg border border-gray-200 transition flex items-center gap-2">
                     <i class="fas fa-sync-alt" id="resetIcon"></i>
                     <span class="text-xs font-bold hidden sm:inline">Làm mới</span>
                 </button>
@@ -217,23 +347,62 @@
             return parseFloat(amount).toLocaleString('vi-VN');
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
             const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
-            
+
             window.map = L.map('leaflet-map', {
-                center: [10.7769, 106.6964], 
+                center: [10.7769, 106.6964],
                 zoom: 13,
                 layers: [osmLayer]
             });
 
-            L.control.layers({"Bản đồ chuẩn": osmLayer, "Vệ tinh": satelliteLayer}).addTo(window.map);
-            L.control.scale({metric: true, imperial: false}).addTo(window.map);
+            L.control.layers({ "Bản đồ chuẩn": osmLayer, "Vệ tinh": satelliteLayer }).addTo(window.map);
+            L.control.scale({ metric: true, imperial: false }).addTo(window.map);
 
             let allPoolsData = [];
             let markerGroup = L.featureGroup().addTo(window.map);
             window.userMarker = null;
             window.routingControl = null;
+
+            // Tính năng click để chọn vị trí trên bản đồ
+            window.map.on('click', function (e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+
+                const popupContent = `
+                    <div class="text-center min-w-[150px] pb-1">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm text-yellow-600 border border-yellow-200">
+                            <i class="fas fa-street-view text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">Vị trí đã chọn</h3>
+                        <p class="text-[11px] text-gray-500 leading-tight">Vị trí này sẽ được dùng để tính tuyến đường</p>
+                    </div>
+                `;
+
+                if (window.userMarker) {
+                    window.userMarker.setLatLng([lat, lng]);
+                    window.userMarker.bindPopup(popupContent).openPopup();
+                } else {
+                    const userIcon = new L.Icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41], iconAnchor: [12, 41]
+                    });
+                    window.userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(window.map).bindPopup(popupContent).openPopup();
+                }
+
+                // Cập nhật lại tuyến đường nếu đang bật chỉ đường
+                if (window.routingControl) {
+                    const waypoints = window.routingControl.getWaypoints();
+                    if (waypoints && waypoints.length > 1) {
+                        const dest = waypoints[waypoints.length - 1].latLng;
+                        if (dest) {
+                            window.drawRoute(dest.lat, dest.lng);
+                        }
+                    }
+                }
+            });
 
             function getCustomIcon(statusCode) {
                 let color = statusCode === 'MO' ? 'green' : 'red';
@@ -247,50 +416,50 @@
             let currentRouteData = null;
 
             function formatDuration(seconds, mode = 'moto') {
-                const multipliers = { 'moto': 0.85, 'car': 1.0, 'walk': 10.0 }; 
+                const multipliers = { 'moto': 0.85, 'car': 1.0, 'walk': 10.0 };
                 let adjustedSeconds = seconds * (multipliers[mode] || 1);
-                
+
                 let hours = Math.floor(adjustedSeconds / 3600);
                 let minutes = Math.ceil((adjustedSeconds % 3600) / 60);
-                
+
                 if (hours > 0) return `${hours} giờ ${minutes} phút`;
                 return `${minutes} phút`;
             }
 
-            window.updateMode = function(mode) {
+            window.updateMode = function (mode) {
                 document.querySelectorAll('.mode-btn').forEach(btn => btn.className = 'mode-btn p-2 rounded-xl transition flex flex-col items-center gap-1 w-full');
                 document.getElementById(`btn-${mode}`).classList.add('bg-white/20', 'ring-2', 'ring-white');
 
                 if (currentRouteData) {
                     const distKm = (currentRouteData.summary.totalDistance / 1000).toFixed(1);
                     const timeStr = formatDuration(currentRouteData.summary.totalTime, mode);
-                    
+
                     document.getElementById('summary-distance').innerText = `${distKm} km`;
                     document.getElementById('summary-time').innerText = timeStr;
                 }
             }
 
-            window.drawRoute = function(lat, lng) {
+            window.drawRoute = function (lat, lng) {
                 if (window.routingControl) window.map.removeControl(window.routingControl);
 
                 document.getElementById('route-summary').classList.remove('hidden');
-                
+
                 window.routingControl = L.Routing.control({
                     waypoints: [
                         L.latLng(window.userMarker.getLatLng().lat, window.userMarker.getLatLng().lng),
                         L.latLng(lat, lng)
                     ],
                     lineOptions: { styles: [{ color: '#2563eb', weight: 6, opacity: 0.85 }] },
-                    createMarker: function() { return null; },
+                    createMarker: function () { return null; },
                     formatter: new L.Routing.Formatter({
                         units: { kilometers: 'km', meters: 'm' }
                     })
                 }).addTo(window.map);
 
-                window.routingControl.on('routesfound', function(e) {
+                window.routingControl.on('routesfound', function (e) {
                     currentRouteData = e.routes[0];
-                    updateMode('moto'); 
-                    
+                    updateMode('moto');
+
                     const routingBlock = document.querySelector('.leaflet-routing-container');
                     if (routingBlock) {
                         document.getElementById('routing-details').innerHTML = '';
@@ -299,14 +468,14 @@
                 });
             };
 
-            window.getDirections = function(lat, lng, name, id) {
+            window.getDirections = function (lat, lng, name, id) {
                 if (!window.userMarker) {
                     alert("Vui lòng bật định vị để sử dụng tính năng này!");
                     return;
                 }
 
                 const destSelect = document.getElementById('dest-select');
-                if(destSelect) destSelect.value = id;
+                if (destSelect) destSelect.value = id;
                 document.getElementById('sidebar-booking-btn').href = `/dat-ve/${id}/`;
 
                 window.drawRoute(lat, lng);
@@ -314,9 +483,9 @@
                 window.map.closePopup();
             };
 
-            document.getElementById('dest-select').addEventListener('change', function() {
+            document.getElementById('dest-select').addEventListener('change', function () {
                 if (!this.value || !window.userMarker) return;
-                
+
                 const selectedOpt = this.options[this.selectedIndex];
                 const lat = parseFloat(selectedOpt.dataset.lat);
                 const lng = parseFloat(selectedOpt.dataset.lng);
@@ -326,7 +495,7 @@
                 window.drawRoute(lat, lng);
             });
 
-            window.closeDirections = function() {
+            window.closeDirections = function () {
                 document.getElementById('directions-sidebar').classList.add('-translate-x-full');
                 if (window.routingControl) {
                     window.map.removeControl(window.routingControl);
@@ -340,11 +509,11 @@
                 pools.forEach(feature => {
                     const coords = feature.geometry.coordinates;
                     const props = feature.properties;
-                    const marker = L.marker([coords[1], coords[0]], {icon: getCustomIcon(props.status_code)});
-                    
+                    const marker = L.marker([coords[1], coords[0]], { icon: getCustomIcon(props.status_code) });
+
                     let imgHtml = props.image ? `<img src="${props.image}" class="w-full h-32 object-cover rounded-t-lg mb-1">` : `<div class="w-full h-32 bg-blue-100 flex items-center justify-center rounded-t-lg mb-1 text-blue-300"><i class="fas fa-image text-3xl"></i></div>`;
                     let statusHtml = props.status_code === 'MO' ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Đang mở</span>` : `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Đóng cửa</span>`;
-                    
+
                     // --- ĐOẠN JS MỚI HIỂN THỊ DẢI ẢNH GALLERY TRONG POPUP ---
                     let galleryHtml = '';
                     if (props.gallery && props.gallery.length > 0) {
@@ -405,12 +574,12 @@
                         </div>
                     `;
                     marker.bindPopup(popupContent);
-                    
-                    marker.on('popupopen', function() {
+
+                    marker.on('popupopen', function () {
                         const stars = document.querySelectorAll('.star-btn');
                         const ratingInput = document.getElementById(`rating-value-${props.id}`);
                         stars.forEach(star => {
-                            star.addEventListener('click', function() {
+                            star.addEventListener('click', function () {
                                 const value = this.getAttribute('data-value');
                                 ratingInput.value = value;
                                 stars.forEach(s => {
@@ -437,16 +606,26 @@
                     navigator.geolocation.getCurrentPosition(position => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        
+
                         if (window.userMarker) window.map.removeLayer(window.userMarker);
-                        
+
                         const userIcon = new L.Icon({
                             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
                             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
                             iconSize: [25, 41], iconAnchor: [12, 41]
                         });
-                        
-                        window.userMarker = L.marker([lat, lng], {icon: userIcon}).addTo(window.map).bindPopup('<b>Vị trí của bạn</b>');
+
+                        const popupContent = `
+                            <div class="text-center min-w-[150px] pb-1">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm text-blue-600 border border-blue-200">
+                                    <i class="fas fa-map-marker-alt text-xl"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-800 text-sm mb-1">Vị trí của bạn</h3>
+                                <p class="text-[11px] text-gray-500 leading-tight">Được xác định qua GPS</p>
+                            </div>
+                        `;
+
+                        window.userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(window.map).bindPopup(popupContent);
                         if (isInitial) window.map.setView([lat, lng], 14);
                         if (icon) icon.classList.remove('fa-spin');
                     }, error => {
@@ -461,7 +640,7 @@
                 .then(data => {
                     allPoolsData = data.features;
                     renderMarkers(allPoolsData);
-                    locateUser(true); 
+                    locateUser(true);
 
                     const destSelect = document.getElementById('dest-select');
                     allPoolsData.forEach(pool => {
@@ -477,11 +656,11 @@
             const searchInput = document.getElementById('searchInput');
             const suggestionsBox = document.getElementById('suggestionsBox');
 
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 const query = this.value.toLowerCase();
                 suggestionsBox.innerHTML = '';
                 if (!query) { suggestionsBox.classList.add('hidden'); applyFilters(); return; }
-                
+
                 const matches = allPoolsData.filter(f => f.properties.name.toLowerCase().includes(query) || f.properties.address.toLowerCase().includes(query));
                 if (matches.length > 0) {
                     suggestionsBox.classList.remove('hidden');
@@ -503,7 +682,7 @@
                 applyFilters();
             });
 
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
                     suggestionsBox.classList.add('hidden');
                 }
@@ -514,9 +693,9 @@
                 searchInput.value = '';
                 document.getElementById('statusFilter').value = 'ALL';
                 suggestionsBox.classList.add('hidden');
-                window.closeDirections(); 
+                window.closeDirections();
                 renderMarkers(allPoolsData);
-                locateUser(); 
+                locateUser();
             });
 
             function applyFilters() {
@@ -546,7 +725,7 @@
             return cookieValue;
         }
 
-        window.submitReview = function(poolId) {
+        window.submitReview = function (poolId) {
             const rating = document.getElementById(`rating-value-${poolId}`).value;
             const comment = document.getElementById(`comment-${poolId}`).value;
 
@@ -567,27 +746,28 @@
                     comment: comment
                 })
             })
-            .then(response => {
-                if (response.status === 403) {
-                    alert("Bạn cần đăng nhập để thực hiện chức năng này!");
-                    throw new Error("Chưa đăng nhập");
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.status === 'success') {
-                    alert("Đánh giá của bạn đã được ghi nhận. Xin cảm ơn!");
-                    document.getElementById(`rating-value-${poolId}`).value = 0;
-                    document.getElementById(`comment-${poolId}`).value = "";
-                    const parent = document.getElementById(`rating-value-${poolId}`).previousElementSibling;
-                    const stars = parent.querySelectorAll('.star-btn');
-                    stars.forEach(s => s.classList.remove('active'));
-                } else if (data) {
-                    alert("Đã xảy ra lỗi: " + (data.message || "Lỗi không xác định"));
-                }
-            })
-            .catch(error => console.log('Lỗi gửi đánh giá:', error));
+                .then(response => {
+                    if (response.status === 403) {
+                        alert("Bạn cần đăng nhập để thực hiện chức năng này!");
+                        throw new Error("Chưa đăng nhập");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.status === 'success') {
+                        alert("Đánh giá của bạn đã được ghi nhận. Xin cảm ơn!");
+                        document.getElementById(`rating-value-${poolId}`).value = 0;
+                        document.getElementById(`comment-${poolId}`).value = "";
+                        const parent = document.getElementById(`rating-value-${poolId}`).previousElementSibling;
+                        const stars = parent.querySelectorAll('.star-btn');
+                        stars.forEach(s => s.classList.remove('active'));
+                    } else if (data) {
+                        alert("Đã xảy ra lỗi: " + (data.message || "Lỗi không xác định"));
+                    }
+                })
+                .catch(error => console.log('Lỗi gửi đánh giá:', error));
         };
     </script>
 </body>
+
 </html>

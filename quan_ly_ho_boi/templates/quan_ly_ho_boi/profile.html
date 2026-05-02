@@ -93,7 +93,12 @@
                                 <div class="flex gap-6 text-sm">
                                     <div class="text-gray-600">Người lớn: <span class="font-bold text-gray-900">{{ ve.so_luong_nguoi_lon }}</span></div>
                                     <div class="text-gray-600">Trẻ em: <span class="font-bold text-gray-900">{{ ve.so_luong_tre_em }}</span></div>
-                                    <div class="ml-auto font-bold text-green-600">{{ ve.tong_tien }}đ</div>
+                                    <div class="flex flex-col items-end ml-auto">
+                                        <div class="font-bold text-green-600">{{ ve.tong_thanh_toan_cuoi }}đ</div>
+                                        {% if ve.tong_tien_dich_vu > 0 %}
+                                        <div class="text-[10px] text-gray-500">(Đã gồm phí dịch vụ)</div>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                             {% endfor %}

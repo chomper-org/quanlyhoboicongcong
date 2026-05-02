@@ -283,26 +283,42 @@
         }
 
         map.on('click', function(e) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            if (lat < 0) lat = 0;
+            if (lng < 0) lng = 0;
             if(fields.viDo) fields.viDo.value = lat.toFixed(6);
             if(fields.kinhDo) fields.kinhDo.value = lng.toFixed(6);
             updatePreview(true);
         });
 
         marker.on('dragend', function(e) {
-            const position = marker.getLatLng();
-            if(fields.viDo) fields.viDo.value = position.lat.toFixed(6);
-            if(fields.kinhDo) fields.kinhDo.value = position.lng.toFixed(6);
+            let position = marker.getLatLng();
+            let lat = position.lat;
+            let lng = position.lng;
+            if (lat < 0) lat = 0;
+            if (lng < 0) lng = 0;
+            if(fields.viDo) fields.viDo.value = lat.toFixed(6);
+            if(fields.kinhDo) fields.kinhDo.value = lng.toFixed(6);
             updatePreview(false);
         });
 
         ['viDo', 'kinhDo'].forEach(key => {
+            fields[key]?.addEventListener('input', function() {
+                if (this.value < 0) this.value = 0;
+            });
             fields[key]?.addEventListener('change', () => updatePreview(true));
         });
 
         ['tenHo', 'diaChi', 'trangThai', 'doSau', 'sucChua', 'giaNguoiLon', 'giaTreEm', 'gioMoCua', 'gioDongCua'].forEach(key => {
-            fields[key]?.addEventListener('input', refreshPopupOnly);
+            if (['doSau', 'sucChua', 'giaNguoiLon', 'giaTreEm'].includes(key)) {
+                fields[key]?.addEventListener('input', function() {
+                    if (this.value < 0) this.value = 0;
+                    refreshPopupOnly();
+                });
+            } else {
+                fields[key]?.addEventListener('input', refreshPopupOnly);
+            }
         });
 
         document.addEventListener('DOMContentLoaded', () => {

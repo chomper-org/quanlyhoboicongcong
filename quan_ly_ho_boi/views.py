@@ -9,8 +9,8 @@ from django.utils.dateparse import parse_date
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.db.models import Sum
-from .models import HoBoi, DatVe, Payment, Review
-from .forms import HoBoiForm, DatVeForm
+from .models import HoBoi, DatVe, Payment, Review, DichVu, ChiTietDichVu, HinhAnhHoBoi
+from .forms import HoBoiForm, DatVeForm, DichVuForm, ChiTietDichVuForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -44,6 +44,7 @@ def dat_ve(request: HttpRequest, ho_boi_id: int):
     }
     tong_tien = None
     success_message = None
+    dich_vu_list = DichVu.objects.filter(so_luong_kho__gt=0)
 
     if request.method == 'POST':
         form_data['ngay_su_dung'] = request.POST.get('ngay_su_dung', '')
@@ -99,6 +100,23 @@ def dat_ve(request: HttpRequest, ho_boi_id: int):
                 so_luong_tre_em=so_luong_tre_em,
             )
             dat_ve.save()
+            
+            # --- Xử lý dịch vụ đi kèm ---
+            for dv in dich_vu_list:
+                dv_key = f'dich_vu_{dv.id}'
+                if dv_key in request.POST:
+                    try:
+                        sl_mua = int(request.POST.get(dv_key, 0))
+                        if sl_mua > 0 and sl_mua <= dv.so_luong_kho:
+                            ChiTietDichVu.objects.create(
+                                dat_ve=dat_ve,
+                                dich_vu=dv,
+                                so_luong=sl_mua,
+                                don_gia_thuc_te=dv.don_gia
+                            )
+                    except ValueError:
+                        pass
+                        
             return redirect('checkout', datve_id=dat_ve.id)
 
     else:
@@ -119,6 +137,7 @@ def dat_ve(request: HttpRequest, ho_boi_id: int):
         'form_data': form_data,
         'tong_tien': tong_tien,
         'success_message': success_message,
+        'dich_vu_list': dich_vu_list,
     })
 
 
@@ -144,13 +163,13 @@ def checkout(request: HttpRequest, datve_id: int):
             dat_ve=dat_ve,
             defaults={
                 'phuong_thuc': payment_method,
-                'so_tien': dat_ve.tong_tien,
+                'so_tien': dat_ve.tong_thanh_toan_cuoi, # Áp dụng tổng cuối cùng bao gồm dịch vụ
                 'trang_thai': trang_thai_thanh_toan, # Áp dụng trạng thái mới
             }
         )
         if not created:
             payment.phuong_thuc = payment_method
-            payment.so_tien = dat_ve.tong_tien
+            payment.so_tien = dat_ve.tong_thanh_toan_cuoi
             payment.trang_thai = trang_thai_thanh_toan
             payment.save()
 
@@ -200,6 +219,12 @@ def admin_home(request: HttpRequest):
     page_ho_number = request.GET.get('page_ho')
     danh_sach_ho = paginator_ho.get_page(page_ho_number)
 
+    # --- 3. PHÂN TRANG DỊCH VỤ (TAB QUẢN LÝ DỊCH VỤ) ---
+    danh_sach_dich_vu_full = DichVu.objects.all().order_by('-id')
+    paginator_dich_vu = Paginator(danh_sach_dich_vu_full, 10)
+    page_dich_vu_number = request.GET.get('page_dv')
+    danh_sach_dich_vu = paginator_dich_vu.get_page(page_dich_vu_number)
+
     # --- 3. PHÂN TRANG TẤT CẢ VÉ ĐẶT (TAB QUẢN LÝ VÉ ĐẶT) ---
     tat_ca_ve_dat_full = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')
     paginator_ve = Paginator(tat_ca_ve_dat_full, 7) # 10 vé mỗi trang
@@ -231,6 +256,9 @@ def admin_home(request: HttpRequest):
 
         'danh_sach_danh_gia': danh_sach_danh_gia,
         'tong_danh_gia_count': paginator_danh_gia.count,
+        
+        'danh_sach_dich_vu': danh_sach_dich_vu,
+        'tong_dich_vu_count': paginator_dich_vu.count,
     }
     
     return render(request, 'quan_ly_ho_boi/admin_panel.html', context)
@@ -286,7 +314,12 @@ def tao_ho_boi(request: HttpRequest):
     if request.method == 'POST':
         form = HoBoiForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            ho_boi = form.save()
+            
+            # Lưu ảnh bộ sưu tập
+            for f in request.FILES.getlist('danh_sach_anh_phu'):
+                HinhAnhHoBoi.objects.create(ho_boi=ho_boi, hinh_anh=f)
+                
             messages.success(request, 'Hồ bơi đã được tạo thành công.')
             return redirect('admin_panel')
     else:
@@ -306,7 +339,12 @@ def chinh_sua_ho_boi(request: HttpRequest, ho_boi_id: int):
     if request.method == 'POST':
         form = HoBoiForm(request.POST, request.FILES, instance=ho_boi)
         if form.is_valid():
-            form.save()
+            ho_boi = form.save()
+            
+            # Lưu ảnh bộ sưu tập mới thêm
+            for f in request.FILES.getlist('danh_sach_anh_phu'):
+                HinhAnhHoBoi.objects.create(ho_boi=ho_boi, hinh_anh=f)
+                
             messages.success(request, 'Thông tin hồ bơi đã được cập nhật.')
             return redirect('admin_panel')
     else:
@@ -447,7 +485,7 @@ def get_pools(request):
                 "price_adult": str(p.gia_ve_nguoi_lon),
                 "price_child": str(p.gia_ve_tre_em),
                 "image": p.hinh_anh.url if p.hinh_anh else '',
-                'gallery': [anh.hinh_anh.url for anh in ho_boi.danh_sach_hinh_anh.all()] if hasattr(HoBoi, 'danh_sach_hinh_anh') else []
+                'gallery': [anh.hinh_anh.url for anh in p.danh_sach_hinh_anh.all()] if hasattr(HoBoi, 'danh_sach_hinh_anh') else []
             }
         })
     return JsonResponse({"type": "FeatureCollection", "features": data})
@@ -565,7 +603,7 @@ def user_edit_booking(request, datve_id):
             # Đồng bộ cập nhật lại số tiền trong lịch sử thanh toán nếu có
             if hasattr(ve_da_luu, 'payment'):
                 payment = ve_da_luu.payment
-                payment.so_tien = ve_da_luu.tong_tien
+                payment.so_tien = ve_da_luu.tong_thanh_toan_cuoi
                 payment.save()
                 
             messages.success(request, 'Cập nhật thông tin vé thành công!')
@@ -661,7 +699,7 @@ def xuat_excel_ve_dat(request: HttpRequest):
 
         # Chỉ cộng vào tổng doanh thu nếu vé đã 'Hoàn thành'
         if trang_thai == 'Hoàn thành':
-            tong_doanh_thu_thuc_thu += float(ve.tong_tien)
+            tong_doanh_thu_thuc_thu += float(ve.tong_thanh_toan_cuoi)
 
         # Thêm từng dòng dữ liệu
         ws.append([
@@ -671,7 +709,7 @@ def xuat_excel_ve_dat(request: HttpRequest):
             ve.ngay_dat.strftime("%d/%m/%Y %H:%M"),
             ve.ngay_su_dung.strftime("%d/%m/%Y"),
             trang_thai,
-            float(ve.tong_tien)
+            float(ve.tong_thanh_toan_cuoi)
         ])
 
     # 3. Thêm dòng Tổng Doanh Thu ở cuối
@@ -689,5 +727,92 @@ def xuat_excel_ve_dat(request: HttpRequest):
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="Danh_Sach_Ve_Dat.xlsx"'
     wb.save(response)
-
     return response
+
+# ==========================================
+# MODULE QUẢN LÝ DỊCH VỤ VÀ DỤNG CỤ
+# ==========================================
+
+@login_required
+def dichvu_list(request: HttpRequest):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+    dich_vu_list = DichVu.objects.all()
+    return render(request, 'quan_ly_ho_boi/admin_dichvu_list.html', {'dich_vu_list': dich_vu_list})
+
+@login_required
+def dichvu_create(request: HttpRequest):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+    if request.method == 'POST':
+        form = DichVuForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thêm dịch vụ thành công.')
+            return redirect('/admin-panel/?tab=tab-services')
+    else:
+        form = DichVuForm()
+    return render(request, 'quan_ly_ho_boi/admin_dichvu_form.html', {'form': form, 'title': 'Thêm Dịch Vụ Mới'})
+
+@login_required
+def dichvu_update(request: HttpRequest, pk: int):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+    dich_vu = get_object_or_404(DichVu, pk=pk)
+    if request.method == 'POST':
+        form = DichVuForm(request.POST, instance=dich_vu)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cập nhật dịch vụ thành công.')
+            return redirect('/admin-panel/?tab=tab-services')
+    else:
+        form = DichVuForm(instance=dich_vu)
+    return render(request, 'quan_ly_ho_boi/admin_dichvu_form.html', {'form': form, 'title': 'Cập Nhật Dịch Vụ'})
+
+@login_required
+def dichvu_delete(request: HttpRequest, pk: int):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+    dich_vu = get_object_or_404(DichVu, pk=pk)
+    if request.method == 'POST':
+        dich_vu.delete()
+        messages.success(request, 'Xóa dịch vụ thành công.')
+        return redirect('/admin-panel/?tab=tab-services')
+    return redirect('/admin-panel/?tab=tab-services')
+
+@login_required
+def add_chitiet_dichvu(request: HttpRequest, datve_id: int):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+    dat_ve = get_object_or_404(DatVe, pk=datve_id)
+    if request.method == 'POST':
+        form = ChiTietDichVuForm(request.POST)
+        if form.is_valid():
+            chitiet = form.save(commit=False)
+            chitiet.dat_ve = dat_ve
+            # Kiểm tra tồn kho trước khi lưu
+            if chitiet.dich_vu.so_luong_kho < chitiet.so_luong:
+                messages.error(request, f'Trong kho chỉ còn {chitiet.dich_vu.so_luong_kho} {chitiet.dich_vu.ten_dich_vu}.')
+            else:
+                chitiet.save()
+                messages.success(request, 'Đã thêm dịch vụ vào hóa đơn.')
+                return redirect('chinh_sua_dat_ve', datve_id=dat_ve.id)
+    else:
+        form = ChiTietDichVuForm()
+    
+    return render(request, 'quan_ly_ho_boi/admin_add_chitiet_dichvu.html', {'form': form, 'dat_ve': dat_ve})
+
+@login_required
+def update_chitiet_dichvu_status(request: HttpRequest, chitiet_id: int):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+    chitiet = get_object_or_404(ChiTietDichVu, pk=chitiet_id)
+    if request.method == 'POST':
+        new_status = request.POST.get('trang_thai')
+        if new_status in dict(ChiTietDichVu.TRANG_THAI_CHOICES):
+            chitiet.trang_thai = new_status
+            chitiet.save()
+            messages.success(request, 'Cập nhật trạng thái thành công.')
+        else:
+            messages.error(request, 'Trạng thái không hợp lệ.')
+    return redirect('chinh_sua_dat_ve', datve_id=chitiet.dat_ve.id)

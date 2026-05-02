@@ -1,4 +1,4 @@
-﻿from django.db import models
+from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
@@ -37,6 +37,17 @@ class HoBoi(models.Model):
     def __str__(self):
         return str(self.ten_ho)
 
+class HinhAnhHoBoi(models.Model):
+    ho_boi = models.ForeignKey(HoBoi, on_delete=models.CASCADE, related_name='danh_sach_hinh_anh', verbose_name="Hồ bơi")
+    hinh_anh = models.ImageField(upload_to='ho_boi_gallery/', verbose_name="Hình ảnh")
+
+    class Meta:
+        verbose_name = "Hình ảnh hồ bơi"
+        verbose_name_plural = "Bộ sưu tập ảnh hồ bơi"
+
+    def __str__(self):
+        return f"Ảnh của {self.ho_boi.ten_ho}"
+
 # 2. Model Vé/Đặt chỗ
 class DatVe(models.Model):
     khach_hang = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Khách hàng")
@@ -55,6 +66,15 @@ class DatVe(models.Model):
         self.tong_tien = (Decimal(self.so_luong_nguoi_lon) * gia_nl) + \
                          (Decimal(self.so_luong_tre_em) * gia_te)
         super().save(*args, **kwargs)
+
+    @property
+    def tong_tien_dich_vu(self):
+        return sum((item.so_luong * item.don_gia_thuc_te for item in self.chitietdichvu_set.all()), Decimal('0'))
+
+    @property
+    def tong_thanh_toan_cuoi(self):
+        tong_ve = self.tong_tien if self.tong_tien else Decimal('0')
+        return tong_ve + self.tong_tien_dich_vu
 
     class Meta:
         verbose_name = "Vé đặt"
@@ -104,3 +124,85 @@ class Review(models.Model):
         return f"{self.user.username} đánh giá {self.ho_boi.ten_ho} ({self.rating} sao)"
 
 # Ghi chú: Mình đã gỡ bỏ class Pool vì nó đang dư thừa và gây nhầm lẫn với class HoBoi
+
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+
+# 5. Model Dịch Vụ và Chi Tiết Dịch Vụ
+class DichVu(models.Model):
+    HINH_THUC_CHOICES = [
+        ('THUE', 'Cho thuê'),
+        ('BAN', 'Bán đứt'),
+    ]
+    ten_dich_vu = models.CharField(max_length=200, verbose_name="Tên dịch vụ")
+    hinh_thuc = models.CharField(max_length=10, choices=HINH_THUC_CHOICES, verbose_name="Hình thức")
+    so_luong_kho = models.IntegerField(default=0, verbose_name="Số lượng trong kho")
+    don_gia = models.DecimalField(max_digits=10, decimal_places=0, verbose_name="Đơn giá")
+
+    class Meta:
+        verbose_name = "Dịch vụ"
+        verbose_name_plural = "Dịch vụ"
+
+    def __str__(self):
+        return f"{self.ten_dich_vu} ({self.get_hinh_thuc_display()})"
+
+
+class ChiTietDichVu(models.Model):
+    TRANG_THAI_CHOICES = [
+        ('DANG_MUON', 'Đang mượn'),
+        ('DA_TRA', 'Đã trả'),
+        ('HONG_MAT', 'Hỏng/Mất'),
+        ('KHONG_AP_DUNG', 'Không áp dụng'),
+    ]
+    dat_ve = models.ForeignKey(DatVe, on_delete=models.CASCADE, verbose_name="Vé đặt")
+    dich_vu = models.ForeignKey(DichVu, on_delete=models.CASCADE, verbose_name="Dịch vụ")
+    so_luong = models.IntegerField(default=1, verbose_name="Số lượng")
+    don_gia_thuc_te = models.DecimalField(max_digits=10, decimal_places=0, verbose_name="Đơn giá thực tế", blank=True, null=True)
+    trang_thai = models.CharField(max_length=20, choices=TRANG_THAI_CHOICES, verbose_name="Trạng thái", blank=True)
+
+    class Meta:
+        verbose_name = "Chi tiết dịch vụ"
+        verbose_name_plural = "Chi tiết dịch vụ"
+
+    def save(self, *args, **kwargs):
+        if not self.don_gia_thuc_te:
+            self.don_gia_thuc_te = self.dich_vu.don_gia
+            
+        if not self.pk:
+            if self.dich_vu.hinh_thuc == 'BAN':
+                self.trang_thai = 'KHONG_AP_DUNG'
+            elif self.dich_vu.hinh_thuc == 'THUE':
+                self.trang_thai = 'DANG_MUON'
+                
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.dich_vu.ten_dich_vu} - SL: {self.so_luong} - {self.get_trang_thai_display()}"
+
+
+# Signal quản lý kho
+@receiver(pre_save, sender=ChiTietDichVu)
+def track_old_status(sender, instance, **kwargs):
+    if instance.pk:
+        try:
+            old_instance = ChiTietDichVu.objects.get(pk=instance.pk)
+            instance._old_trang_thai = old_instance.trang_thai
+        except ChiTietDichVu.DoesNotExist:
+            instance._old_trang_thai = None
+    else:
+        instance._old_trang_thai = None
+
+@receiver(post_save, sender=ChiTietDichVu)
+def update_inventory_on_save(sender, instance, created, **kwargs):
+    dich_vu = instance.dich_vu
+    if created:
+        # Khi tạo mới
+        if instance.trang_thai in ['DANG_MUON', 'KHONG_AP_DUNG']:
+            dich_vu.so_luong_kho -= instance.so_luong
+            dich_vu.save()
+    else:
+        # Khi update
+        old_trang_thai = getattr(instance, '_old_trang_thai', None)
+        if old_trang_thai == 'DANG_MUON' and instance.trang_thai == 'DA_TRA':
+            dich_vu.so_luong_kho += instance.so_luong
+            dich_vu.save()
