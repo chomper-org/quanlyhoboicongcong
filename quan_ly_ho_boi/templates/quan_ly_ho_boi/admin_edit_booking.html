@@ -86,27 +86,34 @@
                             <td class="px-4 py-3 text-right">{{ item.don_gia_thuc_te |intcomma }} đ</td>
                             <td class="px-4 py-3 text-right text-emerald-400 font-bold">{% widthratio item.so_luong 1 item.don_gia_thuc_te as subtotal %}{{ subtotal|intcomma }} đ</td>
                             <td class="px-4 py-3 text-center">
-                                {% if item.trang_thai == 'DANG_MUON' %}
-                                    <span class="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-bold">Đang mượn</span>
-                                {% elif item.trang_thai == 'DA_TRA' %}
-                                    <span class="px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded text-xs font-bold">Đã trả</span>
-                                {% elif item.trang_thai == 'HONG_MAT' %}
-                                    <span class="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs font-bold">Hỏng/Mất</span>
-                                {% else %}
+                                {% if item.dich_vu.hinh_thuc == 'BAN' %}
                                     <span class="px-2 py-1 bg-gray-500/20 text-gray-300 rounded text-xs font-bold">Bán đứt</span>
+                                {% else %}
+                                    {% if item.trang_thai == 'DANG_MUON' %}
+                                        <span class="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-bold">Đang mượn</span>
+                                    {% elif item.trang_thai == 'DA_TRA' %}
+                                        <span class="px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded text-xs font-bold">Đã trả</span>
+                                    {% elif item.trang_thai == 'HONG_MAT' %}
+                                        <span class="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs font-bold">Hỏng/Mất</span>
+                                    {% else %}
+                                        <span class="px-2 py-1 bg-gray-500/20 text-gray-300 rounded text-xs font-bold">Không áp dụng</span>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-center">
+                                {% if item.dich_vu.hinh_thuc == 'THUE' %}
                                 <form action="{% url 'update_chitiet_dichvu_status' item.id %}" method="post" class="flex items-center justify-center gap-2">
                                     {% csrf_token %}
                                     <select name="trang_thai" class="bg-slate-900 border border-slate-700 rounded text-xs py-1 px-2 text-gray-300 outline-none">
                                         <option value="DANG_MUON" {% if item.trang_thai == 'DANG_MUON' %}selected{% endif %}>Đang mượn</option>
                                         <option value="DA_TRA" {% if item.trang_thai == 'DA_TRA' %}selected{% endif %}>Đã trả</option>
                                         <option value="HONG_MAT" {% if item.trang_thai == 'HONG_MAT' %}selected{% endif %}>Hỏng/Mất</option>
-                                        <option value="KHONG_AP_DUNG" {% if item.trang_thai == 'KHONG_AP_DUNG' %}selected{% endif %}>Không áp dụng</option>
                                     </select>
-                                    <button type="submit" class="text-blue-400 hover:text-blue-300 bg-slate-800 p-1 rounded"><i class="fas fa-save"></i></button>
+                                    <button type="submit" class="text-blue-400 hover:text-blue-300 bg-slate-800 p-1 rounded" title="Lưu trạng thái"><i class="fas fa-save"></i></button>
                                 </form>
+                                {% else %}
+                                <span class="text-gray-500 text-xs italic">Không cần cập nhật</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}

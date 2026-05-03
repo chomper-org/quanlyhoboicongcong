@@ -1,5 +1,8 @@
 import json
+import os
+import tempfile
 from decimal import Decimal
+from django.core.management import call_command
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from django.contrib.auth.models import User
@@ -776,4 +779,57 @@ def update_chitiet_dichvu_status(request: HttpRequest, chitiet_id: int):
             messages.success(request, 'Cập nhật trạng thái thành công.')
         else:
             messages.error(request, 'Trạng thái không hợp lệ.')
-    return redirect('chinh_sua_dat_ve', datve_id=chitiet.dat_ve.id)
+    return redirect('chinh_sua_dat_ve', datve_id=chitiet.dat_ve.id)
+
+@login_required
+def export_data(request: HttpRequest):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+        
+    response = HttpResponse(content_type='application/json')
+    response['Content-Disposition'] = 'attachment; filename="pool_data_backup.json"'
+    
+    # Xuất các model chính của app
+    call_command(
+        'dumpdata',
+        'quan_ly_ho_boi.HoBoi',
+        'quan_ly_ho_boi.HinhAnhHoBoi',
+        'quan_ly_ho_boi.DichVu',
+        'quan_ly_ho_boi.DatVe',
+        'quan_ly_ho_boi.ChiTietDichVu',
+        'quan_ly_ho_boi.Payment',
+        'quan_ly_ho_boi.Review',
+        format='json',
+        indent=2,
+        stdout=response
+    )
+    return response
+
+@login_required
+def import_data(request: HttpRequest):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+        
+    if request.method == 'POST' and request.FILES.get('backup_file'):
+        upload_file = request.FILES['backup_file']
+        
+        # Lưu file tạm thời
+        fd, temp_path = tempfile.mkstemp(suffix='.json')
+        try:
+            with os.fdopen(fd, 'wb') as f:
+                for chunk in upload_file.chunks():
+                    f.write(chunk)
+            
+            # Load data
+            call_command('loaddata', temp_path)
+            messages.success(request, 'Nhập dữ liệu thành công!')
+        except Exception as e:
+            messages.error(request, f'Lỗi khi nhập dữ liệu: {str(e)}')
+        finally:
+            # Xóa file tạm
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+    else:
+        messages.error(request, 'Vui lòng chọn file JSON hợp lệ.')
+                
+    return redirect('admin_panel')
