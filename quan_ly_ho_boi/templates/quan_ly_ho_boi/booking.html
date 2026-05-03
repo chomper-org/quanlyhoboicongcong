@@ -104,7 +104,7 @@
                             <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
                                 <div>
                                     <p class="font-bold text-gray-800">{{ dv.ten_dich_vu }}</p>
-                                    <p class="text-xs text-blue-600 font-bold">{{ dv.don_gia }} đ/món</p>
+                                    <p class="text-xs text-blue-600 font-bold">{{ dv.don_gia }} đ/{{ dv.don_vi_tinh }}</p>
                                     <p class="text-[10px] text-gray-500 mt-1">
                                         {% if dv.hinh_thuc == 'THUE' %}Cho thuê{% else %}Bán đứt{% endif %} 
                                         · Còn lại: {{ dv.so_luong_kho }}

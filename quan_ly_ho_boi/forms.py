@@ -67,10 +67,11 @@ class DatVeForm(forms.ModelForm):
 class DichVuForm(forms.ModelForm):
     class Meta:
         model = DichVu
-        fields = ['ten_dich_vu', 'hinh_thuc', 'so_luong_kho', 'don_gia']
+        fields = ['ten_dich_vu', 'hinh_thuc', 'don_vi_tinh', 'so_luong_kho', 'don_gia']
         widgets = {
             'ten_dich_vu': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tên dịch vụ/dụng cụ'}),
             'hinh_thuc': forms.Select(attrs={'class': 'form-control'}),
+            'don_vi_tinh': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Đơn vị tính (VD: cái, chai, giờ)'}),
             'so_luong_kho': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
             'don_gia': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }

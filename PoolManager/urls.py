@@ -13,6 +13,7 @@ admin.site.index_title = "Bảng điều khiển quản trị"    # Tiêu đề 
 
 urlpatterns = [
     path('admin-panel/export/ve-dat/', views.xuat_excel_ve_dat, name='xuat_excel_ve_dat'),
+    path('admin-panel/import/ve-dat/', views.import_excel_ve_dat, name='import_excel_ve_dat'),
     path('admin-panel/review/delete/<int:review_id>/', views.xoa_danh_gia, name='xoa_danh_gia'),
     path('in-hoa-don/<int:datve_id>/', views.in_hoa_don, name='in_hoa_don'),
     path('admin-panel/xac-nhan-thanh-toan/<int:payment_id>/', views.xac_nhan_thanh_toan, name='xac_nhan_thanh_toan'),

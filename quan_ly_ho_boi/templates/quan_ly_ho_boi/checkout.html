@@ -52,7 +52,7 @@
                             {% for item in dat_ve.chitietdichvu_set.all %}
                             <li class="flex justify-between text-sm text-gray-600">
                                 <span>{{ item.dich_vu.ten_dich_vu }} <span class="text-xs bg-gray-200 px-2 py-0.5 rounded-full ml-1">x{{ item.so_luong }}</span></span>
-                                <span class="font-medium">{{ item.don_gia_thuc_te |intcomma }}đ/món</span>
+                                <span class="font-medium">{{ item.don_gia_thuc_te |intcomma }}đ/{{ item.dich_vu.don_vi_tinh }}</span>
                             </li>
                             {% endfor %}
                         </ul>

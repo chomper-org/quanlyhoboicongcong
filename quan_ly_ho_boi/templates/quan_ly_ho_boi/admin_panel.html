@@ -7,6 +7,7 @@
     <title>Admin Dashboard | PoolManager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         /* Hiệu ứng chuyển tab mượt mà */
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
@@ -184,7 +185,7 @@
             </div>
 
             <div id="tab-manage" class="tab-content">
-                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
+                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col">
                     <div class="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-3">
                             <h3 class="text-lg font-bold text-white border-l-4 border-blue-500 pl-3">Danh sách hồ bơi</h3>
@@ -194,8 +195,8 @@
                             <i class="fas fa-plus mr-2"></i>Thêm hồ bơi mới
                         </a>
                     </div>
-                    <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                        <table class="w-full text-left border-collapse">
+                    <div class="flex-1 flex flex-col min-h-0 w-full">
+                        <table id="table-ho-boi" class="w-full text-left border-collapse">
                             <thead class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800 sticky top-0 z-10">
                                 <tr>
                                     <th class="p-4 font-medium">ID</th>
@@ -232,36 +233,33 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="p-4 border-t border-gray-800 bg-[#0f172a] flex justify-between items-center shrink-0">
-                        <span class="text-sm text-gray-400">Trang {{ danh_sach_ho.number }} / {{ danh_sach_ho.paginator.num_pages }}</span>
-                        <div class="flex gap-2">
-                            {% if danh_sach_ho.has_previous %}
-                            <a href="?tab=tab-manage&page_ho={{ danh_sach_ho.previous_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Trước</a>
-                            {% endif %}
-                            
-                            {% if danh_sach_ho.has_next %}
-                            <a href="?tab=tab-manage&page_ho={{ danh_sach_ho.next_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Sau</a>
-                            {% endif %}
-                        </div>
-                    </div>
                 </div>
             </div>
             
             <div id="tab-bookings" class="tab-content">
-                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
+                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col">
                     
                     <div class="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-3">
                             <h3 class="text-lg font-bold text-white border-l-4 border-blue-500 pl-3">Tất cả vé đã đặt</h3>
                             <span class="text-sm font-medium text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Tổng cộng: {{ tong_ve_count }} vé</span>
                         </div>
-                        <a href="{% url 'xuat_excel_ve_dat' %}" class="inline-flex items-center bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-emerald-500/20">
-                            <i class="fas fa-file-excel mr-2"></i>Xuất Excel
-                        </a>
+                        <div class="flex gap-2">
+                            <form action="{% url 'import_excel_ve_dat' %}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <input type="file" name="excel_file" accept=".xlsx" required class="text-xs text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700 cursor-pointer">
+                                <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-blue-500/20">
+                                    <i class="fas fa-file-import mr-2"></i>Nhập Excel
+                                </button>
+                            </form>
+                            <a href="{% url 'xuat_excel_ve_dat' %}" class="inline-flex items-center bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-emerald-500/20">
+                                <i class="fas fa-file-excel mr-2"></i>Xuất Excel
+                            </a>
+                        </div>
                     </div>
                     
-                    <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                        <table class="w-full text-left border-collapse">
+                    <div class="flex-1 flex flex-col min-h-0 w-full">
+                        <table id="table-ve-dat" class="w-full text-left border-collapse">
                             <thead class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800 sticky top-0 z-10">
                                 <tr>
                                     <th class="p-4 font-medium">Mã vé</th>
@@ -316,30 +314,18 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="p-4 border-t border-gray-800 bg-[#0f172a] flex justify-between items-center shrink-0">
-                        <span class="text-sm text-gray-400">Trang {{ ve_dat_gan_day.number }} / {{ ve_dat_gan_day.paginator.num_pages }}</span>
-                        <div class="flex gap-2">
-                            {% if ve_dat_gan_day.has_previous %}
-                            <a href="?tab=tab-bookings&page_ve={{ ve_dat_gan_day.previous_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Trước</a>
-                            {% endif %}
-                            
-                            {% if ve_dat_gan_day.has_next %}
-                            <a href="?tab=tab-bookings&page_ve={{ ve_dat_gan_day.next_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Sau</a>
-                            {% endif %}
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <div id="tab-reviews" class="tab-content">
-                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
+                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col">
                     <div class="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
                         <h3 class="text-lg font-bold text-white border-l-4 border-yellow-500 pl-3">Danh sách đánh giá</h3>
                         <span class="text-sm font-medium text-yellow-400 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">Tổng cộng: {{ tong_danh_gia_count }} bình luận</span>
                     </div>
                     
-                    <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                        <table class="w-full text-left border-collapse">
+                    <div class="flex-1 flex flex-col min-h-0 w-full">
+                        <table id="table-danh-gia" class="w-full text-left border-collapse">
                             <thead class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800 sticky top-0 z-10">
                                 <tr>
                                     <th class="p-4 font-medium">Khách hàng</th>
@@ -377,23 +363,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="p-4 border-t border-gray-800 bg-[#0f172a] flex justify-between items-center shrink-0">
-                        <span class="text-sm text-gray-400">Trang {{ danh_sach_danh_gia.number }} / {{ danh_sach_danh_gia.paginator.num_pages }}</span>
-                        <div class="flex gap-2">
-                            {% if danh_sach_danh_gia.has_previous %}
-                            <a href="?tab=tab-reviews&page_danh_gia={{ danh_sach_danh_gia.previous_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Trước</a>
-                            {% endif %}
-                            
-                            {% if danh_sach_danh_gia.has_next %}
-                            <a href="?tab=tab-reviews&page_danh_gia={{ danh_sach_danh_gia.next_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Sau</a>
-                            {% endif %}
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <div id="tab-services" class="tab-content">
-                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
+                <div class="bg-[#1e293b] rounded-2xl border border-gray-800 shadow-lg overflow-hidden flex flex-col">
                     <div class="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-3">
                             <h3 class="text-lg font-bold text-white border-l-4 border-emerald-500 pl-3">Danh sách dịch vụ & dụng cụ</h3>
@@ -404,8 +378,8 @@
                         </a>
                     </div>
                     
-                    <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                        <table class="w-full text-left border-collapse">
+                    <div class="flex-1 flex flex-col min-h-0 w-full">
+                        <table id="table-dich-vu" class="w-full text-left border-collapse">
                             <thead class="bg-[#0f172a] text-gray-400 text-sm border-b border-gray-800 sticky top-0 z-10">
                                 <tr>
                                     <th class="p-4 font-medium">ID</th>
@@ -450,18 +424,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="p-4 border-t border-gray-800 bg-[#0f172a] flex justify-between items-center shrink-0">
-                        <span class="text-sm text-gray-400">Trang {{ danh_sach_dich_vu.number }} / {{ danh_sach_dich_vu.paginator.num_pages }}</span>
-                        <div class="flex gap-2">
-                            {% if danh_sach_dich_vu.has_previous %}
-                            <a href="?tab=tab-services&page_dv={{ danh_sach_dich_vu.previous_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Trước</a>
-                            {% endif %}
-                            
-                            {% if danh_sach_dich_vu.has_next %}
-                            <a href="?tab=tab-services&page_dv={{ danh_sach_dich_vu.next_page_number }}" class="px-4 py-2 bg-[#1e293b] hover:bg-blue-600 text-gray-300 hover:text-white rounded-lg text-sm font-medium transition border border-gray-700">Sau</a>
-                            {% endif %}
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -492,7 +454,6 @@
             };
             document.getElementById('page-title').innerText = titleMap[tabId] || 'Admin Panel';
         }
-
         // Tự động mở đúng Tab nếu có tham số trên URL (Dùng cho phân trang)
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -504,6 +465,273 @@
                     switchTab(activeTab, btn);
                 }
             }
+        });
+    </script>
+
+    <!-- jQuery and DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <style>
+        /* Custom styles for the Excel-like popup */
+        .excel-filter-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            z-index: 50;
+            width: 220px;
+            font-weight: normal;
+            text-transform: none;
+            color: #e2e8f0;
+        }
+        .excel-filter-popup.active {
+            display: block;
+        }
+        .excel-filter-search {
+            width: 100%;
+            padding: 0.25rem 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+        }
+        .excel-filter-list {
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+        }
+        .excel-filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0;
+            cursor: pointer;
+        }
+        .excel-filter-item:hover {
+            background-color: #334155;
+        }
+        .excel-sort-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .excel-sort-btn:hover {
+            background-color: #334155;
+        }
+        .filter-icon {
+            cursor: pointer;
+            margin-left: 0.5rem;
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+        .filter-icon:hover, .filter-icon.active {
+            color: #3b82f6;
+        }
+        /* Style for DataTables Pagination */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.5rem 1rem !important; /* py-2 px-4 */
+            margin-left: 0.5rem;
+            border-radius: 0.5rem !important; /* rounded-lg */
+            border: 1px solid #374151 !important; /* border-gray-700 */
+            background: #1e293b !important; /* bg-[#1e293b] */
+            color: #d1d5db !important; /* text-gray-300 */
+            font-size: 0.875rem !important; /* text-sm */
+            font-weight: 500 !important; /* font-medium */
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #2563eb !important; /* hover:bg-blue-600 */
+            color: white !important; /* hover:text-white */
+            border-color: #2563eb !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #2563eb !important;
+            color: white !important;
+            border-color: #2563eb !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            function initExcelFilter(tableId) {
+                var table = $('#' + tableId).DataTable({
+                    dom: '<"overflow-x-auto w-full"t><"p-4 border-t border-gray-800 bg-[#0f172a] flex justify-between items-center shrink-0 w-full mt-auto"ip>',
+                    orderCellsTop: true,
+                    pageLength: 10,
+                    language: {
+                        search: "Tìm kiếm toàn cục:",
+                        lengthMenu: "Hiển thị _MENU_ dòng",
+                        info: "Trang _PAGE_ / _PAGES_ (tổng _TOTAL_ mục)",
+                        infoEmpty: "Không có dữ liệu",
+                        infoFiltered: "(lọc từ _MAX_ mục)",
+                        paginate: {
+                            first: "Đầu",
+                            last: "Cuối",
+                            next: "Sau",
+                            previous: "Trước"
+                        },
+                        emptyTable: "Không có dữ liệu"
+                    },
+                    initComplete: function() {
+                        var api = this.api();
+                        
+                        $(api.table().container()).addClass('flex-1 flex flex-col min-h-0 w-full');
+                        $('.dataTables_info').addClass('text-sm text-gray-400');
+                        $('.dataTables_paginate').addClass('flex gap-2');
+
+                        api.columns().every(function() {
+                            var column = this;
+                            var title = $(column.header()).text().trim();
+                            if (title === 'Hành động' || !title) return; // Không gắn filter cho cột Hành động
+
+                            var header = $(column.header());
+                            header.css('position', 'relative');
+                            
+                            // Bọc nội dung tiêu đề và thêm icon Filter
+                            var headerContent = header.html();
+                            header.empty();
+                            var titleSpan = $('<span>').html(headerContent).appendTo(header);
+                            var filterIcon = $('<i class="fas fa-filter filter-icon"></i>').appendTo(header);
+                            
+                            // Tạo Popup
+                            var popup = $('<div class="excel-filter-popup"></div>').appendTo('body');
+                            
+                            // Nút Sort
+                            var sortAsc = $('<div class="excel-sort-btn"><i class="fas fa-sort-alpha-down"></i> Sắp xếp A đến Z</div>').appendTo(popup);
+                            var sortDesc = $('<div class="excel-sort-btn"><i class="fas fa-sort-alpha-up"></i> Sắp xếp Z đến A</div>').appendTo(popup);
+                            $('<hr class="border-gray-700 my-2">').appendTo(popup);
+
+                            // Ô Search
+                            var searchInput = $('<input type="text" class="excel-filter-search" placeholder="Tìm kiếm...">').appendTo(popup);
+                            
+                            // Danh sách Checkbox
+                            var listContainer = $('<div class="excel-filter-list custom-scrollbar"></div>').appendTo(popup);
+                            
+                            // Select All
+                            var selectAllItem = $('<label class="excel-filter-item"><input type="checkbox" checked class="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"> (Select All)</label>').appendTo(listContainer);
+                            
+                            var values = [];
+                            column.data().unique().sort().each(function(d, j) {
+                                // Loại bỏ HTML tags để lấy text thật sự
+                                var val = $('<div>').html(d).text().trim();
+                                if(val && values.indexOf(val) === -1) {
+                                    values.push(val);
+                                    listContainer.append('<label class="excel-filter-item filter-val-item"><input type="checkbox" checked value="' + val.replace(/"/g, '&quot;') + '" class="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"> <span>' + val + '</span></label>');
+                                }
+                            });
+
+                            // Sự kiện Click Filter Icon
+                            filterIcon.on('click', function(e) {
+                                e.stopPropagation();
+                                $('.excel-filter-popup').not(popup).removeClass('active');
+                                
+                                // Tính toán vị trí
+                                var offset = $(this).offset();
+                                popup.css({
+                                    top: offset.top + $(this).outerHeight() + 5 + 'px',
+                                    left: offset.left + 'px'
+                                });
+                                
+                                popup.toggleClass('active');
+                            });
+
+                            // Ngăn popup đóng khi click bên trong
+                            popup.on('click', function(e) {
+                                e.stopPropagation();
+                            });
+
+                            // Đóng popup khi click bên ngoài
+                            $(document).on('click', function() {
+                                popup.removeClass('active');
+                            });
+
+                            // Xử lý Sort
+                            sortAsc.on('click', function() {
+                                column.order('asc').draw();
+                                popup.removeClass('active');
+                            });
+                            sortDesc.on('click', function() {
+                                column.order('desc').draw();
+                                popup.removeClass('active');
+                            });
+
+                            // Xử lý Search trong Popup
+                            searchInput.on('keyup', function() {
+                                var val = $.fn.dataTable.util.escapeRegex($(this).val().toLowerCase());
+                                listContainer.find('.filter-val-item').each(function() {
+                                    var text = $(this).find('span').text().toLowerCase();
+                                    if(text.indexOf(val) > -1) {
+                                        $(this).show();
+                                    } else {
+                                        $(this).hide();
+                                    }
+                                });
+                            });
+
+                            // Xử lý Checkbox Select All
+                            var selectAllCb = selectAllItem.find('input');
+                            var itemCbs = listContainer.find('.filter-val-item input');
+
+                            selectAllCb.on('change', function() {
+                                var isChecked = $(this).is(':checked');
+                                itemCbs.prop('checked', isChecked);
+                                applyFilter();
+                            });
+
+                            itemCbs.on('change', function() {
+                                if(!$(this).is(':checked')) {
+                                    selectAllCb.prop('checked', false);
+                                } else if(itemCbs.filter(':checked').length === itemCbs.length) {
+                                    selectAllCb.prop('checked', true);
+                                }
+                                applyFilter();
+                            });
+
+                            function applyFilter() {
+                                var checkedVals = [];
+                                itemCbs.filter(':checked').each(function() {
+                                    checkedVals.push($.fn.dataTable.util.escapeRegex($(this).val()));
+                                });
+                                
+                                var regex = checkedVals.length > 0 ? '^(' + checkedVals.join('|') + ')$' : '^$';
+                                if(checkedVals.length === itemCbs.length) {
+                                    // Nếu chọn tất cả thì bỏ filter
+                                    column.search('', true, false).draw();
+                                    filterIcon.removeClass('active');
+                                } else {
+                                    column.search(regex, true, false).draw();
+                                    filterIcon.addClass('active');
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Khởi tạo các bảng
+            initExcelFilter('table-ho-boi');
+            initExcelFilter('table-ve-dat');
+            initExcelFilter('table-danh-gia');
+            initExcelFilter('table-dich-vu');
         });
     </script>
 </body>

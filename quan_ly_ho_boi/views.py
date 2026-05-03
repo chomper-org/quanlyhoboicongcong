@@ -216,28 +216,17 @@ def admin_home(request: HttpRequest):
     # Danh sách chờ thu tiền mặt (thường để ít nên không cần phân trang)
     thanh_toan_cho = Payment.objects.filter(trang_thai='Đang chờ').select_related('dat_ve__khach_hang', 'dat_ve__ho_boi')
 
-    # --- 2. PHÂN TRANG DANH SÁCH HỒ BƠI (TAB QUẢN LÝ HỒ BƠI) ---
-    danh_sach_ho_full = HoBoi.objects.all().order_by('-id')
-    paginator_ho = Paginator(danh_sach_ho_full, 10) # 10 hồ bơi mỗi trang
-    page_ho_number = request.GET.get('page_ho')
-    danh_sach_ho = paginator_ho.get_page(page_ho_number)
+    # --- 2. DỮ LIỆU DANH SÁCH HỒ BƠI (TAB QUẢN LÝ HỒ BƠI) ---
+    danh_sach_ho = HoBoi.objects.all().order_by('-id')
 
-    # --- 3. PHÂN TRANG DỊCH VỤ (TAB QUẢN LÝ DỊCH VỤ) ---
-    danh_sach_dich_vu_full = DichVu.objects.all().order_by('-id')
-    paginator_dich_vu = Paginator(danh_sach_dich_vu_full, 10)
-    page_dich_vu_number = request.GET.get('page_dv')
-    danh_sach_dich_vu = paginator_dich_vu.get_page(page_dich_vu_number)
+    # --- 3. DỮ LIỆU DỊCH VỤ (TAB QUẢN LÝ DỊCH VỤ) ---
+    danh_sach_dich_vu = DichVu.objects.all().order_by('-id')
 
-    # --- 3. PHÂN TRANG TẤT CẢ VÉ ĐẶT (TAB QUẢN LÝ VÉ ĐẶT) ---
-    tat_ca_ve_dat_full = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')
-    paginator_ve = Paginator(tat_ca_ve_dat_full, 7) # 10 vé mỗi trang
-    page_ve_number = request.GET.get('page_ve')
-    ve_dat_gan_day = paginator_ve.get_page(page_ve_number)
+    # --- 4. DỮ LIỆU TẤT CẢ VÉ ĐẶT (TAB QUẢN LÝ VÉ ĐẶT) ---
+    ve_dat_gan_day = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')
 
-    danh_sach_danh_gia_full = Review.objects.select_related('ho_boi', 'user').order_by('-created_at')
-    paginator_danh_gia = Paginator(danh_sach_danh_gia_full, 10) # 10 bình luận/trang
-    page_danh_gia_number = request.GET.get('page_danh_gia')
-    danh_sach_danh_gia = paginator_danh_gia.get_page(page_danh_gia_number)
+    # --- 5. DỮ LIỆU ĐÁNH GIÁ (TAB QUẢN LÝ ĐÁNH GIÁ) ---
+    danh_sach_danh_gia = Review.objects.select_related('ho_boi', 'user').order_by('-created_at')
 
     # --- 4. ĐÓNG GÓI CONTEXT ---
     context = {
@@ -249,19 +238,17 @@ def admin_home(request: HttpRequest):
         'ho_boi_gan_day': ho_boi_gan_day,
         'thanh_toan_cho': thanh_toan_cho,
         
-        # Dữ liệu phân trang (Object Page)
+        # Dữ liệu bảng (Tất cả để DataTables phân trang)
         'danh_sach_ho': danh_sach_ho,
         've_dat_gan_day': ve_dat_gan_day,
+        'danh_sach_danh_gia': danh_sach_danh_gia,
+        'danh_sach_dich_vu': danh_sach_dich_vu,
         
         # Biến đếm tổng để hiện trên Badge (Huy hiệu)
-        'tong_ho_count': paginator_ho.count,
-        'tong_ve_count': paginator_ve.count,
-
-        'danh_sach_danh_gia': danh_sach_danh_gia,
-        'tong_danh_gia_count': paginator_danh_gia.count,
-        
-        'danh_sach_dich_vu': danh_sach_dich_vu,
-        'tong_dich_vu_count': paginator_dich_vu.count,
+        'tong_ho_count': danh_sach_ho.count(),
+        'tong_ve_count': ve_dat_gan_day.count(),
+        'tong_danh_gia_count': danh_sach_danh_gia.count(),
+        'tong_dich_vu_count': danh_sach_dich_vu.count(),
     }
     
     return render(request, 'quan_ly_ho_boi/admin_panel.html', context)
@@ -628,7 +615,7 @@ def xuat_excel_ve_dat(request: HttpRequest):
     ws.title = "Danh Sách Vé Đặt"
 
     # 1. Tạo Dòng Tiêu Đề
-    columns = ['Mã vé', 'Khách hàng', 'Hồ bơi', 'Ngày đặt', 'Ngày sử dụng', 'Trạng thái TT', 'Thành tiền (VNĐ)']
+    columns = ['Mã vé', 'Khách hàng', 'Hồ bơi', 'Ngày đặt', 'Ngày sử dụng', 'Số lượng NL', 'Số lượng TE', 'Trạng thái TT', 'Thành tiền (VNĐ)']
     ws.append(columns)
 
     # Định dạng in đậm và căn giữa cho Tiêu đề
@@ -642,8 +629,10 @@ def xuat_excel_ve_dat(request: HttpRequest):
     ws.column_dimensions['C'].width = 30
     ws.column_dimensions['D'].width = 20
     ws.column_dimensions['E'].width = 15
-    ws.column_dimensions['F'].width = 18
-    ws.column_dimensions['G'].width = 20
+    ws.column_dimensions['F'].width = 15
+    ws.column_dimensions['G'].width = 15
+    ws.column_dimensions['H'].width = 18
+    ws.column_dimensions['I'].width = 20
 
     # 2. Lấy dữ liệu từ Database
     ve_dat_list = DatVe.objects.select_related('ho_boi', 'khach_hang').order_by('-ngay_dat')
@@ -668,6 +657,8 @@ def xuat_excel_ve_dat(request: HttpRequest):
             ve.ho_boi.ten_ho,
             ve.ngay_dat.strftime("%d/%m/%Y %H:%M"),
             ve.ngay_su_dung.strftime("%d/%m/%Y"),
+            ve.so_luong_nguoi_lon,
+            ve.so_luong_tre_em,
             trang_thai,
             float(ve.tong_thanh_toan_cuoi)
         ])
@@ -676,18 +667,104 @@ def xuat_excel_ve_dat(request: HttpRequest):
     ws.append([]) # Thêm 1 dòng trống cho dễ nhìn
     
     # Dòng tính tổng
-    ws.append(["", "", "", "", "", "TỔNG THỰC THU:", tong_doanh_thu_thuc_thu])
+    ws.append(["", "", "", "", "", "", "", "TỔNG THỰC THU:", tong_doanh_thu_thuc_thu])
     last_row = ws.max_row
     
     # Định dạng in đậm và tô màu đỏ chữ cho dòng Tổng
-    ws.cell(row=last_row, column=6).font = Font(bold=True, color="FF0000")
-    ws.cell(row=last_row, column=7).font = Font(bold=True, color="FF0000")
+    ws.cell(row=last_row, column=8).font = Font(bold=True, color="FF0000")
+    ws.cell(row=last_row, column=9).font = Font(bold=True, color="FF0000")
 
     # 4. Trả file về cho trình duyệt tải xuống
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="Danh_Sach_Ve_Dat.xlsx"'
     wb.save(response)
     return response
+
+@login_required
+def import_excel_ve_dat(request: HttpRequest):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+        
+    if request.method == 'POST' and request.FILES.get('excel_file'):
+        upload_file = request.FILES['excel_file']
+        if not upload_file.name.endswith('.xlsx'):
+            messages.error(request, 'Vui lòng chọn file Excel (.xlsx).')
+            return redirect('/admin-panel/?tab=tab-bookings')
+
+        try:
+            wb = openpyxl.load_workbook(upload_file)
+            ws = wb.active
+            
+            # Lấy header
+            header_row = [cell.value for cell in ws[1]]
+            
+            # Khởi tạo map tên cột ra index
+            try:
+                idx_khach = header_row.index('Khách hàng')
+                idx_ho = header_row.index('Hồ bơi')
+                idx_ngay = header_row.index('Ngày sử dụng')
+                idx_nl = header_row.index('Số lượng NL')
+                idx_te = header_row.index('Số lượng TE')
+            except ValueError:
+                messages.error(request, 'File Excel không đúng định dạng. Đảm bảo có các cột: Khách hàng, Hồ bơi, Ngày sử dụng, Số lượng NL, Số lượng TE.')
+                return redirect('/admin-panel/?tab=tab-bookings')
+
+            count_success = 0
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                # Bỏ qua dòng trống
+                if not row[idx_khach] or not row[idx_ho]:
+                    continue
+                    
+                username = str(row[idx_khach]).strip()
+                ten_ho = str(row[idx_ho]).strip()
+                ngay_su_dung_raw = row[idx_ngay]
+                sl_nl = int(row[idx_nl]) if row[idx_nl] else 0
+                sl_te = int(row[idx_te]) if row[idx_te] else 0
+                
+                # Format lại ngày sử dụng nếu nó ở dạng chuỗi (d/m/y) hoặc datetime
+                if isinstance(ngay_su_dung_raw, datetime):
+                    ngay_su_dung = ngay_su_dung_raw.date()
+                elif isinstance(ngay_su_dung_raw, str):
+                    try:
+                        ngay_su_dung = datetime.strptime(ngay_su_dung_raw, "%d/%m/%Y").date()
+                    except ValueError:
+                        try:
+                            ngay_su_dung = datetime.strptime(ngay_su_dung_raw, "%Y-%m-%d").date()
+                        except ValueError:
+                            continue # Bỏ qua nếu lỗi định dạng ngày
+                else:
+                    continue
+                
+                # Tìm user và hồ bơi
+                try:
+                    user = User.objects.get(username=username)
+                    ho_boi = HoBoi.objects.get(ten_ho=ten_ho)
+                except (User.DoesNotExist, HoBoi.DoesNotExist):
+                    continue # Bỏ qua nếu không tìm thấy user hoặc hồ bơi
+                    
+                # Tạo vé
+                dat_ve = DatVe.objects.create(
+                    khach_hang=user,
+                    ho_boi=ho_boi,
+                    ngay_su_dung=ngay_su_dung,
+                    so_luong_nguoi_lon=sl_nl,
+                    so_luong_tre_em=sl_te
+                )
+                
+                # Tạo payment mặc định là 'Đang chờ'
+                Payment.objects.create(
+                    dat_ve=dat_ve,
+                    phuong_thuc='Tiền mặt',
+                    so_tien=dat_ve.tong_thanh_toan_cuoi,
+                    trang_thai='Đang chờ'
+                )
+                count_success += 1
+
+            messages.success(request, f'Đã nhập thành công {count_success} vé từ file Excel.')
+        except Exception as e:
+            messages.error(request, f'Lỗi khi xử lý file: {str(e)}')
+            
+    return redirect('/admin-panel/?tab=tab-bookings')
 
 # ==========================================
 # MODULE QUẢN LÝ DỊCH VỤ VÀ DỤNG CỤ

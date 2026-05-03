@@ -136,6 +136,7 @@ class DichVu(models.Model):
     ]
     ten_dich_vu = models.CharField(max_length=200, verbose_name="Tên dịch vụ")
     hinh_thuc = models.CharField(max_length=10, choices=HINH_THUC_CHOICES, verbose_name="Hình thức")
+    don_vi_tinh = models.CharField(max_length=50, default='món', verbose_name="Đơn vị tính")
     so_luong_kho = models.IntegerField(default=0, verbose_name="Số lượng trong kho")
     don_gia = models.DecimalField(max_digits=10, decimal_places=0, verbose_name="Đơn giá")
 
