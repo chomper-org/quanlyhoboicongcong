@@ -115,9 +115,19 @@
                             <h3 class="font-bold text-lg text-yellow-500 flex items-center gap-2">
                                 <i class="fas fa-hand-holding-usd"></i> Vé chờ thu tiền mặt
                             </h3>
-                            <span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs font-bold px-3 py-1 rounded-full">
-                                {{ thanh_toan_cho|length }} yêu cầu
-                            </span>
+                            <div class="flex items-center gap-3">
+                                {% if thanh_toan_cho %}
+                                <form action="{% url 'xac_nhan_thanh_toan_tat_ca' %}" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc chắn muốn xác nhận ĐÃ THU cho TẤT CẢ các vé này không?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all active:scale-95 flex items-center gap-1 border border-emerald-500">
+                                        <i class="fas fa-check-double"></i> Đã thu tất cả
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs font-bold px-3 py-1 rounded-full">
+                                    {{ thanh_toan_cho|length }} yêu cầu
+                                </span>
+                            </div>
                         </div>
                         <div class="overflow-x-auto overflow-y-auto max-h-[400px] custom-scrollbar flex-1">
                             <table class="w-full text-sm text-left">

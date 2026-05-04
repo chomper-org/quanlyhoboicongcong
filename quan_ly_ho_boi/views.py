@@ -576,6 +576,22 @@ def xac_nhan_thanh_toan(request: HttpRequest, payment_id: int):
         
     return redirect('admin_panel')
 
+@login_required
+def xac_nhan_thanh_toan_tat_ca(request: HttpRequest):
+    if not request.user.is_staff:
+        return render(request, 'quan_ly_ho_boi/403.html', status=403)
+        
+    if request.method == 'POST':
+        payments = Payment.objects.filter(trang_thai='Đang chờ')
+        count = payments.count()
+        if count > 0:
+            payments.update(trang_thai='Hoàn thành')
+            messages.success(request, f'Đã thu tiền và xác nhận thành công cho toàn bộ {count} vé chờ!')
+        else:
+            messages.info(request, 'Không có vé nào đang chờ thu tiền.')
+            
+    return redirect('admin_panel')
+
 # Thêm vào cuối file views.py
 @login_required
 def in_hoa_don(request: HttpRequest, datve_id: int):

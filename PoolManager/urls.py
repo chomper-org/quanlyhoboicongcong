@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin-panel/review/delete/<int:review_id>/', views.xoa_danh_gia, name='xoa_danh_gia'),
     path('in-hoa-don/<int:datve_id>/', views.in_hoa_don, name='in_hoa_don'),
     path('admin-panel/xac-nhan-thanh-toan/<int:payment_id>/', views.xac_nhan_thanh_toan, name='xac_nhan_thanh_toan'),
+    path('admin-panel/xac-nhan-thanh-toan-tat-ca/', views.xac_nhan_thanh_toan_tat_ca, name='xac_nhan_thanh_toan_tat_ca'),
     path('api/test-payment/', views.test_payment_api, name='test_payment_api'),
     path('gioi-thieu/', views.gioi_thieu, name='gioi_thieu'),
     path('', home_page, name='home'),
