@@ -1,0 +1,992 @@
+[
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 3,
+  "fields": {
+    "gio_mo_cua": "06:00:00",
+    "gio_dong_cua": "20:00:00",
+    "ten_ho": "Hồ bơi Tân Bình",
+    "dia_chi": "67 Xuân Hồng, Phường 4, Tân Sơn Nhất, Hồ Chí Minh, Việt Nam",
+    "do_sau": 2.3,
+    "suc_chua": 19,
+    "vi_do": 10.79464,
+    "kinh_do": 106.652702,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "MO",
+    "hinh_anh": "ho_boi/unnamed_4_elv04vS.jpg"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 4,
+  "fields": {
+    "gio_mo_cua": "06:00:00",
+    "gio_dong_cua": "20:00:00",
+    "ten_ho": "Hồ bơi Đệ Nhất",
+    "dia_chi": "QMW6+G2W, 18 Hoàng Việt, Phường 4, Tân Sơn Nhất, Hồ Chí Minh 730900, Việt Nam",
+    "do_sau": 0.7,
+    "suc_chua": 8,
+    "vi_do": 10.796374,
+    "kinh_do": 106.659906,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "MO",
+    "hinh_anh": "ho_boi/unnamed_ezrfwe6_e22SN6W.jpg"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 5,
+  "fields": {
+    "gio_mo_cua": "06:00:00",
+    "gio_dong_cua": "20:00:00",
+    "ten_ho": "Hồ bơi Rạch Miễu",
+    "dia_chi": "1 Đ. Hoa Phượng, Phường 2, Cầu Kiệu, Hồ Chí Minh 72210, Việt Nam",
+    "do_sau": 0.6,
+    "suc_chua": 2,
+    "vi_do": 10.798558,
+    "kinh_do": 106.686914,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "DONG",
+    "hinh_anh": "ho_boi/unnamed_1_ZoZ8xjc.jpg"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 6,
+  "fields": {
+    "gio_mo_cua": "06:00:00",
+    "gio_dong_cua": "20:00:00",
+    "ten_ho": "Hồ bơi Lý Thường Kiệt",
+    "dia_chi": "Số 2 Trần Triệu Luật, Phường 6, Tân Hòa, Hồ Chí Minh, Việt Nam",
+    "do_sau": 0.7,
+    "suc_chua": 7,
+    "vi_do": 10.78478,
+    "kinh_do": 106.655538,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "BAO_TRI",
+    "hinh_anh": "ho_boi/unnamed_6_JJBdygz.jpg"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 7,
+  "fields": {
+    "gio_mo_cua": "06:00:00",
+    "gio_dong_cua": "20:00:00",
+    "ten_ho": "Hồ bơi Cộng Hoà Garden",
+    "dia_chi": "20 Cộng Hòa, Phường 4, Bảy Hiền, Hồ Chí Minh, Việt Nam",
+    "do_sau": 1.0,
+    "suc_chua": 6,
+    "vi_do": 10.807001,
+    "kinh_do": 106.652213,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "MO",
+    "hinh_anh": "ho_boi/unnamed1_nGOHCg5.jpg"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 8,
+  "fields": {
+    "gio_mo_cua": "08:00:00",
+    "gio_dong_cua": "18:00:00",
+    "ten_ho": "Hồ bơi Kỳ Đồng",
+    "dia_chi": "40 Đ. Kỳ Đồng, Phường 9, Nhiêu Lộc, Hồ Chí Minh, Việt Nam",
+    "do_sau": 1.4,
+    "suc_chua": 10,
+    "vi_do": 10.782031,
+    "kinh_do": 106.683767,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "MO",
+    "hinh_anh": "ho_boi/unnamed_1_iGUjMNf.jpg"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 9,
+  "fields": {
+    "gio_mo_cua": "06:00:00",
+    "gio_dong_cua": "20:00:00",
+    "ten_ho": "Hồ bơi Kỳ Hòa 2",
+    "dia_chi": "796 Sư Vạn Hạnh, Phường 12, Hòa Hưng, Hồ Chí Minh, Việt Nam",
+    "do_sau": 1.2,
+    "suc_chua": 14,
+    "vi_do": 10.776275,
+    "kinh_do": 106.669653,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "MO",
+    "hinh_anh": "ho_boi/unnamed_7_Oh9ylNx.jpg"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hoboi",
+  "pk": 10,
+  "fields": {
+    "gio_mo_cua": "06:00:00",
+    "gio_dong_cua": "20:00:00",
+    "ten_ho": "hồ bơi abc",
+    "dia_chi": "gjhgjhgjhgjhggh",
+    "do_sau": 1.5,
+    "suc_chua": 5,
+    "vi_do": 10.765689,
+    "kinh_do": 106.638515,
+    "gia_ve_nguoi_lon": "50000",
+    "gia_ve_tre_em": "30000",
+    "trang_thai": "MO",
+    "hinh_anh": ""
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hinhanhhoboi",
+  "pk": 1,
+  "fields": {
+    "ho_boi": 10,
+    "hinh_anh": "ho_boi_gallery/fig_acf.png"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hinhanhhoboi",
+  "pk": 2,
+  "fields": {
+    "ho_boi": 10,
+    "hinh_anh": "ho_boi_gallery/fig_all_models.png"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hinhanhhoboi",
+  "pk": 3,
+  "fields": {
+    "ho_boi": 10,
+    "hinh_anh": "ho_boi_gallery/fig_decompose.png"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.hinhanhhoboi",
+  "pk": 4,
+  "fields": {
+    "ho_boi": 10,
+    "hinh_anh": "ho_boi_gallery/fig_eda.png"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.dichvu",
+  "pk": 1,
+  "fields": {
+    "ten_dich_vu": "kính bơi",
+    "hinh_thuc": "THUE",
+    "so_luong_kho": 26,
+    "don_gia": "20000"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.dichvu",
+  "pk": 2,
+  "fields": {
+    "ten_dich_vu": "cola",
+    "hinh_thuc": "BAN",
+    "so_luong_kho": 13,
+    "don_gia": "13000"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 18,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 5,
+    "ngay_dat": "2026-04-17T05:26:39.429Z",
+    "ngay_su_dung": "2026-04-23",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 0,
+    "tong_tien": "50000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 19,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 4,
+    "ngay_dat": "2026-04-17T05:46:12.820Z",
+    "ngay_su_dung": "2026-04-21",
+    "so_luong_nguoi_lon": 3,
+    "so_luong_tre_em": 4,
+    "tong_tien": "270000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 20,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 9,
+    "ngay_dat": "2026-04-17T05:46:26.874Z",
+    "ngay_su_dung": "2026-05-07",
+    "so_luong_nguoi_lon": 4,
+    "so_luong_tre_em": 4,
+    "tong_tien": "320000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 21,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 8,
+    "ngay_dat": "2026-04-17T05:46:37.314Z",
+    "ngay_su_dung": "2026-05-06",
+    "so_luong_nguoi_lon": 3,
+    "so_luong_tre_em": 3,
+    "tong_tien": "240000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 22,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 6,
+    "ngay_dat": "2026-04-17T05:46:53.378Z",
+    "ngay_su_dung": "2026-05-02",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 3,
+    "tong_tien": "140000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 23,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 5,
+    "ngay_dat": "2026-04-17T05:47:12.003Z",
+    "ngay_su_dung": "2026-04-30",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 6,
+    "tong_tien": "230000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 24,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 3,
+    "ngay_dat": "2026-04-17T05:47:58.928Z",
+    "ngay_su_dung": "2026-04-21",
+    "so_luong_nguoi_lon": 4,
+    "so_luong_tre_em": 3,
+    "tong_tien": "290000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 25,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 3,
+    "ngay_dat": "2026-04-17T05:48:26.051Z",
+    "ngay_su_dung": "2026-04-22",
+    "so_luong_nguoi_lon": 3,
+    "so_luong_tre_em": 4,
+    "tong_tien": "270000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 26,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 3,
+    "ngay_dat": "2026-04-17T05:48:42.281Z",
+    "ngay_su_dung": "2026-04-30",
+    "so_luong_nguoi_lon": 4,
+    "so_luong_tre_em": 1,
+    "tong_tien": "230000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 27,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 3,
+    "ngay_dat": "2026-04-17T05:49:51.194Z",
+    "ngay_su_dung": "2026-04-21",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 0,
+    "tong_tien": "50000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 28,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 4,
+    "ngay_dat": "2026-04-17T07:37:37.192Z",
+    "ngay_su_dung": "2026-04-22",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 0,
+    "tong_tien": "50000",
+    "gio_su_dung": "07:42:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 29,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 4,
+    "ngay_dat": "2026-04-17T07:37:39.692Z",
+    "ngay_su_dung": "2026-04-22",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 0,
+    "tong_tien": "50000",
+    "gio_su_dung": "07:42:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 30,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-04-17T09:49:51.734Z",
+    "ngay_su_dung": "2026-04-23",
+    "so_luong_nguoi_lon": 4,
+    "so_luong_tre_em": 3,
+    "tong_tien": "290000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 31,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-04-17T09:50:27.690Z",
+    "ngay_su_dung": "2026-04-23",
+    "so_luong_nguoi_lon": 4,
+    "so_luong_tre_em": 3,
+    "tong_tien": "290000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 32,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 9,
+    "ngay_dat": "2026-04-17T09:52:14.298Z",
+    "ngay_su_dung": "2026-04-22",
+    "so_luong_nguoi_lon": 9,
+    "so_luong_tre_em": 5,
+    "tong_tien": "600000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 33,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 9,
+    "ngay_dat": "2026-05-02T10:30:20.658Z",
+    "ngay_su_dung": "2026-05-20",
+    "so_luong_nguoi_lon": 5,
+    "so_luong_tre_em": 3,
+    "tong_tien": "340000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 34,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T10:59:55.158Z",
+    "ngay_su_dung": "2026-05-21",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 0,
+    "tong_tien": "50000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 35,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T11:04:55.801Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 6,
+    "so_luong_tre_em": 5,
+    "tong_tien": "450000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 36,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T11:05:07.302Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 6,
+    "so_luong_tre_em": 5,
+    "tong_tien": "450000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 37,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T11:05:20.394Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 6,
+    "so_luong_tre_em": 5,
+    "tong_tien": "450000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 38,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T11:06:57.849Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 6,
+    "so_luong_tre_em": 5,
+    "tong_tien": "450000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 39,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T11:07:04.850Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 6,
+    "so_luong_tre_em": 5,
+    "tong_tien": "450000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 40,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T11:07:14.238Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 6,
+    "so_luong_tre_em": 5,
+    "tong_tien": "450000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 41,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 7,
+    "ngay_dat": "2026-05-02T11:07:15.532Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 6,
+    "so_luong_tre_em": 5,
+    "tong_tien": "450000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 42,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 4,
+    "ngay_dat": "2026-05-02T11:10:55.071Z",
+    "ngay_su_dung": "2026-05-24",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 0,
+    "tong_tien": "50000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 43,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 4,
+    "ngay_dat": "2026-05-02T11:11:06.260Z",
+    "ngay_su_dung": "2026-05-24",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 1,
+    "tong_tien": "80000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 44,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 8,
+    "ngay_dat": "2026-05-02T15:54:39.117Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 3,
+    "so_luong_tre_em": 2,
+    "tong_tien": "210000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 45,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 8,
+    "ngay_dat": "2026-05-02T15:54:49.679Z",
+    "ngay_su_dung": "2026-05-14",
+    "so_luong_nguoi_lon": 3,
+    "so_luong_tre_em": 2,
+    "tong_tien": "210000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 46,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 8,
+    "ngay_dat": "2026-05-02T16:04:57.103Z",
+    "ngay_su_dung": "2026-05-08",
+    "so_luong_nguoi_lon": 1,
+    "so_luong_tre_em": 0,
+    "tong_tien": "50000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.datve",
+  "pk": 47,
+  "fields": {
+    "khach_hang": 3,
+    "ho_boi": 3,
+    "ngay_dat": "2026-05-02T16:21:49.007Z",
+    "ngay_su_dung": "2026-05-08",
+    "so_luong_nguoi_lon": 4,
+    "so_luong_tre_em": 4,
+    "tong_tien": "320000",
+    "gio_su_dung": "08:00:00"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 1,
+  "fields": {
+    "dat_ve": 33,
+    "dich_vu": 1,
+    "so_luong": 5,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 2,
+  "fields": {
+    "dat_ve": 35,
+    "dich_vu": 1,
+    "so_luong": 4,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 3,
+  "fields": {
+    "dat_ve": 35,
+    "dich_vu": 2,
+    "so_luong": 4,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "KHONG_AP_DUNG"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 4,
+  "fields": {
+    "dat_ve": 36,
+    "dich_vu": 1,
+    "so_luong": 4,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 5,
+  "fields": {
+    "dat_ve": 36,
+    "dich_vu": 2,
+    "so_luong": 4,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "KHONG_AP_DUNG"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 6,
+  "fields": {
+    "dat_ve": 37,
+    "dich_vu": 1,
+    "so_luong": 4,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 7,
+  "fields": {
+    "dat_ve": 37,
+    "dich_vu": 2,
+    "so_luong": 4,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "KHONG_AP_DUNG"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 8,
+  "fields": {
+    "dat_ve": 38,
+    "dich_vu": 1,
+    "so_luong": 4,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 9,
+  "fields": {
+    "dat_ve": 39,
+    "dich_vu": 1,
+    "so_luong": 4,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 10,
+  "fields": {
+    "dat_ve": 42,
+    "dich_vu": 1,
+    "so_luong": 3,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 11,
+  "fields": {
+    "dat_ve": 42,
+    "dich_vu": 2,
+    "so_luong": 5,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "KHONG_AP_DUNG"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 12,
+  "fields": {
+    "dat_ve": 43,
+    "dich_vu": 1,
+    "so_luong": 3,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 13,
+  "fields": {
+    "dat_ve": 43,
+    "dich_vu": 2,
+    "so_luong": 5,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "KHONG_AP_DUNG"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 14,
+  "fields": {
+    "dat_ve": 45,
+    "dich_vu": 1,
+    "so_luong": 3,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 15,
+  "fields": {
+    "dat_ve": 45,
+    "dich_vu": 2,
+    "so_luong": 3,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "KHONG_AP_DUNG"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 16,
+  "fields": {
+    "dat_ve": 47,
+    "dich_vu": 1,
+    "so_luong": 3,
+    "don_gia_thuc_te": "20000",
+    "trang_thai": "DANG_MUON"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.chitietdichvu",
+  "pk": 17,
+  "fields": {
+    "dat_ve": 47,
+    "dich_vu": 2,
+    "so_luong": 4,
+    "don_gia_thuc_te": "13000",
+    "trang_thai": "KHONG_AP_DUNG"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 16,
+  "fields": {
+    "dat_ve": 18,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "50000",
+    "ngay_thanh_toan": "2026-04-17T05:26:40.575Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 17,
+  "fields": {
+    "dat_ve": 19,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "270000",
+    "ngay_thanh_toan": "2026-04-17T05:46:14.934Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 18,
+  "fields": {
+    "dat_ve": 20,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "320000",
+    "ngay_thanh_toan": "2026-04-17T05:46:27.471Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 19,
+  "fields": {
+    "dat_ve": 21,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "240000",
+    "ngay_thanh_toan": "2026-04-17T05:46:38.225Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 20,
+  "fields": {
+    "dat_ve": 22,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "140000",
+    "ngay_thanh_toan": "2026-04-17T05:46:56.198Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 21,
+  "fields": {
+    "dat_ve": 23,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "230000",
+    "ngay_thanh_toan": "2026-04-17T05:47:12.934Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 22,
+  "fields": {
+    "dat_ve": 24,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "290000",
+    "ngay_thanh_toan": "2026-04-17T05:47:59.845Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 23,
+  "fields": {
+    "dat_ve": 25,
+    "phuong_thuc": "Thẻ ngân hàng",
+    "so_tien": "270000",
+    "ngay_thanh_toan": "2026-04-17T05:48:30.841Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 24,
+  "fields": {
+    "dat_ve": 26,
+    "phuong_thuc": "Thẻ ngân hàng",
+    "so_tien": "230000",
+    "ngay_thanh_toan": "2026-04-17T05:48:45.726Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 25,
+  "fields": {
+    "dat_ve": 27,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "50000",
+    "ngay_thanh_toan": "2026-04-17T05:49:52.661Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 26,
+  "fields": {
+    "dat_ve": 31,
+    "phuong_thuc": "Thẻ ngân hàng",
+    "so_tien": "290000",
+    "ngay_thanh_toan": "2026-04-17T09:51:29.233Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 27,
+  "fields": {
+    "dat_ve": 32,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "600000",
+    "ngay_thanh_toan": "2026-04-17T09:52:19.927Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 28,
+  "fields": {
+    "dat_ve": 33,
+    "phuong_thuc": "Thẻ ngân hàng",
+    "so_tien": "340000",
+    "ngay_thanh_toan": "2026-05-02T10:31:15.427Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.payment",
+  "pk": 29,
+  "fields": {
+    "dat_ve": 43,
+    "phuong_thuc": "Tiền mặt",
+    "so_tien": "205000",
+    "ngay_thanh_toan": "2026-05-02T11:11:10.543Z",
+    "trang_thai": "Hoàn thành"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.review",
+  "pk": 1,
+  "fields": {
+    "ho_boi": 3,
+    "user": 3,
+    "rating": 5,
+    "comment": "ádasdasd",
+    "created_at": "2026-04-15T07:53:06.725Z"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.review",
+  "pk": 2,
+  "fields": {
+    "ho_boi": 4,
+    "user": 3,
+    "rating": 5,
+    "comment": "eeeeeeeeee",
+    "created_at": "2026-04-17T10:04:38.470Z"
+  }
+},
+{
+  "model": "quan_ly_ho_boi.review",
+  "pk": 3,
+  "fields": {
+    "ho_boi": 3,
+    "user": 4,
+    "rating": 3,
+    "comment": "eeeeeeeeee",
+    "created_at": "2026-04-17T10:05:04.342Z"
+  }
+}
+]
